@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Batch File Renamer</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f8;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #d9dee7;
+      --accent: #1f6feb;
+      --accent-dark: #185abc;
+      --danger: #b42318;
+      --warn: #b54708;
+      --ok: #067647;
+      --soft: #eef4ff;
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .topbar {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 18px 22px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 18px 22px 30px;
+      display: grid;
+      grid-template-columns: 390px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    section {
+      padding: 16px;
+    }
+
+    section + section {
+      border-top: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: #344054;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 650;
+      color: #344054;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(31, 111, 235, .12);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .drop {
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      min-height: 142px;
+      padding: 18px;
+      border: 1px dashed #98a2b3;
+      border-radius: var(--radius);
+      background: #fcfcfd;
+      text-align: center;
+      transition: border-color .15s, background .15s;
+    }
+
+    .drop.dragover {
+      background: var(--soft);
+      border-color: var(--accent);
+    }
+
+    .drop strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 12px;
+      background: #fff;
+      color: #1d2939;
+      cursor: pointer;
+      font-weight: 650;
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    button.primary:hover { background: var(--accent-dark); }
+    button:hover { border-color: #98a2b3; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .token {
+      padding: 7px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: #f9fafb;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f2f4f7;
+      color: #344054;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .pill.ok { background: #ecfdf3; color: var(--ok); }
+    .pill.warn { background: #fffaeb; color: var(--warn); }
+    .pill.danger { background: #fef3f2; color: var(--danger); }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: calc(100vh - 178px);
+      border-radius: 0 0 var(--radius) var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f9fafb;
+      color: #344054;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    td.path, td.name {
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      padding: 38px 18px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .conflict {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .changed {
+      color: var(--ok);
+      font-weight: 700;
+    }
+
+    .footer-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 980px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .table-wrap {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>Batch File Renamer</h1>
+        <div class="subtitle">Plan names from folder, path, media dates, creation date, and sequence suffixes.</div>
+      </div>
+      <div class="buttons">
+        <button id="loadSampleBtn">Load Sample</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside class="panel controls">
+      <section>
+        <h2>Files</h2>
+        <div id="dropZone" class="drop">
+          <div>
+            <strong>Drop files or folders here</strong>
+            <div class="hint">Folder selection works in Chromium browsers. Plain HTML cannot rename files in place, so this prototype exports a PowerShell script.</div>
+          </div>
+          <div class="buttons">
+            <label>
+              <input id="fileInput" type="file" multiple hidden>
+              <button type="button" id="filePickBtn">Choose Files</button>
+            </label>
+            <label>
+              <input id="folderInput" type="file" webkitdirectory directory multiple hidden>
+              <button type="button" id="folderPickBtn">Choose Folder</button>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="stack">
+        <h2>Name Pattern</h2>
+        <div>
+          <label for="patternInput">Pattern</label>
+          <input id="patternInput" type="text" value="{date}-{folder}-{base}-{seq}" spellcheck="false">
+        </div>
+        <div class="token-grid" id="tokenGrid"></div>
+        <div class="row">
+          <div>
+            <label for="dateSource">Date Source</label>
+            <select id="dateSource">
+              <option value="media">Media date, then file modified</option>
+              <option value="taken">Image date taken only</option>
+              <option value="recorded">Video recorded date only</option>
+              <option value="modified">File modified date</option>
+              <option value="manual">Manual date below</option>
+            </select>
+          </div>
+          <div>
+            <label for="dateFormat">Date Format</label>
+            <select id="dateFormat">
+              <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+              <option value="yyyymmdd">YYYYMMDD</option>
+              <option value="yyyy-mm-dd_hhmmss">YYYY-MM-DD_HHMMSS</option>
+              <option value="yyyymmdd-hhmmss">YYYYMMDD-HHMMSS</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="manualDate">Manual Date</label>
+          <input id="manualDate" type="text" placeholder="2026-07-11 or 20260711">
+        </div>
+      </section>
+
+      <section class="stack">
+        <h2>Sequence</h2>
+        <div class="row-3">
+          <div>
+            <label for="seqStart">Start</label>
+            <input id="seqStart" type="number" min="0" value="1">
+          </div>
+          <div>
+            <label for="seqPad">Digits</label>
+            <input id="seqPad" type="number" min="1" max="8" value="3">
+          </div>
+          <div>
+            <label for="seqStep">Step</label>
+            <input id="seqStep" type="number" min="1" value="1">
+          </div>
+        </div>
+        <div>
+          <label for="seqMode">Sequence Suffix</label>
+          <select id="seqMode">
+            <option value="number">Number: 001, 002, 003</option>
+            <option value="letter">Letter: A, B, C</option>
+            <option value="lowerletter">Lowercase letter: a, b, c</option>
+          </select>
+        </div>
+        <div>
+          <label for="sortMode">Sort Files Before Numbering</label>
+          <select id="sortMode">
+            <option value="path">Path</option>
+            <option value="name">Current file name</option>
+            <option value="date">Chosen date</option>
+            <option value="folder">Folder then name</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="stack">
+        <h2>Cleanup</h2>
+        <div class="row">
+          <div>
+            <label for="caseMode">Case</label>
+            <select id="caseMode">
+              <option value="preserve">Preserve</option>
+              <option value="lower">lowercase</option>
+              <option value="upper">UPPERCASE</option>
+              <option value="title">Title Case</option>
+            </select>
+          </div>
+          <div>
+            <label for="separator">Separator</label>
+            <select id="separator">
+              <option value="-">Hyphen</option>
+              <option value="_">Underscore</option>
+              <option value=" ">Space</option>
+            </select>
+          </div>
+        </div>
+        <label><input id="keepExtension" type="checkbox" checked> Keep original extension</label>
+        <label><input id="collisionSuffix" type="checkbox" checked> Auto-add later sequence suffix for conflicts</label>
+        <label><input id="pathFolders" type="checkbox"> Include full folder path in `{path}` token</label>
+      </section>
+
+      <section class="stack">
+        <h2>Path List Import</h2>
+        <textarea id="pathList" placeholder="Optional: paste one file path per line, or CSV: path,created_at,date_taken,date_recorded"></textarea>
+        <div class="buttons">
+          <button id="importPathsBtn">Import Path List</button>
+        </div>
+        <div class="footer-note">Use this for testing Windows-style paths before the portable app version has native file access.</div>
+      </section>
+    </aside>
+
+    <section class="panel" style="padding:0;">
+      <div class="toolbar">
+        <div class="status" id="status"></div>
+        <div class="buttons">
+          <button id="exportCsvBtn">Export CSV</button>
+          <button id="exportPsBtn" class="primary">Export PowerShell</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="previewTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Current Name</th>
+              <th>New Name</th>
+              <th>Folder</th>
+              <th>Date Used</th>
+              <th>Media Date</th>
+              <th>Status</th>
+              <th>Source Path</th>
+            </tr>
+          </thead>
+          <tbody id="previewBody">
+            <tr><td colspan="8" class="empty">Add files, a folder, or a pasted path list to preview batch renames.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      records: [],
+      plan: []
+    };
+
+    const tokens = [
+      ['{date}', 'chosen date'],
+      ['{taken}', 'image date taken'],
+      ['{recorded}', 'video recorded date'],
+      ['{created}', 'creation date'],
+      ['{modified}', 'modified date'],
+      ['{folder}', 'parent folder'],
+      ['{path}', 'folder path'],
+      ['{base}', 'file name'],
+      ['{ext}', 'extension'],
+      ['{seq}', '001']
+    ];
+
+    const els = {
+      dropZone: document.getElementById('dropZone'),
+      fileInput: document.getElementById('fileInput'),
+      folderInput: document.getElementById('folderInput'),
+      filePickBtn: document.getElementById('filePickBtn'),
+      folderPickBtn: document.getElementById('folderPickBtn'),
+      tokenGrid: document.getElementById('tokenGrid'),
+      patternInput: document.getElementById('patternInput'),
+      dateSource: document.getElementById('dateSource'),
+      dateFormat: document.getElementById('dateFormat'),
+      manualDate: document.getElementById('manualDate'),
+      seqStart: document.getElementById('seqStart'),
+      seqPad: document.getElementById('seqPad'),
+      seqStep: document.getElementById('seqStep'),
+      seqMode: document.getElementById('seqMode'),
+      sortMode: document.getElementById('sortMode'),
+      caseMode: document.getElementById('caseMode'),
+      separator: document.getElementById('separator'),
+      keepExtension: document.getElementById('keepExtension'),
+      collisionSuffix: document.getElementById('collisionSuffix'),
+      pathFolders: document.getElementById('pathFolders'),
+      pathList: document.getElementById('pathList'),
+      importPathsBtn: document.getElementById('importPathsBtn'),
+      previewBody: document.getElementById('previewBody'),
+      status: document.getElementById('status'),
+      exportCsvBtn: document.getElementById('exportCsvBtn'),
+      exportPsBtn: document.getElementById('exportPsBtn'),
+      loadSampleBtn: document.getElementById('loadSampleBtn'),
+      clearBtn: document.getElementById('clearBtn')
+    };
+
+    init();
+
+    function init() {
+      renderTokens();
+      wireEvents();
+      refresh();
+    }
+
+    function renderTokens() {
+      els.tokenGrid.innerHTML = tokens.map(([token, label]) => (
+        `<button class="token" type="button" data-token="${token}" title="${label}">${token}</button>`
+      )).join('');
+    }
+
+    function wireEvents() {
+      els.filePickBtn.addEventListener('click', () => els.fileInput.click());
+      els.folderPickBtn.addEventListener('click', () => els.folderInput.click());
+      els.fileInput.addEventListener('change', event => addFiles([...event.target.files]));
+      els.folderInput.addEventListener('change', event => addFiles([...event.target.files]));
+      els.dropZone.addEventListener('dragover', event => {
+        event.preventDefault();
+        els.dropZone.classList.add('dragover');
+      });
+      els.dropZone.addEventListener('dragleave', () => els.dropZone.classList.remove('dragover'));
+      els.dropZone.addEventListener('drop', async event => {
+        event.preventDefault();
+        els.dropZone.classList.remove('dragover');
+        const files = await getDroppedFiles(event.dataTransfer);
+        addFiles(files);
+      });
+      els.tokenGrid.addEventListener('click', event => {
+        const token = event.target.dataset.token;
+        if (!token) return;
+        insertAtCursor(els.patternInput, token);
+        refresh();
+      });
+      [
+        els.patternInput, els.dateSource, els.dateFormat, els.manualDate, els.seqStart,
+        els.seqPad, els.seqStep, els.seqMode, els.sortMode, els.caseMode, els.separator,
+        els.keepExtension, els.collisionSuffix, els.pathFolders
+      ].forEach(el => el.addEventListener('input', refresh));
+      els.importPathsBtn.addEventListener('click', importPathList);
+      els.exportCsvBtn.addEventListener('click', exportCsv);
+      els.exportPsBtn.addEventListener('click', exportPowerShell);
+      els.clearBtn.addEventListener('click', () => {
+        state.records = [];
+        state.plan = [];
+        els.fileInput.value = '';
+        els.folderInput.value = '';
+        els.pathList.value = '';
+        refresh();
+      });
+      els.loadSampleBtn.addEventListener('click', loadSample);
+    }
+
+    async function getDroppedFiles(dataTransfer) {
+      const items = [...(dataTransfer.items || [])];
+      const filePromises = [];
+      for (const item of items) {
+        const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+        if (entry) {
+          filePromises.push(...await traverseEntry(entry));
+        } else if (item.kind === 'file') {
+          const file = item.getAsFile();
+          if (file) filePromises.push(file);
+        }
+      }
+      return filePromises;
+    }
+
+    async function traverseEntry(entry, path = '') {
+      if (entry.isFile) {
+        return new Promise(resolve => {
+          entry.file(file => {
+            Object.defineProperty(file, 'webkitRelativePath', {
+              value: `${path}${file.name}`,
+              configurable: true
+            });
+            resolve([file]);
+          });
+        });
+      }
+      if (!entry.isDirectory) return [];
+      const reader = entry.createReader();
+      const entries = await new Promise(resolve => reader.readEntries(resolve));
+      const files = await Promise.all(entries.map(child => traverseEntry(child, `${path}${entry.name}/`)));
+      return files.flat();
+    }
+
+    async function addFiles(files) {
+      const records = await Promise.all(files.map(fileToRecord));
+      const existing = new Set(state.records.map(record => record.id));
+      for (const record of records) {
+        if (!existing.has(record.id)) state.records.push(record);
+      }
+      refresh();
+    }
+
+    async function fileToRecord(file) {
+      const relativePath = file.webkitRelativePath || file.name;
+      const parts = splitPath(relativePath);
+      const media = await readMediaDates(file);
+      return {
+        id: `${relativePath}|${file.size}|${file.lastModified}`,
+        source: 'file',
+        file,
+        path: relativePath,
+        directory: parts.directory,
+        folder: parts.folder,
+        name: parts.name,
+        base: parts.base,
+        ext: parts.ext,
+        modifiedDate: file.lastModified ? new Date(file.lastModified) : null,
+        createdDate: null,
+        takenDate: media.takenDate,
+        recordedDate: media.recordedDate,
+        mediaNote: media.note
+      };
+    }
+
+    function importPathList() {
+      const lines = els.pathList.value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      const imported = lines.map((line, index) => {
+        const cols = parseCsvLine(line);
+        const rawPath = cols[0] || line;
+        const parts = splitPath(rawPath);
+        return {
+          id: `path-${Date.now()}-${index}-${rawPath}`,
+          source: 'path',
+          path: rawPath,
+          directory: parts.directory,
+          folder: parts.folder,
+          name: parts.name,
+          base: parts.base,
+          ext: parts.ext,
+          modifiedDate: parseLooseDate(cols[1]) || null,
+          createdDate: parseLooseDate(cols[1]) || null,
+          takenDate: parseLooseDate(cols[2]) || null,
+          recordedDate: parseLooseDate(cols[3]) || null,
+          mediaNote: cols[2] || cols[3] ? 'From imported path list' : ''
+        };
+      });
+      state.records.push(...imported);
+      refresh();
+    }
+
+    function loadSample() {
+      const sample = [
+        'C:\\Projects\\Hotel\\Existing Photos\\IMG_1029.jpg,2026-07-10 09:34:22,2026-07-08 15:21:05,',
+        'C:\\Projects\\Hotel\\Existing Photos\\IMG_1030.jpg,2026-07-10 09:35:01,2026-07-08 15:24:44,',
+        'C:\\Projects\\Hotel\\Drone\\DJI_0007.MP4,2026-07-10 10:05:00,,2026-07-09 17:12:02',
+        'C:\\Projects\\Hotel\\Drone\\DJI_0008.MP4,2026-07-10 10:06:00,,2026-07-09 17:15:18'
+      ];
+      els.pathList.value = sample.join('\n');
+      importPathList();
+    }
+
+    function buildPlan() {
+      const options = getOptions();
+      const sorted = [...state.records].sort((a, b) => compareRecords(a, b, options));
+      const nameCounts = new Map();
+      const planned = sorted.map((record, index) => {
+        const seqNumber = options.seqStart + index * options.seqStep;
+        const context = getTokenContext(record, seqNumber, options);
+        let newBase = renderPattern(options.pattern, context);
+        newBase = cleanupName(newBase, options);
+        let newName = options.keepExtension && record.ext
+          ? `${newBase}.${record.ext}`
+          : cleanupName(renderPattern(options.pattern, {...context, ext: record.ext}), options);
+        newName = sanitizeFileName(newName);
+        const key = `${record.directory}/${newName}`.toLowerCase();
+        const count = nameCounts.get(key) || 0;
+        nameCounts.set(key, count + 1);
+        let finalName = newName;
+        let status = finalName === record.name ? 'unchanged' : 'ready';
+        if (count > 0) {
+          if (options.collisionSuffix) {
+            const suffix = String(count + 1).padStart(options.seqPad, '0');
+            const parsed = splitName(newName);
+            finalName = `${parsed.base}${options.separator}${suffix}${parsed.ext ? `.${parsed.ext}` : ''}`;
+            status = 'conflict fixed';
+          } else {
+            status = 'conflict';
+          }
+        }
+        return {
+          record,
+          index: index + 1,
+          seq: context.seq,
+          newName: finalName,
+          dateUsed: context.date,
+          mediaDate: context.taken || context.recorded || '',
+          status
+        };
+      });
+      return planned;
+    }
+
+    function getOptions() {
+      return {
+        pattern: els.patternInput.value.trim() || '{base}-{seq}',
+        dateSource: els.dateSource.value,
+        dateFormat: els.dateFormat.value,
+        manualDate: parseLooseDate(els.manualDate.value),
+        seqStart: parseInt(els.seqStart.value, 10) || 1,
+        seqPad: Math.max(1, parseInt(els.seqPad.value, 10) || 3),
+        seqStep: Math.max(1, parseInt(els.seqStep.value, 10) || 1),
+        seqMode: els.seqMode.value,
+        sortMode: els.sortMode.value,
+        caseMode: els.caseMode.value,
+        separator: els.separator.value,
+        keepExtension: els.keepExtension.checked,
+        collisionSuffix: els.collisionSuffix.checked,
+        pathFolders: els.pathFolders.checked
+      };
+    }
+
+    function getTokenContext(record, seqNumber, options) {
+      const chosenDate = chooseDate(record, options);
+      return {
+        date: formatDate(chosenDate, options.dateFormat),
+        taken: formatDate(record.takenDate, options.dateFormat),
+        recorded: formatDate(record.recordedDate, options.dateFormat),
+        created: formatDate(record.createdDate, options.dateFormat),
+        modified: formatDate(record.modifiedDate, options.dateFormat),
+        folder: record.folder || 'root',
+        path: options.pathFolders ? record.directory : (record.folder || 'root'),
+        base: record.base,
+        ext: record.ext,
+        seq: formatSequence(seqNumber, options)
+      };
+    }
+
+    function formatSequence(number, options) {
+      if (options.seqMode === 'letter' || options.seqMode === 'lowerletter') {
+        const letters = numberToLetters(Math.max(1, number));
+        return options.seqMode === 'lowerletter' ? letters.toLowerCase() : letters;
+      }
+      return String(number).padStart(options.seqPad, '0');
+    }
+
+    function numberToLetters(number) {
+      let n = number;
+      let out = '';
+      while (n > 0) {
+        n--;
+        out = String.fromCharCode(65 + (n % 26)) + out;
+        n = Math.floor(n / 26);
+      }
+      return out;
+    }
+
+    function chooseDate(record, options) {
+      if (options.dateSource === 'manual') return options.manualDate;
+      if (options.dateSource === 'taken') return record.takenDate;
+      if (options.dateSource === 'recorded') return record.recordedDate;
+      if (options.dateSource === 'modified') return record.modifiedDate;
+      return record.takenDate || record.recordedDate || record.createdDate || record.modifiedDate;
+    }
+
+    function compareRecords(a, b, options) {
+      if (options.sortMode === 'name') return a.name.localeCompare(b.name, undefined, {numeric: true});
+      if (options.sortMode === 'folder') {
+        return `${a.folder}/${a.name}`.localeCompare(`${b.folder}/${b.name}`, undefined, {numeric: true});
+      }
+      if (options.sortMode === 'date') {
+        const ad = chooseDate(a, options)?.getTime() || 0;
+        const bd = chooseDate(b, options)?.getTime() || 0;
+        return ad - bd || a.path.localeCompare(b.path, undefined, {numeric: true});
+      }
+      return a.path.localeCompare(b.path, undefined, {numeric: true});
+    }
+
+    function renderPattern(pattern, context) {
+      return pattern.replace(/\{(date|taken|recorded|created|modified|folder|path|base|ext|seq)\}/g, (_, key) => context[key] || '');
+    }
+
+    function cleanupName(value, options) {
+      let name = value.trim();
+      name = name.replace(/[\\/:*?"<>|]+/g, options.separator);
+      name = name.replace(/\s+/g, ' ');
+      if (options.separator !== ' ') {
+        name = name.replace(/[ _-]+/g, options.separator);
+      }
+      name = name.replace(new RegExp(`\\${options.separator}{2,}`, 'g'), options.separator);
+      name = name.replace(/^[ ._-]+|[ ._-]+$/g, '');
+      if (options.caseMode === 'lower') name = name.toLowerCase();
+      if (options.caseMode === 'upper') name = name.toUpperCase();
+      if (options.caseMode === 'title') name = titleCase(name);
+      return name || 'untitled';
+    }
+
+    function sanitizeFileName(value) {
+      return value.replace(/[\\/:*?"<>|]+/g, '-').replace(/[ .]+$/g, '').slice(0, 240);
+    }
+
+    function titleCase(value) {
+      return value.toLowerCase().replace(/\b[a-z0-9]/g, char => char.toUpperCase());
+    }
+
+    function refresh() {
+      state.plan = buildPlan();
+      renderStatus();
+      renderTable();
+    }
+
+    function renderStatus() {
+      const total = state.records.length;
+      const conflicts = state.plan.filter(item => item.status === 'conflict').length;
+      const changed = state.plan.filter(item => item.status !== 'unchanged').length;
+      const media = state.records.filter(record => record.takenDate || record.recordedDate).length;
+      els.status.innerHTML = [
+        `<span class="pill">${total} file${total === 1 ? '' : 's'}</span>`,
+        `<span class="pill ok">${changed} rename${changed === 1 ? '' : 's'}</span>`,
+        `<span class="pill ${conflicts ? 'danger' : 'ok'}">${conflicts} conflict${conflicts === 1 ? '' : 's'}</span>`,
+        `<span class="pill">${media} media date${media === 1 ? '' : 's'}</span>`
+      ].join('');
+    }
+
+    function renderTable() {
+      if (!state.plan.length) {
+        els.previewBody.innerHTML = '<tr><td colspan="8" class="empty">Add files, a folder, or a pasted path list to preview batch renames.</td></tr>';
+        return;
+      }
+      els.previewBody.innerHTML = state.plan.map(item => {
+        const statusClass = item.status === 'conflict' ? 'conflict' : (item.status === 'ready' || item.status === 'conflict fixed' ? 'changed' : '');
+        return `<tr>
+          <td>${item.index}</td>
+          <td class="name">${escapeHtml(item.record.name)}</td>
+          <td class="name">${escapeHtml(item.newName)}</td>
+          <td>${escapeHtml(item.record.folder || '')}</td>
+          <td>${escapeHtml(item.dateUsed || '')}</td>
+          <td>${escapeHtml(item.mediaDate || item.record.mediaNote || '')}</td>
+          <td class="${statusClass}">${escapeHtml(item.status)}</td>
+          <td class="path">${escapeHtml(item.record.path)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function readMediaDates(file) {
+      const lower = file.name.toLowerCase();
+      try {
+        if (/\.(jpe?g|tiff?)$/.test(lower)) {
+          const takenDate = await readExifDate(file);
+          return {takenDate, recordedDate: null, note: takenDate ? 'EXIF DateTimeOriginal' : ''};
+        }
+        if (/\.(mp4|mov|m4v)$/.test(lower)) {
+          const recordedDate = await readMp4CreationDate(file);
+          return {takenDate: null, recordedDate, note: recordedDate ? 'MP4 creation time' : ''};
+        }
+      } catch (error) {
+        return {takenDate: null, recordedDate: null, note: `Metadata read failed: ${error.message}`};
+      }
+      return {takenDate: null, recordedDate: null, note: ''};
+    }
+
+    async function readExifDate(file) {
+      const buffer = await file.slice(0, Math.min(file.size, 512 * 1024)).arrayBuffer();
+      const view = new DataView(buffer);
+      if (view.getUint16(0) !== 0xffd8) return null;
+      let offset = 2;
+      while (offset < view.byteLength) {
+        if (view.getUint8(offset) !== 0xff) break;
+        const marker = view.getUint8(offset + 1);
+        const length = view.getUint16(offset + 2);
+        if (marker === 0xe1) {
+          const exifHeader = readAscii(view, offset + 4, 6);
+          if (exifHeader === 'Exif\0\0') {
+            return parseTiffForExifDate(view, offset + 10);
+          }
+        }
+        offset += 2 + length;
+      }
+      return null;
+    }
+
+    function parseTiffForExifDate(view, tiffStart) {
+      const endian = readAscii(view, tiffStart, 2);
+      const little = endian === 'II';
+      const magic = view.getUint16(tiffStart + 2, little);
+      if (magic !== 42) return null;
+      const firstIfd = tiffStart + view.getUint32(tiffStart + 4, little);
+      const exifOffset = findTiffTag(view, tiffStart, firstIfd, 0x8769, little);
+      const dateValue = findTiffTag(view, tiffStart, firstIfd, 0x0132, little, true);
+      const exifDate = exifOffset ? findTiffTag(view, tiffStart, tiffStart + exifOffset, 0x9003, little, true) : null;
+      return parseExifDate(exifDate || dateValue);
+    }
+
+    function findTiffTag(view, tiffStart, ifdOffset, tagId, little, asString = false) {
+      if (ifdOffset < 0 || ifdOffset + 2 > view.byteLength) return null;
+      const count = view.getUint16(ifdOffset, little);
+      for (let i = 0; i < count; i++) {
+        const entry = ifdOffset + 2 + i * 12;
+        if (entry + 12 > view.byteLength) return null;
+        const tag = view.getUint16(entry, little);
+        if (tag !== tagId) continue;
+        const type = view.getUint16(entry + 2, little);
+        const values = view.getUint32(entry + 4, little);
+        const valueOffset = view.getUint32(entry + 8, little);
+        if (asString && type === 2) {
+          const start = values <= 4 ? entry + 8 : tiffStart + valueOffset;
+          return readAscii(view, start, values).replace(/\0+$/, '');
+        }
+        return valueOffset;
+      }
+      return null;
+    }
+
+    async function readMp4CreationDate(file) {
+      const buffer = await file.slice(0, Math.min(file.size, 4 * 1024 * 1024)).arrayBuffer();
+      const view = new DataView(buffer);
+      const date = findMp4Date(view, 0, view.byteLength);
+      return date;
+    }
+
+    function findMp4Date(view, start, end, depth = 0) {
+      let offset = start;
+      while (offset + 8 <= end && depth < 6) {
+        let size = view.getUint32(offset);
+        const type = readAscii(view, offset + 4, 4);
+        let header = 8;
+        if (size === 1 && offset + 16 <= end) {
+          size = Number(view.getBigUint64(offset + 8));
+          header = 16;
+        }
+        if (size < header || offset + size > end) break;
+        if (type === 'mvhd' || type === 'tkhd' || type === 'mdhd') {
+          const version = view.getUint8(offset + header);
+          const seconds = version === 1
+            ? Number(view.getBigUint64(offset + header + 4))
+            : view.getUint32(offset + header + 4);
+          const date = mp4EpochToDate(seconds);
+          if (date) return date;
+        }
+        if (['moov', 'trak', 'mdia'].includes(type)) {
+          const nested = findMp4Date(view, offset + header, offset + size, depth + 1);
+          if (nested) return nested;
+        }
+        offset += size;
+      }
+      return null;
+    }
+
+    function mp4EpochToDate(seconds) {
+      if (!seconds) return null;
+      const unixSeconds = seconds - 2082844800;
+      if (unixSeconds < 0) return null;
+      return new Date(unixSeconds * 1000);
+    }
+
+    function splitPath(path) {
+      const normalized = path.replace(/\\/g, '/');
+      const slash = normalized.lastIndexOf('/');
+      const directory = slash >= 0 ? normalized.slice(0, slash) : '';
+      const name = slash >= 0 ? normalized.slice(slash + 1) : normalized;
+      const split = splitName(name);
+      const folders = directory.split('/').filter(Boolean);
+      return {
+        directory,
+        folder: folders[folders.length - 1] || '',
+        name,
+        base: split.base,
+        ext: split.ext
+      };
+    }
+
+    function splitName(name) {
+      const dot = name.lastIndexOf('.');
+      if (dot <= 0) return {base: name, ext: ''};
+      return {base: name.slice(0, dot), ext: name.slice(dot + 1)};
+    }
+
+    function parseLooseDate(value) {
+      if (!value) return null;
+      const clean = String(value).trim();
+      const exif = parseExifDate(clean);
+      if (exif) return exif;
+      const compact = clean.match(/^(\d{4})(\d{2})(\d{2})(?:[-_ ]?(\d{2})(\d{2})(\d{2}))?$/);
+      if (compact) {
+        return new Date(
+          Number(compact[1]),
+          Number(compact[2]) - 1,
+          Number(compact[3]),
+          Number(compact[4] || 0),
+          Number(compact[5] || 0),
+          Number(compact[6] || 0)
+        );
+      }
+      const parsed = new Date(clean.replace(' ', 'T'));
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function parseExifDate(value) {
+      if (!value) return null;
+      const match = String(value).match(/^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/);
+      if (!match) return null;
+      return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]), Number(match[6]));
+    }
+
+    function formatDate(date, format) {
+      if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mi = String(date.getMinutes()).padStart(2, '0');
+      const ss = String(date.getSeconds()).padStart(2, '0');
+      if (format === 'yyyymmdd') return `${yyyy}${mm}${dd}`;
+      if (format === 'yyyy-mm-dd_hhmmss') return `${yyyy}-${mm}-${dd}_${hh}${mi}${ss}`;
+      if (format === 'yyyymmdd-hhmmss') return `${yyyy}${mm}${dd}-${hh}${mi}${ss}`;
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function readAscii(view, start, length) {
+      let out = '';
+      for (let i = 0; i < length && start + i < view.byteLength; i++) {
+        out += String.fromCharCode(view.getUint8(start + i));
+      }
+      return out;
+    }
+
+    function parseCsvLine(line) {
+      const result = [];
+      let current = '';
+      let quoted = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"' && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else if (char === '"') {
+          quoted = !quoted;
+        } else if (char === ',' && !quoted) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    }
+
+    function insertAtCursor(input, text) {
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? input.value.length;
+      input.value = `${input.value.slice(0, start)}${text}${input.value.slice(end)}`;
+      input.focus();
+      input.selectionStart = input.selectionEnd = start + text.length;
+    }
+
+    function exportCsv() {
+      const rows = [
+        ['source_path', 'current_name', 'new_name', 'folder', 'date_used', 'status'],
+        ...state.plan.map(item => [
+          item.record.path,
+          item.record.name,
+          item.newName,
+          item.record.folder,
+          item.dateUsed,
+          item.status
+        ])
+      ];
+      downloadText('rename-plan.csv', rows.map(row => row.map(csvEscape).join(',')).join('\n'), 'text/csv');
+    }
+
+    function exportPowerShell() {
+      const rows = state.plan.filter(item => item.status !== 'unchanged' && item.status !== 'conflict');
+      const commands = [
+        '# Review before running. Generated by Batch File Renamer.',
+        '$ErrorActionPreference = "Stop"',
+        ''
+      ];
+      for (const item of rows) {
+        const path = item.record.path.replace(/\//g, '\\');
+        const dir = item.record.directory ? item.record.directory.replace(/\//g, '\\') : '.';
+        commands.push(`Rename-Item -LiteralPath ${psString(path)} -NewName ${psString(item.newName)} # ${psString(dir)}`);
+      }
+      downloadText('rename-files.ps1', commands.join('\r\n'), 'text/plain');
+    }
+
+    function downloadText(filename, content, type) {
+      const blob = new Blob([content], {type});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? '');
+      return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function psString(value) {
+      return `'${String(value).replace(/'/g, "''")}'`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
+  </script>
+</body>
+</html>
