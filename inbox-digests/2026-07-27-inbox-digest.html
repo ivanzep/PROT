@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — July 27, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --urgent-bg: #fef2f2;
+    --action: #d97706;
+    --action-bg: #fffbeb;
+    --fyi: #2563eb;
+    --fyi-bg: #eff6ff;
+    --low: #6b7280;
+    --low-bg: #f3f4f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --urgent-bg: #3a1a1a;
+      --action-bg: #362a10;
+      --fyi-bg: #142338;
+      --low-bg: #23262d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --urgent-bg: #3a1a1a; --action-bg: #362a10; --fyi-bg: #142338; --low-bg: #23262d;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --urgent-bg: #fef2f2; --action-bg: #fffbeb; --fyi-bg: #eff6ff; --low-bg: #f3f4f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  header { margin-bottom: 32px; }
+  h1 { font-size: 1.6rem; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 0.95rem; }
+  .section { margin-bottom: 36px; }
+  .section-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Inbox Digest</h1>
+    <div class="sub">Generated July 27, 2026 &middot; 7 unread messages across 6 threads</div>
+  </header>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">0</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="empty">No urgent emails right now.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="count-pill pill-action">2</span>
+      <h2>Action Needed</h2>
+    </div>
+
+    <div class="card action">
+      <div class="card-top">
+        <span class="subject">Re: HAAS PROJECTS – DECK UPDATED</span>
+        <span class="meta">Nov 5, 2025 &middot; from lindsay@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Lindsay is asking whether there's time to create an inspo slide for each site showing sample images of building types.</div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19a142401d172ed8" target="_blank" rel="noopener">Open thread in Gmail →</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+
+Yes, we can put together an inspo slide for each site with sample images by building type. I'll get a draft added to the deck and follow up once it's ready — let me know if there's a specific deadline you're working against.
+
+Best,
+Ivan</div>
+    </div>
+
+    <div class="card action">
+      <div class="card-top">
+        <span class="subject">La Costa Boutique – Construction Schedule</span>
+        <span class="meta">May 4, 2026 &middot; from abrhil@t-dug.com</span>
+      </div>
+      <div class="summary">Abrhil (T-DUG) is requesting whatever construction schedule information is currently available so their team and the utility planners can stay on task.</div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19df3a65ad2b03a0" target="_blank" rel="noopener">Open thread in Gmail →</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Abrhil,
+
+Thanks for the note. Design is still progressing across disciplines, so a firm schedule isn't finalized yet, but I'll pull together the best available timeline information and send it your way shortly so your team and the utility planners can plan around it.
+
+Thank you,
+Ivan</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">3</span>
+      <h2>FYI</h2>
+    </div>
+
+    <div class="card fyi">
+      <div class="card-top">
+        <span class="subject">Re: Stormwater Application 600906</span>
+        <span class="meta">Jul 27, 2026 &middot; from cody@brownbagbuilders.com</span>
+      </div>
+      <div class="summary">Cody confirmed the signed authorization letter was delivered to the Water Board on Friday and is still waiting on the confirmation email needed to get the WDID assigned — no action needed from Ivan, cc'd for visibility.</div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19f8ff430f579c17" target="_blank" rel="noopener">Open thread in Gmail →</a></div>
+    </div>
+
+    <div class="card fyi">
+      <div class="card-top">
+        <span class="subject">Notes: "Hilltop Motel" (Gemini meeting notes)</span>
+        <span class="meta">May 27, 2026 &middot; from gemini-notes@google.com</span>
+      </div>
+      <div class="summary">Auto-generated notes from the Hilltop Motel investment/partnership meeting list several follow-up actions assigned to Ivan (send portal link, distribute deck and financial models, send operating agreement to Tyler).</div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b89b0100b8b5" target="_blank" rel="noopener">Open thread in Gmail →</a></div>
+    </div>
+
+    <div class="card fyi">
+      <div class="card-top">
+        <span class="subject">Your meeting recap – SANFORD 145 – COORDINATION</span>
+        <span class="meta">May 20, 2026 &middot; from fred@fireflies.ai (2 auto-recap emails)</span>
+      </div>
+      <div class="summary">Fireflies recap of the Sanford 145 coordination call: Title 24/VCHP compliance resolved, mechanical rooms reclassified as unconditioned attic space, and the permit package is due the following Tuesday.</div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e474c37f9358bf" target="_blank" rel="noopener">Open thread in Gmail →</a></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="count-pill pill-low">1</span>
+      <h2>Low Priority</h2>
+    </div>
+
+    <div class="card low">
+      <div class="card-top">
+        <span class="subject">Recap of your meeting with ORCA Surfboards</span>
+        <span class="meta">May 27, 2026 &middot; from no-reply@fathom.video</span>
+      </div>
+      <div class="summary">Fathom's auto-recap of the same Hilltop Motel meeting already covered by the Gemini notes above (acquired for $3.25M, 7-year non-recourse owner-carry loan, 75/25 profit split) — duplicate coverage, no new action.</div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b83fd83da65f" target="_blank" rel="noopener">Open thread in Gmail →</a></div>
+    </div>
+  </div>
+
+  <footer>
+    Generated automatically from Gmail (is:unread in:inbox). Drafted replies are suggestions only — review before sending.
+  </footer>
+</div>
+</body>
+</html>
