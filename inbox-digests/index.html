@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest Archive</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --accent-bg: #eff6ff;
+    --btn-bg: #ffffff;
+    --btn-bg-hover: #f3f4f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --panel-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --accent: #5b9bff;
+      --accent-bg: #142338;
+      --btn-bg: #262a32;
+      --btn-bg-hover: #2f333c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --panel-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --accent: #5b9bff; --accent-bg: #142338; --btn-bg: #262a32; --btn-bg-hover: #2f333c;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --panel-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --accent: #2563eb; --accent-bg: #eff6ff; --btn-bg: #ffffff; --btn-bg-hover: #f3f4f6;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 { font-size: 1.15rem; margin: 0; }
+  header .sub { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+  .nav-controls { display: flex; align-items: center; gap: 8px; }
+  button.nav-btn {
+    background: var(--btn-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 7px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  button.nav-btn:hover:not(:disabled) { background: var(--btn-bg-hover); }
+  button.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .position { font-size: 0.8rem; color: var(--muted); min-width: 70px; text-align: center; }
+
+  .body-wrap { flex: 1; display: flex; min-height: 0; }
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--panel-bg);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px 0;
+  }
+  .sidebar-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 4px 18px 10px;
+  }
+  .report-link {
+    display: block;
+    padding: 10px 18px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.88rem;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+  }
+  .report-link:hover { background: var(--btn-bg-hover); }
+  .report-link.active {
+    background: var(--accent-bg);
+    border-left-color: var(--accent);
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .report-link .idx { color: var(--muted); font-weight: 400; margin-right: 6px; }
+
+  main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .frame-wrap { flex: 1; min-height: 0; }
+  iframe { width: 100%; height: 100%; border: none; display: block; background: var(--panel-bg); }
+  .empty-state {
+    display: flex; align-items: center; justify-content: center;
+    height: 100%; color: var(--muted); font-size: 0.95rem; text-align: center; padding: 40px;
+  }
+
+  @media (max-width: 720px) {
+    .body-wrap { flex-direction: column; }
+    .sidebar { width: 100%; max-height: 180px; border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Inbox Digest Archive</h1>
+    <div class="sub" id="rangeLabel">Loading…</div>
+  </div>
+  <div class="nav-controls">
+    <button class="nav-btn" id="prevBtn" title="Older report">&larr; Older</button>
+    <span class="position" id="positionLabel"></span>
+    <button class="nav-btn" id="nextBtn" title="Newer report">Newer &rarr;</button>
+  </div>
+</header>
+
+<div class="body-wrap">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-title">Reports (oldest → newest)</div>
+  </nav>
+  <main>
+    <div class="frame-wrap" id="frameWrap">
+      <div class="empty-state">No reports found.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Add each new digest report here as it's created — kept in ascending
+  // (oldest → newest) date order. `date` drives the sort/display; `file`
+  // is the path relative to this index.
+  const REPORTS = [
+    { date: '2026-07-27', file: '2026-07-27-inbox-digest.html', label: 'Jul 27, 2026' },
+  ];
+
+  REPORTS.sort((a, b) => a.date.localeCompare(b.date));
+
+  const sidebar = document.getElementById('sidebar');
+  const frameWrap = document.getElementById('frameWrap');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const positionLabel = document.getElementById('positionLabel');
+  const rangeLabel = document.getElementById('rangeLabel');
+
+  let currentIndex = -1;
+
+  function render() {
+    sidebar.querySelectorAll('.report-link').forEach(el => el.remove());
+    REPORTS.forEach((r, i) => {
+      const a = document.createElement('a');
+      a.href = '#' + r.date;
+      a.className = 'report-link' + (i === currentIndex ? ' active' : '');
+      a.innerHTML = '<span class="idx">' + (i + 1) + '.</span>' + r.label;
+      a.addEventListener('click', (e) => { e.preventDefault(); goTo(i); });
+      sidebar.appendChild(a);
+    });
+
+    if (REPORTS.length === 0) {
+      rangeLabel.textContent = 'No reports yet';
+      positionLabel.textContent = '';
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+
+    rangeLabel.textContent = REPORTS.length + ' report' + (REPORTS.length === 1 ? '' : 's') +
+      ' · ' + REPORTS[0].label + ' – ' + REPORTS[REPORTS.length - 1].label;
+    positionLabel.textContent = (currentIndex + 1) + ' of ' + REPORTS.length;
+    prevBtn.disabled = currentIndex <= 0;
+    nextBtn.disabled = currentIndex >= REPORTS.length - 1;
+
+    if (currentIndex >= 0) {
+      frameWrap.innerHTML = '<iframe src="' + REPORTS[currentIndex].file + '" title="' + REPORTS[currentIndex].label + '"></iframe>';
+    }
+  }
+
+  function goTo(i) {
+    if (i < 0 || i >= REPORTS.length) return;
+    currentIndex = i;
+    location.hash = REPORTS[i].date;
+    render();
+  }
+
+  function goToHash() {
+    const hash = location.hash.replace('#', '');
+    const idx = REPORTS.findIndex(r => r.date === hash);
+    currentIndex = idx >= 0 ? idx : REPORTS.length - 1; // default to newest
+    render();
+  }
+
+  prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+  nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
+  window.addEventListener('hashchange', goToHash);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') goTo(currentIndex - 1);
+    if (e.key === 'ArrowRight') goTo(currentIndex + 1);
+  });
+
+  goToHash();
+</script>
+</body>
+</html>
