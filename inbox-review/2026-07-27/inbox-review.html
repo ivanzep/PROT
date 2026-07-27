@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inbox Review — July 27, 2026</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --text-muted: #5c6370;
+    --border: #e3e5ea;
+    --urgent: #d64545;
+    --urgent-bg: #fdeceb;
+    --action: #c9791c;
+    --action-bg: #fdf3e4;
+    --fyi: #2f6fed;
+    --fyi-bg: #eaf1fe;
+    --low: #6b7280;
+    --low-bg: #f0f1f3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header { margin-bottom: 32px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .subtitle { color: var(--text-muted); font-size: 0.95rem; }
+  .summary-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .summary-pill {
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section { margin-bottom: 36px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+  .count-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--low-bg);
+    color: var(--text-muted);
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--low);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .card.urgent { border-left-color: var(--urgent); }
+  .card.action { border-left-color: var(--action); }
+  .card.fyi { border-left-color: var(--fyi); }
+  .card.low { border-left-color: var(--low); }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .card-subject { font-weight: 700; font-size: 1rem; }
+  .card-meta { color: var(--text-muted); font-size: 0.82rem; margin-top: 2px; }
+  .badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .badge.urgent { background: var(--urgent-bg); color: var(--urgent); }
+  .badge.action { background: var(--action-bg); color: var(--action); }
+  .badge.fyi { background: var(--fyi-bg); color: var(--fyi); }
+  .badge.low { background: var(--low-bg); color: var(--low); }
+  .card-summary { margin-top: 10px; font-size: 0.94rem; }
+  .draft-box {
+    margin-top: 14px;
+    background: #fafbfc;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .draft-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .draft-body { white-space: pre-wrap; font-size: 0.9rem; }
+  .draft-note {
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1c1f26;
+      --text: #e8e9ec;
+      --text-muted: #9aa0ab;
+      --border: #2b2f38;
+      --urgent-bg: #3a1f1f;
+      --action-bg: #3a2e18;
+      --fyi-bg: #1c2b45;
+      --low-bg: #262a33;
+    }
+    .draft-box { background: #20242c; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Inbox Review</h1>
+    <div class="subtitle">Generated July 27, 2026 &middot; 9 unread messages across 8 threads</div>
+    <div class="summary-bar">
+      <span class="summary-pill" style="background:var(--urgent-bg); color:var(--urgent);">0 Urgent</span>
+      <span class="summary-pill" style="background:var(--action-bg); color:var(--action);">2 Action Needed</span>
+      <span class="summary-pill" style="background:var(--fyi-bg); color:var(--fyi);">6 FYI</span>
+      <span class="summary-pill" style="background:var(--low-bg); color:var(--low);">1 Low Priority</span>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-title">Urgent <span class="count-badge">0</span></div>
+    <div class="empty-state">No urgent items — nothing needs an immediate response today.</div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">Action Needed <span class="count-badge">2</span></div>
+
+    <div class="card action">
+      <div class="card-top">
+        <div>
+          <div class="card-subject">La Costa Boutique - Construction Schedule</div>
+          <div class="card-meta">From: Abrhil Arvizu &lt;abrhil@t-dug.com&gt; &middot; May 4, 2026</div>
+        </div>
+        <span class="badge action">Action Needed</span>
+      </div>
+      <div class="card-summary">Abrhil is asking Ivan to share whatever construction schedule information is currently available so the utility planners can stay on task.</div>
+      <div class="draft-box">
+        <div class="draft-label">Drafted reply (saved to Gmail Drafts)</div>
+        <div class="draft-body">Hi Abrhil,
+
+Thanks for reaching out, and apologies for the delayed reply. I'll put together what we currently have on the anticipated construction schedule and send it over shortly so your team and the utility planners can stay on track.
+
+If there are specific milestones or a preferred format you'd like this in, let me know and I'll make sure to include it.
+
+Best,
+Ivan</div>
+        <div class="draft-note">Note: this request is nearly 3 months old — worth prioritizing a real answer, not just this holding reply.</div>
+      </div>
+    </div>
+
+    <div class="card action">
+      <div class="card-top">
+        <div>
+          <div class="card-subject">Re: HAAS PROJECTS - DECK UPDATED</div>
+          <div class="card-meta">From: Lindsay &lt;lindsay@thebrownstudio.com&gt; &middot; Nov 5, 2025</div>
+        </div>
+        <span class="badge action">Action Needed</span>
+      </div>
+      <div class="card-summary">Lindsay is asking whether there's time to build an "inspo" slide for each site showing sample images of the different building types.</div>
+      <div class="draft-box">
+        <div class="draft-label">Drafted reply (saved to Gmail Drafts)</div>
+        <div class="draft-body">Hi Lindsay,
+
+Yes, we can put together an inspo slide for each site with sample images of the different building types. Let me know your target timeline and I'll get started pulling reference images and building out the slides.
+
+Best,
+Ivan</div>
+        <div class="draft-note">Note: this message is about 9 months old — confirm it's still relevant before sending.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">FYI <span class="count-badge">6</span></div>
+
+    <div class="card fyi">
+      <div class="card-top">
+        <div>
+          <div class="card-subject">Re: Stormwater Application 600906</div>
+          <div class="card-meta">From: Cody &lt;cody@brownbagbuilders.com&gt; (to State Water Board) &middot; Jul 27, 2026</div>
+        </div>
+        <span class="badge fyi">FYI</span>
+      </div>
+      <div class="card-summary">Cody confirmed to the Water Board that the signed authorization letter was delivered Friday and is checking on next steps — no action needed from Ivan, just a status update on the WDID application.</div>
+    </div>
+
+    <div class="card fyi">
+      <div class="card-top">
+        <div>
+          <div class="card-subject">Notes: "Hilltop Motel" (Gemini)</div>
+          <div class="card-meta">From: gemini-notes@google.com &middot; May 27, 2026</div>
+        </div>
+        <span class="badge fyi">FYI</span>
+      </div>
+      <div class="card-summary">Auto-generated notes from the Hilltop Motel meeting covering hotel financing/partnership strategy and residential budget review, with a long list of next-step action items assigned across the team (several to Ivan: send portal link, distribute deck/financial models, coordinate funding).</div>
+    </div>
+
+    <div class="card fyi">
+      <div class="card-top">
+        <div>
+          <div class="card-subject">Recap of your meeting with ORCA Surfboards</div>
+          <div class="card-meta">From: no-reply@fathom.video &middot; May 27, 2026</div>
+        </div>
+        <span class="badge fyi">FYI</span>
+      </div>
+      <div class="card-summary">Fathom recap of the same Hilltop Motel meeting — key takeaway is the property was acquired for $3.25M (down from $3.5M) as part of a potential partnership discussion.</div>
+    </div>
+
+    <div class="card fyi">
+      <div class="card-top">
+        <div>
+          <div class="card-subject">Your meeting recap - SANFORD 145 - COORDINATION</div>
+          <div class="card-meta">From: fred@fireflies.ai &middot; May 20, 2026 (2 messages)</div>
+        </div>
+        <span class="badge fyi">FYI</span>
+      </div>
+      <div class="card-summary">Fireflies auto-recap of the Sanford 145 coordination meeting, which covered 25+ questions raised during the call — worth a skim if any coordination items are still outstanding.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-title">Low Priority <span class="count-badge">1</span></div>
+
+    <div class="card low">
+      <div class="card-top">
+        <div>
+          <div class="card-subject">(duplicate) Your meeting recap - SANFORD 145 - COORDINATION</div>
+          <div class="card-meta">From: fred@fireflies.ai &middot; May 20, 2026</div>
+        </div>
+        <span class="badge low">Low Priority</span>
+      </div>
+      <div class="card-summary">Second copy of the same Fireflies recap sent to a wider distribution (Logan, Avery, Bijan cc'd) — no new content beyond the FYI item above.</div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
