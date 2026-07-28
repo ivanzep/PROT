@@ -116,9 +116,22 @@
   }
   .reset-btn:hover { color: var(--text); border-color: var(--muted); }
   .filter-status { font-size: 0.8rem; color: var(--muted); }
+
+  .report-nav { display: flex; align-items: center; gap: 8px; }
+  .report-nav-btn {
+    background: var(--btn-bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 5px 10px; font-size: 0.8rem; cursor: pointer; font-family: inherit;
+  }
+  .report-nav-btn:hover:not(:disabled) { background: var(--btn-bg-hover); }
+  .report-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .report-position { font-size: 0.78rem; color: var(--muted); flex: 1; text-align: center; }
   .sources-list { display: flex; flex-direction: column; gap: 2px; }
-  .sources-list a { font-size: 0.82rem; color: var(--text); text-decoration: none; }
-  .sources-list a:hover { color: var(--accent); text-decoration: underline; }
+  .sources-list a {
+    font-size: 0.82rem; color: var(--text); text-decoration: none; cursor: pointer;
+    padding: 4px 6px; border-radius: 5px;
+  }
+  .sources-list a:hover { color: var(--accent); background: var(--btn-bg-hover); }
+  .sources-list a.active { color: var(--accent); font-weight: 600; background: var(--accent-bg); }
 
   main { flex: 1; min-width: 0; overflow-y: auto; }
   .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
@@ -197,6 +210,15 @@
       <div class="sidebar-sub" id="sourcesSummary">Loading…</div>
     </div>
     <div class="filter-group">
+      <label>Report</label>
+      <div class="report-nav">
+        <button class="report-nav-btn" id="prevReportBtn" disabled title="Older report">&larr;</button>
+        <span class="report-position" id="reportPosition"></span>
+        <button class="report-nav-btn" id="nextReportBtn" disabled title="Newer report">&rarr;</button>
+      </div>
+      <div class="sources-list" id="sourcesList"></div>
+    </div>
+    <div class="filter-group">
       <label for="dateFrom">Date range</label>
       <div class="date-inputs">
         <input type="date" id="dateFrom" disabled>
@@ -219,10 +241,6 @@
     </div>
     <button class="reset-btn" id="resetBtn" disabled>Reset filters</button>
     <div class="filter-status" id="filterStatus"></div>
-    <div class="filter-group">
-      <label>Reports included</label>
-      <div class="sources-list" id="sourcesList"></div>
-    </div>
   </nav>
 
   <main>
@@ -260,6 +278,9 @@
   const filterStatus = document.getElementById('filterStatus');
   const sourcesSummary = document.getElementById('sourcesSummary');
   const sourcesList = document.getElementById('sourcesList');
+  const prevReportBtn = document.getElementById('prevReportBtn');
+  const nextReportBtn = document.getElementById('nextReportBtn');
+  const reportPosition = document.getElementById('reportPosition');
   const content = document.getElementById('content');
   const stateMsg = document.getElementById('stateMsg');
 
@@ -267,7 +288,10 @@
   let DEFAULT_TO = '';
   let activeLabels = new Set(); // empty set = no label filter applied (show all)
   let hiddenSections = new Set(); // section keys the user has hidden entirely
-  let cards = [];
+  let allCards = []; // every card from every successfully loaded report
+  let cards = []; // cards belonging to the currently selected report only
+  let loadedReports = []; // reports that loaded successfully, oldest -> newest
+  let selectedReportDate = '';
 
   function toISODate(d) {
     return d.toISOString().slice(0, 10);
@@ -279,6 +303,15 @@
     return l.split('/').slice(0, 2).join('/');
   }
 
+  prevReportBtn.addEventListener('click', () => {
+    const idx = loadedReports.findIndex(r => r.date === selectedReportDate);
+    if (idx > 0) selectReport(loadedReports[idx - 1].date);
+  });
+  nextReportBtn.addEventListener('click', () => {
+    const idx = loadedReports.findIndex(r => r.date === selectedReportDate);
+    if (idx >= 0 && idx < loadedReports.length - 1) selectReport(loadedReports[idx + 1].date);
+  });
+
   async function loadReports() {
     if (REPORTS.length === 0) {
       stateMsg.textContent = 'No reports found.';
@@ -288,18 +321,17 @@
 
     const results = await Promise.allSettled(REPORTS.map(r => fetchReportCards(r)));
 
-    const okReports = [];
     const failedReports = [];
     results.forEach((res, i) => {
       if (res.status === 'fulfilled') {
-        okReports.push(REPORTS[i]);
-        cards.push(...res.value);
+        loadedReports.push(REPORTS[i]);
+        allCards.push(...res.value);
       } else {
         failedReports.push(REPORTS[i]);
       }
     });
 
-    if (cards.length === 0) {
+    if (loadedReports.length === 0) {
       stateMsg.className = 'state-msg error';
       stateMsg.textContent = 'Could not load any digest reports. This page fetches report files over HTTP, ' +
         'so it needs to be served (e.g. via GitHub Pages or a local static server) rather than opened directly as a file://.';
@@ -307,15 +339,6 @@
       return;
     }
 
-    sourcesList.innerHTML = '';
-    okReports.forEach(r => {
-      const a = document.createElement('a');
-      a.href = r.file;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.textContent = r.label;
-      sourcesList.appendChild(a);
-    });
     if (failedReports.length > 0) {
       const warn = document.createElement('div');
       warn.className = 'sidebar-sub';
@@ -323,9 +346,43 @@
       sourcesList.appendChild(warn);
     }
 
-    sourcesSummary.textContent = okReports.length + ' report' + (okReports.length === 1 ? '' : 's') +
-      ' · ' + cards.length + ' unread emails · ' + okReports[0].label + ' – ' + okReports[okReports.length - 1].label;
+    selectedReportDate = loadedReports[loadedReports.length - 1].date; // default to newest
+    renderReportSelector();
+    selectReport(selectedReportDate);
+  }
 
+  function renderReportSelector() {
+    sourcesList.querySelectorAll('a').forEach(el => el.remove());
+    loadedReports.forEach(r => {
+      const a = document.createElement('a');
+      a.href = '#';
+      a.dataset.date = r.date;
+      a.className = r.date === selectedReportDate ? 'active' : '';
+      a.textContent = r.label;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        selectReport(r.date);
+      });
+      sourcesList.appendChild(a);
+    });
+
+    const idx = loadedReports.findIndex(r => r.date === selectedReportDate);
+    reportPosition.textContent = (idx + 1) + ' of ' + loadedReports.length;
+    prevReportBtn.disabled = idx <= 0;
+    nextReportBtn.disabled = idx < 0 || idx >= loadedReports.length - 1;
+  }
+
+  function selectReport(date) {
+    selectedReportDate = date;
+    cards = allCards.filter(c => c.reportDate === date);
+    activeLabels.clear();
+    hiddenSections.clear();
+
+    const report = loadedReports.find(r => r.date === date);
+    sourcesSummary.textContent = (report ? report.label : date) + ' · ' + cards.length + ' unread emails' +
+      (loadedReports.length > 1 ? ' · report ' + (loadedReports.findIndex(r => r.date === date) + 1) + ' of ' + loadedReports.length : '');
+
+    renderReportSelector();
     buildContent();
   }
 
@@ -343,6 +400,7 @@
         labels: (cardEl.dataset.labels || '').split('|').filter(Boolean),
         node: cardEl.cloneNode(true),
         sourceReport: report.label,
+        reportDate: report.date,
       });
     });
     return out;
@@ -433,34 +491,37 @@
       });
     });
 
-    dateFrom.addEventListener('change', applyFilters);
-    dateTo.addEventListener('change', applyFilters);
-
-    dateShortcuts.querySelectorAll('.shortcut-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (!DEFAULT_TO) return;
-        const days = parseInt(btn.dataset.days, 10);
-        const anchor = new Date(DEFAULT_TO + 'T00:00:00Z');
-        const start = new Date(anchor);
-        start.setUTCDate(start.getUTCDate() - (days - 1));
-        dateFrom.value = toISODate(start);
-        dateTo.value = DEFAULT_TO;
-        applyFilters();
-      });
-    });
-
-    resetBtn.addEventListener('click', () => {
-      dateFrom.value = DEFAULT_FROM;
-      dateTo.value = DEFAULT_TO;
-      activeLabels.clear();
-      labelChipsWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      hiddenSections.clear();
-      sectionTogglesWrap.querySelectorAll('input').forEach(cb => { cb.checked = true; });
-      applyFilters();
-    });
-
     applyFilters();
   }
+
+  // One-time listeners for controls that persist across report switches
+  // (buildContent() replaces the label chips / section toggles each time,
+  // but these elements themselves are never recreated).
+  dateFrom.addEventListener('change', applyFilters);
+  dateTo.addEventListener('change', applyFilters);
+
+  dateShortcuts.querySelectorAll('.shortcut-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!DEFAULT_TO) return;
+      const days = parseInt(btn.dataset.days, 10);
+      const anchor = new Date(DEFAULT_TO + 'T00:00:00Z');
+      const start = new Date(anchor);
+      start.setUTCDate(start.getUTCDate() - (days - 1));
+      dateFrom.value = toISODate(start);
+      dateTo.value = DEFAULT_TO;
+      applyFilters();
+    });
+  });
+
+  resetBtn.addEventListener('click', () => {
+    dateFrom.value = DEFAULT_FROM;
+    dateTo.value = DEFAULT_TO;
+    activeLabels.clear();
+    labelChipsWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    hiddenSections.clear();
+    sectionTogglesWrap.querySelectorAll('input').forEach(cb => { cb.checked = true; });
+    applyFilters();
+  });
 
   function applyFilters() {
     const from = dateFrom.value;
