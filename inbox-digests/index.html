@@ -90,6 +90,18 @@
     border-radius: 6px; padding: 6px 8px; font-size: 0.85rem; font-family: inherit; width: 100%;
   }
   .date-inputs span { color: var(--muted); font-size: 0.82rem; }
+  .shortcut-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .shortcut-btn {
+    background: var(--chip-bg); color: var(--chip-text); border: 1px solid var(--border);
+    border-radius: 999px; padding: 4px 10px; font-size: 0.75rem; cursor: pointer; font-family: inherit;
+  }
+  .shortcut-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .shortcut-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .section-toggles { display: flex; flex-direction: column; gap: 6px; }
+  .section-toggle {
+    display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; user-select: none;
+  }
+  .section-toggle input { cursor: pointer; }
   .label-chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip {
     background: var(--chip-bg); color: var(--chip-text); border: 1px solid var(--border);
@@ -191,10 +203,19 @@
         <span>&ndash;</span>
         <input type="date" id="dateTo" disabled>
       </div>
+      <div class="shortcut-btns" id="dateShortcuts">
+        <button class="shortcut-btn" data-days="7" disabled>Last week</button>
+        <button class="shortcut-btn" data-days="14" disabled>Last 2 weeks</button>
+        <button class="shortcut-btn" data-days="30" disabled>Last month</button>
+      </div>
     </div>
     <div class="filter-group">
       <label>Labels</label>
       <div class="label-chips" id="labelChips"></div>
+    </div>
+    <div class="filter-group">
+      <label>Sections</label>
+      <div class="section-toggles" id="sectionToggles"></div>
     </div>
     <button class="reset-btn" id="resetBtn" disabled>Reset filters</button>
     <div class="filter-status" id="filterStatus"></div>
@@ -232,7 +253,9 @@
 
   const dateFrom = document.getElementById('dateFrom');
   const dateTo = document.getElementById('dateTo');
+  const dateShortcuts = document.getElementById('dateShortcuts');
   const labelChipsWrap = document.getElementById('labelChips');
+  const sectionTogglesWrap = document.getElementById('sectionToggles');
   const resetBtn = document.getElementById('resetBtn');
   const filterStatus = document.getElementById('filterStatus');
   const sourcesSummary = document.getElementById('sourcesSummary');
@@ -243,7 +266,12 @@
   let DEFAULT_FROM = '';
   let DEFAULT_TO = '';
   let activeLabels = new Set(); // empty set = no label filter applied (show all)
+  let hiddenSections = new Set(); // section keys the user has hidden entirely
   let cards = [];
+
+  function toISODate(d) {
+    return d.toISOString().slice(0, 10);
+  }
 
   // Collapse a label to its first 2 path levels, e.g.
   // "PROJECTS/LA COSTA/LENDERS & ADMIN" -> "PROJECTS/LA COSTA".
@@ -354,6 +382,21 @@
     dateFrom.disabled = false;
     dateTo.disabled = false;
     resetBtn.disabled = false;
+    dateShortcuts.querySelectorAll('.shortcut-btn').forEach(btn => { btn.disabled = false; });
+
+    sectionTogglesWrap.innerHTML = '';
+    SECTIONS.forEach(sec => {
+      const id = 'section-toggle-' + sec.key;
+      const wrap = document.createElement('label');
+      wrap.className = 'section-toggle';
+      wrap.innerHTML = '<input type="checkbox" id="' + id + '" checked> ' + sec.label;
+      wrap.querySelector('input').addEventListener('change', (e) => {
+        if (e.target.checked) hiddenSections.delete(sec.key);
+        else hiddenSections.add(sec.key);
+        applyFilters();
+      });
+      sectionTogglesWrap.appendChild(wrap);
+    });
 
     // Discover all distinct label prefixes (first 2 levels), in first-seen order.
     const allLabels = [];
@@ -392,11 +435,27 @@
 
     dateFrom.addEventListener('change', applyFilters);
     dateTo.addEventListener('change', applyFilters);
+
+    dateShortcuts.querySelectorAll('.shortcut-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!DEFAULT_TO) return;
+        const days = parseInt(btn.dataset.days, 10);
+        const anchor = new Date(DEFAULT_TO + 'T00:00:00Z');
+        const start = new Date(anchor);
+        start.setUTCDate(start.getUTCDate() - (days - 1));
+        dateFrom.value = toISODate(start);
+        dateTo.value = DEFAULT_TO;
+        applyFilters();
+      });
+    });
+
     resetBtn.addEventListener('click', () => {
       dateFrom.value = DEFAULT_FROM;
       dateTo.value = DEFAULT_TO;
       activeLabels.clear();
       labelChipsWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      hiddenSections.clear();
+      sectionTogglesWrap.querySelectorAll('input').forEach(cb => { cb.checked = true; });
       applyFilters();
     });
 
@@ -417,19 +476,25 @@
       const visible = inRange && labelMatch;
       c.node.style.display = visible ? '' : 'none';
       if (visible) {
-        visibleTotal++;
         counts[c.section] = (counts[c.section] || 0) + 1;
+        if (!hiddenSections.has(c.section)) visibleTotal++;
       }
     });
 
+    let totalConsidered = 0;
     SECTIONS.forEach(sec => {
       const countEl = document.getElementById('count-' + sec.key);
       if (countEl) countEl.textContent = counts[sec.key] || 0;
 
+      const sectionHidden = hiddenSections.has(sec.key);
+      const sectionEl = content.querySelector('.section[data-section="' + sec.key + '"]');
+      if (sectionEl) sectionEl.style.display = sectionHidden ? 'none' : '';
+      if (!sectionHidden) totalConsidered += cards.filter(c => c.section === sec.key).length;
+
       const body = document.getElementById('body-' + sec.key);
       const hasVisibleCard = (counts[sec.key] || 0) > 0;
       let emptyMsg = body.querySelector('.empty-filtered');
-      if (!hasVisibleCard) {
+      if (!sectionHidden && !hasVisibleCard) {
         if (!emptyMsg) {
           emptyMsg = document.createElement('div');
           emptyMsg.className = 'empty empty-filtered';
@@ -441,9 +506,9 @@
       }
     });
 
-    const filtersActive = from !== DEFAULT_FROM || to !== DEFAULT_TO || activeLabels.size > 0;
+    const filtersActive = from !== DEFAULT_FROM || to !== DEFAULT_TO || activeLabels.size > 0 || hiddenSections.size > 0;
     filterStatus.textContent = filtersActive
-      ? 'Showing ' + visibleTotal + ' of ' + cards.length + ' emails matching current filters.'
+      ? 'Showing ' + visibleTotal + ' of ' + totalConsidered + ' emails matching current filters.'
       : 'Showing all ' + cards.length + ' unread emails.';
   }
 
