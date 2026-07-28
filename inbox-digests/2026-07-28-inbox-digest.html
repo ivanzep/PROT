@@ -350,11 +350,20 @@ Ivan</div>
   const DEFAULT_FROM = dateFrom.value;
   const DEFAULT_TO = dateTo.value;
 
-  // Discover all distinct labels present across cards, in first-seen order.
+  // Collapse a label to its first 2 path levels, e.g.
+  // "PROJECTS/LA COSTA/LENDERS & ADMIN" -> "PROJECTS/LA COSTA".
+  function labelPrefix(l) {
+    return l.split('/').slice(0, 2).join('/');
+  }
+
+  // Discover all distinct label prefixes (first 2 levels) present across
+  // cards, in first-seen order.
   const allLabels = [];
   cards.forEach(c => {
     (c.dataset.labels || '').split('|').forEach(l => {
-      if (l && !allLabels.includes(l)) allLabels.push(l);
+      if (!l) return;
+      const prefix = labelPrefix(l);
+      if (!allLabels.includes(prefix)) allLabels.push(prefix);
     });
   });
 
@@ -385,7 +394,7 @@ Ivan</div>
 
     cards.forEach(card => {
       const d = card.dataset.date;
-      const labels = (card.dataset.labels || '').split('|');
+      const labels = (card.dataset.labels || '').split('|').filter(Boolean).map(labelPrefix);
       const inRange = (!from || d >= from) && (!to || d <= to);
       const labelMatch = activeLabels.size === 0 || labels.some(l => activeLabels.has(l));
       const visible = inRange && labelMatch;
