@@ -7,6 +7,7 @@
 <style>
   :root {
     --bg: #f6f7f9;
+    --card-bg: #ffffff;
     --panel-bg: #ffffff;
     --text: #1a1d23;
     --muted: #6b7280;
@@ -15,10 +16,20 @@
     --accent-bg: #eff6ff;
     --btn-bg: #ffffff;
     --btn-bg-hover: #f3f4f6;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+    --chip-active-bg: #2563eb;
+    --chip-active-text: #ffffff;
+    --input-bg: #ffffff;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #14161a;
+      --card-bg: #1e2128;
       --panel-bg: #1e2128;
       --text: #e8eaed;
       --muted: #9aa1ac;
@@ -27,15 +38,20 @@
       --accent-bg: #142338;
       --btn-bg: #262a32;
       --btn-bg-hover: #2f333c;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+      --input-bg: #1e2128;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #14161a; --panel-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --bg: #14161a; --card-bg: #1e2128; --panel-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
     --accent: #5b9bff; --accent-bg: #142338; --btn-bg: #262a32; --btn-bg-hover: #2f333c;
+    --chip-bg: #262a32; --chip-text: #c7cbd1; --input-bg: #1e2128;
   }
   :root[data-theme="light"] {
-    --bg: #f6f7f9; --panel-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --bg: #f6f7f9; --card-bg: #ffffff; --panel-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
     --accent: #2563eb; --accent-bg: #eff6ff; --btn-bg: #ffffff; --btn-bg-hover: #f3f4f6;
+    --chip-bg: #f3f4f6; --chip-text: #374151; --input-bg: #ffffff;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
@@ -44,34 +60,10 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
+    line-height: 1.5;
     display: flex;
     flex-direction: column;
   }
-  header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--panel-bg);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  header h1 { font-size: 1.15rem; margin: 0; }
-  header .sub { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
-  .nav-controls { display: flex; align-items: center; gap: 8px; }
-  button.nav-btn {
-    background: var(--btn-bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 7px;
-    padding: 7px 14px;
-    font-size: 0.85rem;
-    cursor: pointer;
-  }
-  button.nav-btn:hover:not(:disabled) { background: var(--btn-bg-hover); }
-  button.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .position { font-size: 0.8rem; color: var(--muted); min-width: 70px; text-align: center; }
 
   .body-wrap { flex: 1; display: flex; min-height: 0; }
   .sidebar {
@@ -80,77 +72,150 @@
     background: var(--panel-bg);
     border-right: 1px solid var(--border);
     overflow-y: auto;
-    padding: 12px 0;
+    padding: 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
   }
-  .sidebar-title {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--muted);
-    font-weight: 600;
-    padding: 4px 18px 10px;
+  .sidebar-title { font-size: 1.05rem; font-weight: 700; margin: 0; }
+  .sidebar-sub { font-size: 0.78rem; color: var(--muted); }
+  .filter-group { display: flex; flex-direction: column; gap: 8px; }
+  .filter-group label {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--muted); font-weight: 600;
   }
-  .report-link {
-    display: block;
-    padding: 10px 18px;
-    text-decoration: none;
-    color: var(--text);
-    font-size: 0.88rem;
-    border-left: 3px solid transparent;
-    cursor: pointer;
+  .date-inputs { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+  .date-inputs input[type="date"] {
+    background: var(--input-bg); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 8px; font-size: 0.85rem; font-family: inherit; width: 100%;
   }
-  .report-link:hover { background: var(--btn-bg-hover); }
-  .report-link.active {
-    background: var(--accent-bg);
-    border-left-color: var(--accent);
-    font-weight: 600;
-    color: var(--accent);
+  .date-inputs span { color: var(--muted); font-size: 0.82rem; }
+  .label-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--chip-bg); color: var(--chip-text); border: 1px solid var(--border);
+    border-radius: 999px; padding: 4px 12px; font-size: 0.78rem; cursor: pointer;
+    user-select: none; white-space: nowrap;
   }
-  .report-link .idx { color: var(--muted); font-weight: 400; margin-right: 6px; }
+  .chip.active { background: var(--chip-active-bg); color: var(--chip-active-text); border-color: var(--chip-active-bg); }
+  .reset-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 6px; padding: 7px 14px; font-size: 0.82rem; cursor: pointer; font-family: inherit;
+    width: 100%;
+  }
+  .reset-btn:hover { color: var(--text); border-color: var(--muted); }
+  .filter-status { font-size: 0.8rem; color: var(--muted); }
+  .sources-list { display: flex; flex-direction: column; gap: 2px; }
+  .sources-list a { font-size: 0.82rem; color: var(--text); text-decoration: none; }
+  .sources-list a:hover { color: var(--accent); text-decoration: underline; }
 
-  main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .frame-wrap { flex: 1; min-height: 0; }
-  iframe { width: 100%; height: 100%; border: none; display: block; background: var(--panel-bg); }
-  .empty-state {
-    display: flex; align-items: center; justify-content: center;
-    height: 100%; color: var(--muted); font-size: 0.95rem; text-align: center; padding: 40px;
-  }
+  main { flex: 1; min-width: 0; overflow-y: auto; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
 
   @media (max-width: 720px) {
     .body-wrap { flex-direction: column; }
-    .sidebar { width: 100%; max-height: 180px; border-right: none; border-bottom: 1px solid var(--border); }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
   }
+
+  .state-msg {
+    color: var(--muted); font-size: 0.95rem; text-align: center; padding: 60px 20px;
+  }
+  .state-msg.error { color: var(--urgent); }
+
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head .collapse-btn {
+    margin-left: auto; background: none; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 6px; padding: 3px 10px; font-size: 0.75rem; cursor: pointer; font-family: inherit;
+  }
+  .section-head .collapse-btn:hover { color: var(--text); border-color: var(--muted); }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .section-body.collapsed { display: none; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
 </style>
 </head>
 <body>
-
-<header>
-  <div>
-    <h1>Inbox Digest Archive</h1>
-    <div class="sub" id="rangeLabel">Loading…</div>
-  </div>
-  <div class="nav-controls">
-    <button class="nav-btn" id="prevBtn" title="Older report">&larr; Older</button>
-    <span class="position" id="positionLabel"></span>
-    <button class="nav-btn" id="nextBtn" title="Newer report">Newer &rarr;</button>
-  </div>
-</header>
-
 <div class="body-wrap">
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-title">Reports (oldest → newest)</div>
+  <nav class="sidebar">
+    <div>
+      <div class="sidebar-title">Inbox Digest Archive</div>
+      <div class="sidebar-sub" id="sourcesSummary">Loading…</div>
+    </div>
+    <div class="filter-group">
+      <label for="dateFrom">Date range</label>
+      <div class="date-inputs">
+        <input type="date" id="dateFrom" disabled>
+        <span>&ndash;</span>
+        <input type="date" id="dateTo" disabled>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label>Labels</label>
+      <div class="label-chips" id="labelChips"></div>
+    </div>
+    <button class="reset-btn" id="resetBtn" disabled>Reset filters</button>
+    <div class="filter-status" id="filterStatus"></div>
+    <div class="filter-group">
+      <label>Reports included</label>
+      <div class="sources-list" id="sourcesList"></div>
+    </div>
   </nav>
+
   <main>
-    <div class="frame-wrap" id="frameWrap">
-      <div class="empty-state">No reports found.</div>
+    <div class="wrap" id="content">
+      <div class="state-msg" id="stateMsg">Loading digest reports…</div>
     </div>
   </main>
 </div>
 
 <script>
   // Add each new digest report here as it's created — kept in ascending
-  // (oldest → newest) date order. `date` drives the sort/display; `file`
-  // is the path relative to this index.
+  // (oldest → newest) date order. `date` drives the sort; `file` is the
+  // path relative to this index. Each report's cards are fetched and
+  // merged into this page at load time.
   const REPORTS = [
     { date: '2026-07-27', file: '2026-07-27-inbox-digest.html', label: 'Jul 27, 2026' },
     { date: '2026-07-28', file: '2026-07-28-inbox-digest.html', label: 'Jul 28, 2026' },
@@ -158,68 +223,231 @@
 
   REPORTS.sort((a, b) => a.date.localeCompare(b.date));
 
-  const sidebar = document.getElementById('sidebar');
-  const frameWrap = document.getElementById('frameWrap');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const positionLabel = document.getElementById('positionLabel');
-  const rangeLabel = document.getElementById('rangeLabel');
+  const SECTIONS = [
+    { key: 'urgent', label: 'Urgent' },
+    { key: 'action', label: 'Action Needed' },
+    { key: 'fyi', label: 'FYI' },
+    { key: 'low', label: 'Low Priority' },
+  ];
 
-  let currentIndex = -1;
+  const dateFrom = document.getElementById('dateFrom');
+  const dateTo = document.getElementById('dateTo');
+  const labelChipsWrap = document.getElementById('labelChips');
+  const resetBtn = document.getElementById('resetBtn');
+  const filterStatus = document.getElementById('filterStatus');
+  const sourcesSummary = document.getElementById('sourcesSummary');
+  const sourcesList = document.getElementById('sourcesList');
+  const content = document.getElementById('content');
+  const stateMsg = document.getElementById('stateMsg');
 
-  function render() {
-    sidebar.querySelectorAll('.report-link').forEach(el => el.remove());
-    REPORTS.forEach((r, i) => {
-      const a = document.createElement('a');
-      a.href = '#' + r.date;
-      a.className = 'report-link' + (i === currentIndex ? ' active' : '');
-      a.innerHTML = '<span class="idx">' + (i + 1) + '.</span>' + r.label;
-      a.addEventListener('click', (e) => { e.preventDefault(); goTo(i); });
-      sidebar.appendChild(a);
-    });
+  let DEFAULT_FROM = '';
+  let DEFAULT_TO = '';
+  let activeLabels = new Set(); // empty set = no label filter applied (show all)
+  let cards = [];
 
+  // Collapse a label to its first 2 path levels, e.g.
+  // "PROJECTS/LA COSTA/LENDERS & ADMIN" -> "PROJECTS/LA COSTA".
+  function labelPrefix(l) {
+    return l.split('/').slice(0, 2).join('/');
+  }
+
+  async function loadReports() {
     if (REPORTS.length === 0) {
-      rangeLabel.textContent = 'No reports yet';
-      positionLabel.textContent = '';
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
+      stateMsg.textContent = 'No reports found.';
+      sourcesSummary.textContent = 'No reports yet';
       return;
     }
 
-    rangeLabel.textContent = REPORTS.length + ' report' + (REPORTS.length === 1 ? '' : 's') +
-      ' · ' + REPORTS[0].label + ' – ' + REPORTS[REPORTS.length - 1].label;
-    positionLabel.textContent = (currentIndex + 1) + ' of ' + REPORTS.length;
-    prevBtn.disabled = currentIndex <= 0;
-    nextBtn.disabled = currentIndex >= REPORTS.length - 1;
+    const results = await Promise.allSettled(REPORTS.map(r => fetchReportCards(r)));
 
-    if (currentIndex >= 0) {
-      frameWrap.innerHTML = '<iframe src="' + REPORTS[currentIndex].file + '" title="' + REPORTS[currentIndex].label + '"></iframe>';
+    const okReports = [];
+    const failedReports = [];
+    results.forEach((res, i) => {
+      if (res.status === 'fulfilled') {
+        okReports.push(REPORTS[i]);
+        cards.push(...res.value);
+      } else {
+        failedReports.push(REPORTS[i]);
+      }
+    });
+
+    if (cards.length === 0) {
+      stateMsg.className = 'state-msg error';
+      stateMsg.textContent = 'Could not load any digest reports. This page fetches report files over HTTP, ' +
+        'so it needs to be served (e.g. via GitHub Pages or a local static server) rather than opened directly as a file://.';
+      sourcesSummary.textContent = 'Failed to load';
+      return;
     }
+
+    sourcesList.innerHTML = '';
+    okReports.forEach(r => {
+      const a = document.createElement('a');
+      a.href = r.file;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = r.label;
+      sourcesList.appendChild(a);
+    });
+    if (failedReports.length > 0) {
+      const warn = document.createElement('div');
+      warn.className = 'sidebar-sub';
+      warn.textContent = 'Failed to load: ' + failedReports.map(r => r.label).join(', ');
+      sourcesList.appendChild(warn);
+    }
+
+    sourcesSummary.textContent = okReports.length + ' report' + (okReports.length === 1 ? '' : 's') +
+      ' · ' + cards.length + ' unread emails · ' + okReports[0].label + ' – ' + okReports[okReports.length - 1].label;
+
+    buildContent();
   }
 
-  function goTo(i) {
-    if (i < 0 || i >= REPORTS.length) return;
-    currentIndex = i;
-    location.hash = REPORTS[i].date;
-    render();
+  async function fetchReportCards(report) {
+    const res = await fetch(report.file);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const out = [];
+    doc.querySelectorAll('.section[data-section] .card').forEach(cardEl => {
+      const section = cardEl.closest('.section[data-section]').dataset.section;
+      out.push({
+        section,
+        date: cardEl.dataset.date || '',
+        labels: (cardEl.dataset.labels || '').split('|').filter(Boolean),
+        node: cardEl.cloneNode(true),
+        sourceReport: report.label,
+      });
+    });
+    return out;
   }
 
-  function goToHash() {
-    const hash = location.hash.replace('#', '');
-    const idx = REPORTS.findIndex(r => r.date === hash);
-    currentIndex = idx >= 0 ? idx : REPORTS.length - 1; // default to newest
-    render();
+  function buildContent() {
+    content.innerHTML = '';
+
+    SECTIONS.forEach(sec => {
+      const sectionEl = document.createElement('div');
+      sectionEl.className = 'section';
+      sectionEl.dataset.section = sec.key;
+
+      const bodyId = 'body-' + sec.key;
+      sectionEl.innerHTML =
+        '<div class="section-head">' +
+          '<span class="count-pill pill-' + sec.key + '" id="count-' + sec.key + '"></span>' +
+          '<h2>' + sec.label + '</h2>' +
+          '<button class="collapse-btn" data-target="' + bodyId + '">Collapse</button>' +
+        '</div>' +
+        '<div class="section-body" id="' + bodyId + '"></div>';
+
+      content.appendChild(sectionEl);
+    });
+
+    cards.filter(c => SECTIONS.some(s => s.key === c.section)).forEach(c => {
+      const body = document.getElementById('body-' + c.section);
+      body.appendChild(c.node);
+    });
+
+    // Date range across all loaded cards.
+    const dates = cards.map(c => c.date).filter(Boolean).sort();
+    DEFAULT_FROM = dates[0] || '';
+    DEFAULT_TO = dates[dates.length - 1] || '';
+    dateFrom.value = DEFAULT_FROM;
+    dateTo.value = DEFAULT_TO;
+    dateFrom.disabled = false;
+    dateTo.disabled = false;
+    resetBtn.disabled = false;
+
+    // Discover all distinct label prefixes (first 2 levels), in first-seen order.
+    const allLabels = [];
+    cards.forEach(c => {
+      c.labels.forEach(l => {
+        const prefix = labelPrefix(l);
+        if (!allLabels.includes(prefix)) allLabels.push(prefix);
+      });
+    });
+
+    labelChipsWrap.innerHTML = '';
+    allLabels.forEach(label => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.textContent = label;
+      chip.addEventListener('click', () => {
+        if (activeLabels.has(label)) {
+          activeLabels.delete(label);
+          chip.classList.remove('active');
+        } else {
+          activeLabels.add(label);
+          chip.classList.add('active');
+        }
+        applyFilters();
+      });
+      labelChipsWrap.appendChild(chip);
+    });
+
+    document.querySelectorAll('.collapse-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const body = document.getElementById(btn.dataset.target);
+        const collapsed = body.classList.toggle('collapsed');
+        btn.textContent = collapsed ? 'Expand' : 'Collapse';
+      });
+    });
+
+    dateFrom.addEventListener('change', applyFilters);
+    dateTo.addEventListener('change', applyFilters);
+    resetBtn.addEventListener('click', () => {
+      dateFrom.value = DEFAULT_FROM;
+      dateTo.value = DEFAULT_TO;
+      activeLabels.clear();
+      labelChipsWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      applyFilters();
+    });
+
+    applyFilters();
   }
 
-  prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
-  nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
-  window.addEventListener('hashchange', goToHash);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') goTo(currentIndex - 1);
-    if (e.key === 'ArrowRight') goTo(currentIndex + 1);
-  });
+  function applyFilters() {
+    const from = dateFrom.value;
+    const to = dateTo.value;
+    const counts = { urgent: 0, action: 0, fyi: 0, low: 0 };
+    let visibleTotal = 0;
 
-  goToHash();
+    cards.forEach(c => {
+      const d = c.date;
+      const prefixes = c.labels.map(labelPrefix);
+      const inRange = (!from || d >= from) && (!to || d <= to);
+      const labelMatch = activeLabels.size === 0 || prefixes.some(l => activeLabels.has(l));
+      const visible = inRange && labelMatch;
+      c.node.style.display = visible ? '' : 'none';
+      if (visible) {
+        visibleTotal++;
+        counts[c.section] = (counts[c.section] || 0) + 1;
+      }
+    });
+
+    SECTIONS.forEach(sec => {
+      const countEl = document.getElementById('count-' + sec.key);
+      if (countEl) countEl.textContent = counts[sec.key] || 0;
+
+      const body = document.getElementById('body-' + sec.key);
+      const hasVisibleCard = (counts[sec.key] || 0) > 0;
+      let emptyMsg = body.querySelector('.empty-filtered');
+      if (!hasVisibleCard) {
+        if (!emptyMsg) {
+          emptyMsg = document.createElement('div');
+          emptyMsg.className = 'empty empty-filtered';
+          emptyMsg.textContent = 'No emails in this category match the current filters.';
+          body.appendChild(emptyMsg);
+        }
+      } else if (emptyMsg) {
+        emptyMsg.remove();
+      }
+    });
+
+    const filtersActive = from !== DEFAULT_FROM || to !== DEFAULT_TO || activeLabels.size > 0;
+    filterStatus.textContent = filtersActive
+      ? 'Showing ' + visibleTotal + ' of ' + cards.length + ' emails matching current filters.'
+      : 'Showing all ' + cards.length + ' unread emails.';
+  }
+
+  loadReports();
 </script>
 </body>
 </html>
