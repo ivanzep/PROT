@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <title>Inbox Digest Archive</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  // Apply any saved theme choice before first paint to avoid a flash of the wrong theme.
+  (function () {
+    var stored = localStorage.getItem('inboxDigestTheme');
+    if (stored === 'light' || stored === 'dark') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  })();
+</script>
 <style>
   :root {
     --bg: #f6f7f9;
@@ -77,8 +86,15 @@
     flex-direction: column;
     gap: 22px;
   }
+  .sidebar-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
   .sidebar-title { font-size: 1.05rem; font-weight: 700; margin: 0; }
   .sidebar-sub { font-size: 0.78rem; color: var(--muted); }
+  .theme-toggle-btn {
+    background: var(--btn-bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 6px; padding: 5px 8px; font-size: 0.9rem; cursor: pointer; font-family: inherit;
+    line-height: 1; flex-shrink: 0;
+  }
+  .theme-toggle-btn:hover { background: var(--btn-bg-hover); }
   .filter-group { display: flex; flex-direction: column; gap: 8px; }
   .filter-group label {
     font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
@@ -206,7 +222,10 @@
 <div class="body-wrap">
   <nav class="sidebar">
     <div>
-      <div class="sidebar-title">Inbox Digest Archive</div>
+      <div class="sidebar-header">
+        <div class="sidebar-title">Inbox Digest Archive</div>
+        <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle light/dark mode">&#9728;&#65039;</button>
+      </div>
       <div class="sidebar-sub" id="sourcesSummary">Loading…</div>
     </div>
     <div class="filter-group">
@@ -281,6 +300,7 @@
   const prevReportBtn = document.getElementById('prevReportBtn');
   const nextReportBtn = document.getElementById('nextReportBtn');
   const reportPosition = document.getElementById('reportPosition');
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
   const content = document.getElementById('content');
   const stateMsg = document.getElementById('stateMsg');
 
@@ -302,6 +322,26 @@
   function labelPrefix(l) {
     return l.split('/').slice(0, 2).join('/');
   }
+
+  const THEME_KEY = 'inboxDigestTheme';
+
+  function currentTheme() {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored === 'light' || stored === 'dark') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    themeToggleBtn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    localStorage.setItem(THEME_KEY, theme);
+  }
+
+  applyTheme(currentTheme());
+  themeToggleBtn.addEventListener('click', () => {
+    applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+  });
 
   prevReportBtn.addEventListener('click', () => {
     const idx = loadedReports.findIndex(r => r.date === selectedReportDate);
