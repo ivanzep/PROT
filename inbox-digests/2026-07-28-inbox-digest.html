@@ -105,7 +105,13 @@
     display: flex; align-items: center; gap: 10px;
     margin-bottom: 14px;
   }
+  .section-head .collapse-btn {
+    margin-left: auto; background: none; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 6px; padding: 3px 10px; font-size: 0.75rem; cursor: pointer; font-family: inherit;
+  }
+  .section-head .collapse-btn:hover { color: var(--text); border-color: var(--muted); }
   .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .section-body.collapsed { display: none; }
   .count-pill {
     font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
     color: #fff; min-width: 18px; text-align: center; display: inline-block;
@@ -158,16 +164,16 @@
 <div class="wrap">
   <header>
     <h1>Inbox Digest</h1>
-    <div class="sub" id="headerSub">Generated July 28, 2026 &middot; 8 unread messages across 8 threads</div>
+    <div class="sub" id="headerSub">Updated July 28, 2026 &middot; 10 unread messages across 10 threads</div>
   </header>
 
   <div class="toolbar">
     <div class="filter-group">
       <label for="dateFrom">Date range</label>
       <div class="date-inputs">
-        <input type="date" id="dateFrom" value="2026-05-04">
+        <input type="date" id="dateFrom" value="2025-11-05">
         <span>&ndash;</span>
-        <input type="date" id="dateTo" value="2026-07-10">
+        <input type="date" id="dateTo" value="2026-07-28">
       </div>
     </div>
     <div class="filter-group" style="flex:1;">
@@ -182,14 +188,16 @@
     <div class="section-head">
       <span class="count-pill pill-urgent" id="countUrgent">1</span>
       <h2>Urgent</h2>
+      <button class="collapse-btn" data-target="body-urgent">Collapse</button>
     </div>
+    <div class="section-body" id="body-urgent">
 
     <div class="card urgent" data-date="2026-07-10" data-labels="- REPLY|PROJECTS/LA COSTA|IMPORTANT">
       <div class="card-top">
         <span class="subject">Re: LA COSTA - RENDERINGS RFP</span>
         <span class="meta">Jul 10, 2026 &middot; from TiffanyD@n2qstudio.com</span>
       </div>
-      <div class="summary">N2Q Studio has followed up twice with no reply since June 16 and says they're "becoming concerned" about the project's status while they wait on Ivan to pick which rendering perspectives to proceed with.</div>
+      <div class="summary">N2Q Studio has followed up twice with no reply since June 16 and says they're becoming concerned about the project's status while they wait on Ivan to pick which rendering perspectives to proceed with.</div>
       <div class="labels-row">
         <span class="label-tag">- REPLY</span>
         <span class="label-tag">PROJECTS/LA COSTA</span>
@@ -197,21 +205,53 @@
       </div>
       <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19d87d0a0b4e381a" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
       <div class="draft">
-        <div class="draft-label">Drafted reply</div>Hi Tiffany,
+        <div class="draft-label">Drafted reply (in Gmail Drafts)</div>Hi Tiffany,
 
-Sorry for the delay, and thank you for your patience — the project is still moving forward on our end. I'll review the perspective options and send you our selections along with color, material, and landscaping references this week.
+Sorry for the extended silence here — I know your team has been waiting on the perspective confirmation for a while now, and I appreciate you following up.
 
-Thanks for checking in.
+I'll review the camera angles this week and get you a confirmed list of which views to proceed with. If I don't respond by Friday, please feel free to send another nudge.
+
+Thanks for your patience.
 
 Best,
 Ivan</div>
+    </div>
+
     </div>
   </div>
 
   <div class="section" data-section="action">
     <div class="section-head">
-      <span class="count-pill pill-action" id="countAction">2</span>
+      <span class="count-pill pill-action" id="countAction">3</span>
       <h2>Action Needed</h2>
+      <button class="collapse-btn" data-target="body-action">Collapse</button>
+    </div>
+    <div class="section-body" id="body-action">
+
+    <div class="card action" data-date="2026-05-27" data-labels="PROJECTS/HILLTOP HOTEL|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Notes: "Hilltop Motel" (Gemini meeting notes)</span>
+        <span class="meta">May 27, 2026 &middot; from gemini-notes@google.com</span>
+      </div>
+      <div class="summary">Auto-generated notes from the Hilltop Motel investment/partnership meeting assign Ivan several concrete follow-ups: send the owners-portal link, distribute the deck and financial models, and send the operating agreement to Tyler.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/HILLTOP HOTEL</span>
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b89b0100b8b5" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal, in Gmail Drafts)</div>Self-reminder based on the Gemini meeting notes for Hilltop Motel (May 27):
+
+Outstanding items assigned to me:
+- Send owners-portal access link
+- Distribute the project deck to stakeholders
+- Share financial models (Excel and PDF) with the team
+- Email the financial model / investment return projections to Tyler (cc Patrick)
+- Send the formal operating agreement to Tyler
+- Coordinate funding requirements/amount with Alberto
+- Share meeting notes and audio recording with Tyler
+
+Note: this is an internal follow-up memo, not a reply to an external party — the source email was an auto-generated Gemini notes notification with no direct reply recipient.</div>
     </div>
 
     <div class="card action" data-date="2025-11-05" data-labels="PROJECTS/HAAS 2025|IMPORTANT">
@@ -226,7 +266,7 @@ Ivan</div>
       </div>
       <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19a142401d172ed8" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
       <div class="draft">
-        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+        <div class="draft-label">Drafted reply (in Gmail Drafts)</div>Hi Lindsay,
 
 Yes, we can put together an inspo slide for each site with sample images by building type. I'll get a draft added to the deck and follow up once it's ready — let me know if there's a specific deadline you're working against.
 
@@ -246,12 +286,18 @@ Ivan</div>
       </div>
       <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19df3a65ad2b03a0" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
       <div class="draft">
-        <div class="draft-label">Drafted reply</div>Hi Abrhil,
+        <div class="draft-label">Drafted reply (in Gmail Drafts)</div>Hi Abrhil,
 
-Apologies for the delay in getting back to you. Design is still progressing across disciplines, so a firm schedule isn't finalized yet, but I'll pull together the best available timeline information and send it your way shortly so your team and the utility planners can plan around it.
+Apologies for the delayed response. I know the utility planners need this to stay on schedule, so I want to get you what we have without further delay.
 
-Thank you,
+I'll pull together the current design-phase milestones and best available construction sequencing from our team and send it over by end of week. If any dates are still preliminary, I'll flag them clearly so your team can plan around the uncertainty.
+
+Thanks for your patience, and please let me know if there's a specific format you need this in.
+
+Best,
 Ivan</div>
+    </div>
+
     </div>
   </div>
 
@@ -259,83 +305,99 @@ Ivan</div>
     <div class="section-head">
       <span class="count-pill pill-fyi" id="countFyi">4</span>
       <h2>FYI</h2>
+      <button class="collapse-btn" data-target="body-fyi">Collapse</button>
+    </div>
+    <div class="section-body" id="body-fyi">
+
+    <div class="card fyi" data-date="2026-07-28" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 new notification on Monograph</span>
+        <span class="meta">Jul 28, 2026 &middot; from no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Automated project-management notification: Michael C. updated the Eucalyptus ADU schematic design timeline, extending it from Apr 20&ndash;May 22 to Apr 20&ndash;Aug 1, 2026.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fa3e72f5df0f52" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
     </div>
 
-    <div class="card fyi" data-date="2026-06-25" data-labels="PROJECTS/SANFORD 145/LENDERS &amp; ADMIN|IMPORTANT">
+    <div class="card fyi" data-date="2026-06-25" data-labels="PROJECTS/SANFORD 145|IMPORTANT">
       <div class="card-top">
         <span class="subject">Re: Soft Costs</span>
         <span class="meta">Jun 25, 2026 &middot; from lindsay@thebrownstudio.com (thread w/ Conventus &amp; Brown Studio)</span>
       </div>
       <div class="summary">The San Dieguito Water District fee escalation is resolved — Bryson at Conventus confirmed they'll reimburse the full amount once Brown Studio submits the paid receipt on the next draw.</div>
       <div class="labels-row">
-        <span class="label-tag">PROJECTS/SANFORD 145/LENDERS &amp; ADMIN</span>
+        <span class="label-tag">PROJECTS/SANFORD 145</span>
         <span class="label-tag">IMPORTANT</span>
       </div>
       <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ef67e7e2f6d7a2" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
     </div>
 
-    <div class="card fyi" data-date="2026-06-16" data-labels="PROJECTS/LA COSTA/LENDERS &amp; ADMIN|IMPORTANT">
+    <div class="card fyi" data-date="2026-06-16" data-labels="PROJECTS/LA COSTA|IMPORTANT">
       <div class="card-top">
         <span class="subject">Re: Alex Rodriguez on behalf of Commercial Bank of CA has requested files</span>
         <span class="meta">Jun 16, 2026 &middot; from lindsay@thebrownstudio.com (thread w/ Commercial Bank of CA)</span>
       </div>
-      <div class="summary">The bank's deputy chief credit officer flagged pricing concerns (~$1MM/room) before proceeding with the loan; Lindsay already replied same-day with supporting hotel-comp data and plans to call — no action needed from Ivan, cc'd for visibility.</div>
+      <div class="summary">The bank's deputy chief credit officer flagged pricing concerns before proceeding with the loan; Lindsay already replied same-day with supporting hotel-comp data — no action needed from Ivan, cc'd for visibility.</div>
       <div class="labels-row">
-        <span class="label-tag">PROJECTS/LA COSTA/LENDERS &amp; ADMIN</span>
+        <span class="label-tag">PROJECTS/LA COSTA</span>
         <span class="label-tag">IMPORTANT</span>
       </div>
       <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e42435f07cfdcc" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
     </div>
 
-    <div class="card fyi" data-date="2026-05-27" data-labels="PROJECTS/HILLTOP HOTEL/MEETING NOTES|IMPORTANT">
-      <div class="card-top">
-        <span class="subject">Notes: "Hilltop Motel" (Gemini meeting notes)</span>
-        <span class="meta">May 27, 2026 &middot; from gemini-notes@google.com</span>
-      </div>
-      <div class="summary">Auto-generated notes from the Hilltop Motel investment/partnership meeting list several follow-up actions assigned to Ivan (send portal link, distribute deck and financial models, send operating agreement to Tyler).</div>
-      <div class="labels-row">
-        <span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span>
-        <span class="label-tag">IMPORTANT</span>
-      </div>
-      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b89b0100b8b5" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
-    </div>
-
-    <div class="card fyi" data-date="2026-05-20" data-labels="PROJECTS/SANFORD 145/MEETING NOTES|IMPORTANT">
+    <div class="card fyi" data-date="2026-05-20" data-labels="PROJECTS/SANFORD 145|IMPORTANT">
       <div class="card-top">
         <span class="subject">Your meeting recap – SANFORD 145 – COORDINATION</span>
         <span class="meta">May 20, 2026 &middot; from fred@fireflies.ai (2 auto-recap emails)</span>
       </div>
       <div class="summary">Fireflies recap of the Sanford 145 coordination call, sent to Ivan and the Fard/Brown Studio team — informational meeting summary, no reply expected.</div>
       <div class="labels-row">
-        <span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span>
+        <span class="label-tag">PROJECTS/SANFORD 145</span>
         <span class="label-tag">IMPORTANT</span>
       </div>
       <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e474c37f9358bf" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
     </div>
   </div>
 
   <div class="section" data-section="low">
     <div class="section-head">
-      <span class="count-pill pill-low" id="countLow">1</span>
+      <span class="count-pill pill-low" id="countLow">2</span>
       <h2>Low Priority</h2>
+      <button class="collapse-btn" data-target="body-low">Collapse</button>
+    </div>
+    <div class="section-body" id="body-low">
+
+    <div class="card low" data-date="2026-07-28" data-labels="">
+      <div class="card-top">
+        <span class="subject">Cody Martinez messaged you on Google Chat while you were away</span>
+        <span class="meta">Jul 28, 2026 &middot; from chat-noreply@google.com</span>
+      </div>
+      <div class="summary">Missed-message notification from Google Chat; the actionable-looking items in the transcript (door list routing, a shared password) were already resolved within the chat itself — nothing pending in email.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fa6fba6e3f6de4" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
     </div>
 
-    <div class="card low" data-date="2026-05-27" data-labels="PROJECTS/HILLTOP HOTEL/MEETING NOTES|IMPORTANT">
+    <div class="card low" data-date="2026-05-27" data-labels="PROJECTS/HILLTOP HOTEL|IMPORTANT">
       <div class="card-top">
         <span class="subject">Recap of your meeting with ORCA Surfboards</span>
         <span class="meta">May 27, 2026 &middot; from no-reply@fathom.video</span>
       </div>
       <div class="summary">Fathom's auto-recap of the same Hilltop Motel meeting already covered by the Gemini notes above (acquired for $3.25M, 7-year non-recourse owner-carry loan, 75/25 profit split) — duplicate coverage, no new action.</div>
       <div class="labels-row">
-        <span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span>
+        <span class="label-tag">PROJECTS/HILLTOP HOTEL</span>
         <span class="label-tag">IMPORTANT</span>
       </div>
       <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b83fd83da65f" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
     </div>
   </div>
 
   <footer>
     Generated automatically from Gmail (is:unread in:inbox). Drafted replies are suggestions only — review before sending.
+    <br><strong>Note:</strong> this routine has run several times today; Gmail Drafts now contains duplicate drafts for the La Costa Renderings, La Costa Construction Schedule, and HAAS Deck threads from earlier runs. Review and delete extras manually (no delete-draft capability is available to this tool).
   </footer>
 </div>
 
@@ -405,13 +467,14 @@ Ivan</div>
     document.querySelectorAll('.section').forEach(section => {
       const key = section.dataset.section;
       const hasVisibleCard = counts[key] > 0;
-      let emptyMsg = section.querySelector('.empty-filtered');
+      const body = section.querySelector('.section-body');
+      let emptyMsg = body.querySelector('.empty-filtered');
       if (!hasVisibleCard) {
         if (!emptyMsg) {
           emptyMsg = document.createElement('div');
           emptyMsg.className = 'empty empty-filtered';
           emptyMsg.textContent = 'No emails in this category match the current filters.';
-          section.appendChild(emptyMsg);
+          body.appendChild(emptyMsg);
         }
       } else if (emptyMsg) {
         emptyMsg.remove();
@@ -432,6 +495,14 @@ Ivan</div>
     activeLabels.clear();
     labelChipsWrap.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     applyFilters();
+  });
+
+  document.querySelectorAll('.collapse-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const body = document.getElementById(btn.dataset.target);
+      const collapsed = body.classList.toggle('collapsed');
+      btn.textContent = collapsed ? 'Expand' : 'Collapse';
+    });
   });
 
   applyFilters();
