@@ -35,6 +35,48 @@ The dropdown in the header swaps circuits. Three are seeded — Monaco,
 Silverstone, and Monza — chosen because they sit at opposite ends of lap count,
 tire degradation, and pit loss, so every panel visibly changes.
 
+## Where the historic results come from
+
+The **Historic data** card fetches real results at runtime from an
+Ergast-compatible API — [Jolpica](https://api.jolpi.ca/ergast/f1/) by default,
+the maintained successor to Ergast. The request comes from your browser, so
+nothing needs to be pre-baked into the repo.
+
+Per circuit it makes two calls:
+
+- `/circuits/{id}/results/1.json` — winner, team, grid slot, laps, fastest lap
+- `/circuits/{id}/results/2.json` — the runner-up's gap, which is the winning margin
+
+Then a second pass fills in, per race, the pole time
+(`/{season}/{round}/qualifying.json`) and the winner's pit stop count
+(`/{season}/{round}/pitstops.json`). That pass is concurrency-capped at two
+requests to stay inside the public API's burst limit, and the table re-renders
+as each row lands. Pole times don't exist in the data before 2003 and pit stop
+counts before 2011, so those cells show `—` rather than guessing.
+
+Behaviour when things go wrong:
+
+- The seeded `history` arrays in `data.json` render immediately and stay on
+  screen until the live results arrive, so the card is never empty.
+- If the API is unreachable, the seeded rows remain and the card says so.
+- The pill above the table reads **live** or **sample** so it is always obvious
+  which one you are looking at.
+- Results are cached per circuit for the session, and a slow response for a
+  circuit you have already switched away from is discarded.
+
+To point at a different Ergast-compatible host, or change how many seasons are
+shown, edit `meta.api` in `data.json`:
+
+```json
+"api": { "base": "https://api.jolpi.ca/ergast/f1", "label": "the Jolpica F1 API", "seasons": 8 }
+```
+
+Removing `meta.api` turns the fetching off entirely and leaves the dashboard on
+the seeded sample data.
+
+Note that safety car counts and starting compounds are not in this API, so they
+are no longer shown in the table; the seeded values remain in `data.json`.
+
 ## `data.json` shape
 
 Top level is `{ "meta": {...}, "circuits": [...] }`. Each circuit entry:
@@ -42,6 +84,7 @@ Top level is `{ "meta": {...}, "circuits": [...] }`. Each circuit entry:
 | Field | Notes |
 | --- | --- |
 | `id`, `event`, `name`, `country`, `round` | Identity, used in the header and dropdown |
+| `ergastCircuitId` | Circuit key used against the results API (e.g. `monza`); omit it to leave that circuit on sample data |
 | `sessions` | `[{ label, day, time }]` — rendered as the schedule strip; the entry whose label contains "Race" is highlighted |
 | `lapDistanceKm`, `raceLaps`, `raceDistanceKm`, `turns`, `drsZones` | Race distance tiles |
 | `lapRecord` | `{ driver, time, year }`, `time` in seconds |
@@ -73,8 +116,14 @@ The wiring is in place: `state.live` is `null`, and `renderLive()` runs on every
 `refresh()` and is where a feed would be rendered (see the `TODO` comments in
 `index.html`). Nothing is simulated or faked.
 
-## Data caveat
+## Data caveats
 
-The figures in `data.json` are approximate public reference values gathered for
-prototype purposes. They are not a live feed and should not be treated as
-authoritative timing data.
+Circuit, tire and pit stop figures in `data.json` are approximate public
+reference values gathered for prototype purposes, not authoritative data.
+
+Historic results are real once the API responds. The client was written against
+the documented Ergast/Jolpica response shape and verified against mocked
+responses of that shape — but it has not been exercised against the live host,
+because the sandbox it was built in blocks outbound traffic to everything except
+an allowlist. First run in a real browser is the check that matters: if the
+table shows the **live** pill and plausible winners, the schema matched.

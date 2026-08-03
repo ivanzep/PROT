@@ -428,6 +428,28 @@
 
     .fact .v { margin-top: 5px; font-size: 14px; }
 
+    .source-note {
+      margin: 12px 0 0;
+      font-size: 11px;
+      color: var(--ink-faint);
+    }
+
+    .source-note a { color: var(--ink-dim); }
+
+    .pill.live {
+      color: var(--ok);
+      border-color: rgba(51, 209, 122, .4);
+      background: rgba(51, 209, 122, .1);
+    }
+
+    .pill.loading { color: var(--ink-dim); }
+
+    .pill.stale {
+      color: var(--warn);
+      border-color: rgba(245, 166, 35, .4);
+      background: rgba(245, 166, 35, .1);
+    }
+
     /* ---------- tyres ---------- */
 
     .tyres { display: grid; gap: 10px; }
@@ -693,18 +715,19 @@
                   <th class="num">Year</th>
                   <th>Winner</th>
                   <th>Team</th>
-                  <th>Start</th>
-                  <th class="num">Stops</th>
-                  <th class="num">SC</th>
+                  <th class="num">Grid</th>
+                  <th class="num">Laps</th>
                   <th class="num">Pole</th>
                   <th class="num">Fastest lap</th>
                   <th class="num">Margin</th>
+                  <th class="num">Stops</th>
                 </tr>
               </thead>
               <tbody id="historyBody"></tbody>
             </table>
           </div>
           <div class="facts" id="historyFacts"></div>
+          <p class="source-note" id="historySource"></p>
         </section>
 
         <section class="card span-5">
@@ -784,6 +807,12 @@
       circuits: [],
       circuit: null,
       error: null,
+      // Ergast-compatible results API, configured in data.json under meta.api.
+      api: { base: null, label: 'the results API', seasons: 8 },
+      // { status: 'loading' | 'live' | 'fallback', rows: [], note } for the historic card.
+      history: null,
+      historyCache: {},
+      historyToken: 0,
       // TODO: a live feed would populate this with { laps: [], sectors: [], tyres: [] }
       // and renderLive() would switch from its empty state to real rows.
       live: null
@@ -833,7 +862,7 @@
         'roundLabel', 'eventName', 'circuitLine', 'circuitSelect', 'errorBox', 'errorDetail',
         'dashboard', 'schedule', 'trackMap', 'sectorLegend', 'mapPill', 'distancePill',
         'raceTiles', 'historyPill', 'historyBody', 'historyFacts', 'tyrePill', 'tyreList',
-        'pitPill', 'pitTotal', 'pitNote', 'pitStack', 'pitKey', 'pitTiles', 'livePill',
+        'historySource', 'pitPill', 'pitTotal', 'pitNote', 'pitStack', 'pitKey', 'pitTiles', 'livePill',
         'liveNote', 'liveLapsBody', 'liveSectorsBody', 'liveTyresBody'
       ];
       ids.forEach(id => { els[id] = document.getElementById(id); });
@@ -846,6 +875,7 @@
         const data = await response.json();
         state.circuits = Array.isArray(data.circuits) ? data.circuits : [];
         if (!state.circuits.length) throw new Error('data.json contained no circuits');
+        state.api = { ...state.api, ...(((data.meta || {}).api) || {}) };
       } catch (error) {
         state.error = error.message || String(error);
         showError();
@@ -874,7 +904,9 @@
       if (!circuit) return;
       state.circuit = circuit;
       els.circuitSelect.value = circuit.id;
+      state.history = { status: 'fallback', rows: fallbackRows(circuit), note: '' };
       refresh();
+      loadHistory(circuit);
     }
 
     function refresh() {
@@ -987,49 +1019,255 @@
       els.raceTiles.innerHTML = tileMarkup + recordMarkup;
     }
 
+    /* ---------- historic results ----------
+       Rows come from the Ergast-compatible API declared in data.json (Jolpica by
+       default), fetched by the browser at runtime. The seeded rows in data.json
+       are the offline fallback, used until the request lands and kept if it
+       fails. Both paths are normalised to the same row shape. */
+
+    function fallbackRows(circuit) {
+      return (circuit.history || []).map(entry => ({
+        year: entry.year,
+        winner: entry.winner,
+        team: entry.team,
+        grid: null,
+        laps: null,
+        poleSec: entry.poleTime,
+        fastestSec: entry.fastestLap,
+        marginSec: entry.winMarginSec,
+        stops: entry.stops
+      }));
+    }
+
     function renderHistory() {
-      const history = state.circuit.history || [];
-      els.historyPill.textContent = `${history.length} runnings`;
+      const history = state.history || { status: 'fallback', rows: [] };
+      const rows = history.rows || [];
 
-      els.historyBody.innerHTML = history.map(entry => `
+      els.historyPill.className = 'pill';
+      if (history.status === 'loading') {
+        els.historyPill.classList.add('loading');
+        els.historyPill.textContent = 'Loading results…';
+      } else if (history.status === 'live') {
+        els.historyPill.classList.add('live');
+        els.historyPill.textContent = `${rows.length} runnings · live`;
+      } else {
+        els.historyPill.classList.add('stale');
+        els.historyPill.textContent = `${rows.length} runnings · sample`;
+      }
+
+      els.historyBody.innerHTML = rows.length ? rows.map(row => `
         <tr>
-          <td class="num">${escapeHtml(entry.year)}</td>
-          <td>${escapeHtml(entry.winner)}</td>
-          <td class="dim">${escapeHtml(entry.team)}</td>
-          <td class="dim">${escapeHtml(entry.startCompound)}</td>
-          <td class="num">${escapeHtml(entry.stops)}</td>
-          <td class="num">${escapeHtml(entry.safetyCars)}</td>
-          <td class="num">${escapeHtml(formatLapTime(entry.poleTime))}</td>
-          <td class="num">${escapeHtml(formatLapTime(entry.fastestLap))}</td>
-          <td class="num">${escapeHtml(formatDelta(entry.winMarginSec))}</td>
-        </tr>`).join('');
+          <td class="num">${escapeHtml(row.year)}</td>
+          <td>${escapeHtml(row.winner)}</td>
+          <td class="dim">${escapeHtml(row.team)}</td>
+          <td class="num dim">${escapeHtml(row.grid == null ? '—' : row.grid)}</td>
+          <td class="num dim">${escapeHtml(row.laps == null ? '—' : row.laps)}</td>
+          <td class="num">${escapeHtml(formatLapTime(row.poleSec))}</td>
+          <td class="num">${escapeHtml(formatLapTime(row.fastestSec))}</td>
+          <td class="num">${escapeHtml(formatDelta(row.marginSec))}</td>
+          <td class="num">${escapeHtml(row.stops == null ? '—' : row.stops)}</td>
+        </tr>`).join('') : emptyRow(9, 'No results available');
 
-      els.historyFacts.innerHTML = buildHistoryFacts(history).map(fact => `
+      els.historyFacts.innerHTML = buildHistoryFacts(rows).map(fact => `
         <div class="fact">
           <div class="k">${escapeHtml(fact.k)}</div>
           <div class="v">${escapeHtml(fact.v)}</div>
         </div>`).join('');
+
+      els.historySource.textContent = history.note || '';
     }
 
-    function buildHistoryFacts(history) {
-      if (!history.length) return [];
+    function buildHistoryFacts(rows) {
+      if (!rows.length) return [];
 
-      const withSafetyCar = history.filter(entry => entry.safetyCars > 0).length;
-      const averageStops = history.reduce((sum, entry) => sum + entry.stops, 0) / history.length;
-      const averageMargin = history.reduce((sum, entry) => sum + entry.winMarginSec, 0) / history.length;
+      const facts = [{ k: 'Races covered', v: `${rows[rows.length - 1].year}–${rows[0].year}` }];
 
-      const team = mode(history.map(entry => entry.team));
-      const stops = mode(history.map(entry => entry.stops));
-      const startTyre = mode(history.map(entry => entry.startCompound));
+      const team = mode(rows.map(row => row.team));
+      facts.push({ k: 'Most successful team', v: `${team.value} — ${team.count} wins` });
 
-      return [
-        { k: 'Most successful team', v: `${team.value} — ${team.count} wins` },
-        { k: 'Most common strategy', v: `${stops.value}-stop in ${stops.count} of ${history.length}` },
-        { k: 'Average stops', v: averageStops.toFixed(1) },
-        { k: 'Safety car frequency', v: `${withSafetyCar} of ${history.length} races` },
-        { k: 'Average winning margin', v: `${averageMargin.toFixed(1)} s` },
-        { k: 'Most common start tyre', v: `${startTyre.value} — ${startTyre.count} of ${history.length}` }
-      ];
+      const known = key => rows.filter(row => Number.isFinite(row[key]));
+
+      const grids = known('grid');
+      if (grids.length) {
+        const fromPole = grids.filter(row => row.grid === 1).length;
+        facts.push({ k: 'Wins from pole', v: `${fromPole} of ${grids.length}` });
+      }
+
+      const stops = known('stops');
+      if (stops.length) {
+        const common = mode(stops.map(row => row.stops));
+        const average = stops.reduce((sum, row) => sum + row.stops, 0) / stops.length;
+        facts.push({ k: 'Most common strategy', v: `${common.value}-stop in ${common.count} of ${stops.length}` });
+        facts.push({ k: 'Average stops', v: average.toFixed(1) });
+      }
+
+      const margins = known('marginSec');
+      if (margins.length) {
+        const average = margins.reduce((sum, row) => sum + row.marginSec, 0) / margins.length;
+        const closest = margins.reduce((best, row) => (row.marginSec < best.marginSec ? row : best));
+        facts.push({ k: 'Average winning margin', v: `${average.toFixed(1)} s` });
+        facts.push({ k: 'Closest finish', v: `${closest.marginSec.toFixed(3)} s in ${closest.year}` });
+      }
+
+      return facts;
+    }
+
+    /* Parses "1:21.046", "1:31:44.742" or "58.912" into seconds. */
+    function parseClockSeconds(text) {
+      if (!text) return null;
+      const parts = String(text).trim().split(':').map(Number);
+      if (parts.some(part => !Number.isFinite(part))) return null;
+      return parts.reduce((total, part) => total * 60 + part, 0);
+    }
+
+    /* Parses an Ergast gap ("+7.152", "+1:02.345", "+1 Lap") into seconds. */
+    function parseGapSeconds(text) {
+      if (!text) return null;
+      const trimmed = String(text).trim();
+      if (!trimmed.startsWith('+')) return null;
+      return parseClockSeconds(trimmed.slice(1));
+    }
+
+    function toNumber(value) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    async function fetchJson(url) {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status} from ${url}`);
+      return response.json();
+    }
+
+    function racesOf(payload) {
+      return (((payload || {}).MRData || {}).RaceTable || {}).Races || [];
+    }
+
+    /* Runs tasks with a small concurrency cap so the public API's burst limit
+       is respected. */
+    async function mapWithLimit(items, limit, worker) {
+      const queue = [...items.entries()];
+      const runners = Array.from({ length: Math.min(limit, queue.length) }, async () => {
+        while (queue.length) {
+          const [index, item] = queue.shift();
+          await worker(item, index);
+        }
+      });
+      await Promise.all(runners);
+    }
+
+    async function fetchWinners(circuit) {
+      const { base, seasons } = state.api;
+      const id = circuit.ergastCircuitId;
+
+      const [winners, runnersUp] = await Promise.all([
+        fetchJson(`${base}/circuits/${id}/results/1.json?limit=100`),
+        fetchJson(`${base}/circuits/${id}/results/2.json?limit=100`).catch(() => null)
+      ]);
+
+      const gaps = new Map();
+      racesOf(runnersUp).forEach(race => {
+        const second = (race.Results || [])[0];
+        if (second && second.Time) gaps.set(race.season, parseGapSeconds(second.Time.time));
+      });
+
+      return racesOf(winners).slice(-seasons).reverse().map(race => {
+        const result = (race.Results || [])[0] || {};
+        const driver = result.Driver || {};
+        const fastest = (result.FastestLap || {}).Time || {};
+        return {
+          year: toNumber(race.season),
+          round: race.round,
+          driverId: driver.driverId || null,
+          winner: `${driver.givenName || ''} ${driver.familyName || ''}`.trim() || '—',
+          team: (result.Constructor || {}).name || '—',
+          grid: toNumber(result.grid),
+          laps: toNumber(result.laps),
+          poleSec: null,
+          fastestSec: parseClockSeconds(fastest.time),
+          marginSec: gaps.has(race.season) ? gaps.get(race.season) : null,
+          stops: null
+        };
+      });
+    }
+
+    /* Pole times (2003+) and pit stop counts (2011+) are per-race endpoints, so
+       they load as a second pass and simply stay null where unavailable. */
+    async function enrichRows(rows, onProgress) {
+      const { base } = state.api;
+
+      await mapWithLimit(rows, 2, async row => {
+        const [pole, stops] = await Promise.all([
+          fetchJson(`${base}/${row.year}/${row.round}/qualifying.json?limit=1`)
+            .then(payload => {
+              const entry = ((racesOf(payload)[0] || {}).QualifyingResults || [])[0] || {};
+              return parseClockSeconds(entry.Q3 || entry.Q2 || entry.Q1);
+            })
+            .catch(() => null),
+          fetchJson(`${base}/${row.year}/${row.round}/pitstops.json?limit=100`)
+            .then(payload => {
+              const stopList = (racesOf(payload)[0] || {}).PitStops || [];
+              if (!stopList.length) return null;
+              return stopList.filter(stop => stop.driverId === row.driverId).length || null;
+            })
+            .catch(() => null)
+        ]);
+
+        row.poleSec = pole;
+        row.stops = stops;
+        onProgress();
+      });
+    }
+
+    async function loadHistory(circuit) {
+      const fallback = { status: 'fallback', rows: fallbackRows(circuit), note: '' };
+
+      if (!state.api.base || !circuit.ergastCircuitId) {
+        state.history = { ...fallback, note: 'Sample data from data.json — no results API configured.' };
+        renderHistory();
+        return;
+      }
+
+      if (state.historyCache[circuit.id]) {
+        state.history = state.historyCache[circuit.id];
+        renderHistory();
+        return;
+      }
+
+      state.history = { ...fallback, status: 'loading', note: `Loading results from ${state.api.label}…` };
+      renderHistory();
+
+      const token = ++state.historyToken;
+      const isStale = () => token !== state.historyToken;
+
+      try {
+        const rows = await fetchWinners(circuit);
+        if (isStale()) return;
+        if (!rows.length) throw new Error('the API returned no results for this circuit');
+
+        state.history = { status: 'live', rows, note: `Results from ${state.api.label}. Pole times and pit stop counts loading…` };
+        renderHistory();
+
+        await enrichRows(rows, () => {
+          if (!isStale()) renderHistory();
+        });
+        if (isStale()) return;
+
+        state.history = {
+          status: 'live',
+          rows,
+          note: `Results from ${state.api.label}. Pole times are unavailable before 2003 and pit stop counts before 2011.`
+        };
+        state.historyCache[circuit.id] = state.history;
+      } catch (error) {
+        if (isStale()) return;
+        state.history = {
+          ...fallback,
+          note: `Could not reach ${state.api.label} (${error.message}) — showing sample data from data.json.`
+        };
+      }
+
+      renderHistory();
     }
 
     function mode(values) {

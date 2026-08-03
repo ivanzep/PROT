@@ -1,11 +1,17 @@
 {
   "meta": {
     "season": 2026,
-    "note": "Prototype dataset. Figures are approximate public reference values, not a live timing feed."
+    "note": "Circuit, tyre and pit figures are approximate public reference values. Historic results are fetched live from the API below; the history arrays here are the offline fallback.",
+    "api": {
+      "base": "https://api.jolpi.ca/ergast/f1",
+      "label": "the Jolpica F1 API",
+      "seasons": 8
+    }
   },
   "circuits": [
     {
       "id": "monaco",
+      "ergastCircuitId": "monaco",
       "name": "Circuit de Monaco",
       "event": "Monaco Grand Prix",
       "country": "Monaco",
@@ -84,6 +90,7 @@
     },
     {
       "id": "silverstone",
+      "ergastCircuitId": "silverstone",
       "name": "Silverstone Circuit",
       "event": "British Grand Prix",
       "country": "United Kingdom",
@@ -162,6 +169,7 @@
     },
     {
       "id": "monza",
+      "ergastCircuitId": "monza",
       "name": "Autodromo Nazionale Monza",
       "event": "Italian Grand Prix",
       "country": "Italy",
