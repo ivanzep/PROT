@@ -4,9 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository overview
 
-This repo currently contains a single prototype: `file-renamer/index.html`, a self-contained, single-file "Batch File Renamer" web app. There is no build system, package manager, dependency manifest, or test suite — the entire app is one HTML file with inline `<style>` and `<script>` blocks and zero external dependencies.
+This repo is a collection of independent browser prototypes, one per folder. They share no code and no tooling: there is no build system, package manager, dependency manifest, or test suite anywhere in the repo, and no prototype has external dependencies.
 
-## Development workflow
+- `file-renamer/` — a self-contained, single-file "Batch File Renamer" web app (`index.html` with inline `<style>` and `<script>`).
+- `inbox-digests/` — dated inbox digest reports (`YYYY-MM-DD-inbox-digest.html`) plus an `index.html` archive that browses them.
+- `F1/` — a race weekend dashboard (`index.html`, `data.json`, `README.md`). The only prototype that is more than one file, and the only one that needs a local HTTP server rather than `file://`.
+
+Treat each folder as its own project. The sections below cover them individually; don't carry conventions from one into another.
+
+## file-renamer
+
+### Development workflow
 
 There is no build/lint/test tooling in this repo. To work on the app:
 
@@ -15,7 +23,7 @@ There is no build/lint/test tooling in this repo. To work on the app:
 - There is no automated test suite. Verify changes manually in a Chromium-based browser (folder selection via `webkitdirectory` is Chromium-only; other browsers only support multi-file selection).
 - Click "Load Sample" in the UI to populate a sample dataset for quick manual verification without needing real files.
 
-## Architecture
+### Architecture
 
 The app is a client-side rename **planner**, not a renamer. Plain HTML/JS cannot rename files on disk, so the tool builds a rename plan in memory and lets the user export it as either a CSV (for review) or a PowerShell script (`Rename-Item` commands) to actually execute the renames on Windows.
 
@@ -50,3 +58,12 @@ Everything lives in one `<script>` block in `file-renamer/index.html`, structure
 - `record.path`/`record.directory`/`record.folder`/`record.base`/`record.ext` are the canonical decomposed-path fields used throughout the pipeline — reuse `splitPath`/`splitName` rather than re-deriving these from a raw path.
 - `state.records` is raw input data (immutable per session, only appended/cleared); `state.plan` is always a derived, disposable recomputation from `state.records` + current options — never mutate `state.plan` directly or hand-patch it, just call `refresh()`.
 - All user-supplied/file-derived text rendered into the DOM goes through `escapeHtml`; anything written into the generated `.ps1` goes through `psString`. Keep using these when adding new rendered/exported fields.
+
+## F1
+
+A race weekend dashboard: track map with per-sector highlighting, race distance, historic results, tire compounds, pit stop time loss, and a parked placeholder for live timing.
+
+- Serve it over HTTP — `cd F1 && python3 -m http.server` — because it fetches `data.json`. Opening `index.html` over `file://` deliberately renders a "serve over HTTP" message instead of a blank page.
+- `F1/data.json` holds the circuit dataset; adding a circuit needs no code changes. `F1/index.html` holds all markup, styles, and logic.
+- Historic results are fetched live from the Ergast-compatible API configured under `meta.api` in `data.json`; the seeded `history` arrays are the offline fallback and render until (or instead of) a successful response. A pill above the table always says whether the data is live or sample.
+- `F1/README.md` is the detailed reference — data shape, API behaviour, layout, and what is parked. Read it before changing the data layer.

@@ -1,0 +1,250 @@
+{
+  "meta": {
+    "season": 2026,
+    "note": "Circuit, tyre and pit figures are approximate public reference values. Historic results are fetched live from the API below; the history arrays here are the offline fallback.",
+    "api": {
+      "base": "https://api.jolpi.ca/ergast/f1",
+      "label": "the Jolpica F1 API",
+      "seasons": 10
+    }
+  },
+  "circuits": [
+    {
+      "id": "monaco",
+      "ergastCircuitId": "monaco",
+      "name": "Circuit de Monaco",
+      "event": "Monaco Grand Prix",
+      "country": "Monaco",
+      "round": 8,
+      "sessions": [
+        { "label": "Practice 1", "day": "Friday", "time": "13:30" },
+        { "label": "Practice 2", "day": "Friday", "time": "17:00" },
+        { "label": "Practice 3", "day": "Saturday", "time": "12:30" },
+        { "label": "Qualifying", "day": "Saturday", "time": "16:00" },
+        { "label": "Race", "day": "Sunday", "time": "15:00" }
+      ],
+      "lapDistanceKm": 3.337,
+      "raceLaps": 78,
+      "raceDistanceKm": 260.286,
+      "turns": 19,
+      "drsZones": 1,
+      "lapRecord": { "driver": "Lewis Hamilton", "time": 71.381, "year": 2021 },
+      "map": {
+        "viewBox": "0 0 400 260",
+        "outline": "M 62 196 L 70 150 Q 72 132 88 126 L 128 112 Q 142 107 148 94 L 158 72 Q 165 58 180 56 L 214 52 Q 232 50 240 64 L 252 86 Q 258 96 270 98 L 314 104 Q 332 107 336 124 L 344 158 Q 348 176 332 184 L 300 198 Q 288 203 288 214 L 288 222 Q 288 232 276 232 L 232 232 Q 220 232 216 222 L 210 208 Q 205 196 192 196 L 150 196 Q 138 196 132 204 L 122 218 Q 116 226 104 226 L 78 226 Q 62 226 62 210 Z"
+      },
+      "sectors": [
+        {
+          "n": 1,
+          "path": "M 62 196 L 70 150 Q 72 132 88 126 L 128 112 Q 142 107 148 94 L 158 72 Q 165 58 180 56 L 214 52",
+          "note": "Sainte Devote up the hill to Casino"
+        },
+        {
+          "n": 2,
+          "path": "M 214 52 Q 232 50 240 64 L 252 86 Q 258 96 270 98 L 314 104 Q 332 107 336 124 L 344 158 Q 348 176 332 184 L 300 198",
+          "note": "Mirabeau, Hairpin and the tunnel"
+        },
+        {
+          "n": 3,
+          "path": "M 300 198 Q 288 203 288 214 L 288 222 Q 288 232 276 232 L 232 232 Q 220 232 216 222 L 210 208 Q 205 196 192 196 L 150 196 Q 138 196 132 204 L 122 218 Q 116 226 104 226 L 78 226 Q 62 226 62 210 Z",
+          "note": "Chicane, Tabac, swimming pool and Rascasse"
+        }
+      ],
+      "corners": [
+        { "n": 1, "x": 66, "y": 172, "name": "Sainte Devote" },
+        { "n": 4, "x": 152, "y": 84, "name": "Massenet" },
+        { "n": 6, "x": 246, "y": 74, "name": "Mirabeau Haute" },
+        { "n": 8, "x": 322, "y": 108, "name": "Grand Hotel Hairpin" },
+        { "n": 12, "x": 340, "y": 172, "name": "Tunnel exit" },
+        { "n": 15, "x": 250, "y": 233, "name": "Swimming Pool" },
+        { "n": 18, "x": 118, "y": 222, "name": "Rascasse" }
+      ],
+      "history": [
+        { "year": 2025, "winner": "Lando Norris", "team": "McLaren", "startCompound": "Medium", "stops": 2, "safetyCars": 1, "poleTime": 69.954, "fastestLap": 73.221, "winMarginSec": 3.131 },
+        { "year": 2024, "winner": "Charles Leclerc", "team": "Ferrari", "startCompound": "Medium", "stops": 1, "safetyCars": 1, "poleTime": 70.27, "fastestLap": 74.165, "winMarginSec": 7.152 },
+        { "year": 2023, "winner": "Max Verstappen", "team": "Red Bull", "startCompound": "Medium", "stops": 1, "safetyCars": 0, "poleTime": 71.365, "fastestLap": 75.65, "winMarginSec": 27.921 },
+        { "year": 2022, "winner": "Sergio Perez", "team": "Red Bull", "startCompound": "Wet", "stops": 2, "safetyCars": 1, "poleTime": 71.376, "fastestLap": 74.693, "winMarginSec": 1.154 },
+        { "year": 2021, "winner": "Max Verstappen", "team": "Red Bull", "startCompound": "Soft", "stops": 1, "safetyCars": 0, "poleTime": 70.346, "fastestLap": 71.381, "winMarginSec": 8.968 },
+        { "year": 2019, "winner": "Lewis Hamilton", "team": "Mercedes", "startCompound": "Medium", "stops": 1, "safetyCars": 1, "poleTime": 70.166, "fastestLap": 74.279, "winMarginSec": 2.602 }
+      ],
+      "tyres": [
+        { "compound": "C5", "label": "Soft", "sets": 8, "expectedLifeLaps": 24, "degPerLapSec": 0.05, "note": "Qualifying tyre; low degradation on a low-energy surface" },
+        { "compound": "C4", "label": "Medium", "sets": 3, "expectedLifeLaps": 42, "degPerLapSec": 0.03, "note": "Preferred start compound for a one-stop" },
+        { "compound": "C3", "label": "Hard", "sets": 2, "expectedLifeLaps": 60, "degPerLapSec": 0.02, "note": "Rarely used; struggles to reach temperature" },
+        { "compound": "INT", "label": "Intermediate", "sets": 4, "expectedLifeLaps": 30, "degPerLapSec": 0.09, "note": "Frequently decisive here in changeable weather" },
+        { "compound": "WET", "label": "Wet", "sets": 3, "expectedLifeLaps": 25, "degPerLapSec": 0.11, "note": "Standing water in the tunnel entry is the usual trigger" }
+      ],
+      "pit": {
+        "pitLaneLengthM": 315,
+        "speedLimitKph": 60,
+        "pitLaneTimeSec": 18.9,
+        "stationaryTimeSec": 2.4,
+        "totalLossSec": 19.8,
+        "breakdown": [
+          { "label": "Entry deceleration", "seconds": 3.4 },
+          { "label": "Pit lane transit at limit", "seconds": 12.1 },
+          { "label": "Stationary", "seconds": 2.4 },
+          { "label": "Exit acceleration", "seconds": 1.9 }
+        ]
+      }
+    },
+    {
+      "id": "silverstone",
+      "ergastCircuitId": "silverstone",
+      "name": "Silverstone Circuit",
+      "event": "British Grand Prix",
+      "country": "United Kingdom",
+      "round": 12,
+      "sessions": [
+        { "label": "Practice 1", "day": "Friday", "time": "12:30" },
+        { "label": "Practice 2", "day": "Friday", "time": "16:00" },
+        { "label": "Practice 3", "day": "Saturday", "time": "11:30" },
+        { "label": "Qualifying", "day": "Saturday", "time": "15:00" },
+        { "label": "Race", "day": "Sunday", "time": "15:00" }
+      ],
+      "lapDistanceKm": 5.891,
+      "raceLaps": 52,
+      "raceDistanceKm": 306.198,
+      "turns": 18,
+      "drsZones": 2,
+      "lapRecord": { "driver": "Max Verstappen", "time": 87.097, "year": 2020 },
+      "map": {
+        "viewBox": "0 0 400 260",
+        "outline": "M 70 208 L 96 148 Q 104 130 124 130 L 176 130 Q 196 130 202 112 L 214 78 Q 220 60 240 58 L 300 52 Q 322 50 330 68 L 344 100 Q 352 118 336 128 L 300 148 Q 286 156 290 170 L 296 194 Q 300 210 284 216 L 214 236 Q 198 240 188 228 L 172 208 Q 164 198 150 200 L 108 208 Q 92 211 84 222 Q 74 236 70 220 Z"
+      },
+      "sectors": [
+        {
+          "n": 1,
+          "path": "M 70 208 L 96 148 Q 104 130 124 130 L 176 130 Q 196 130 202 112 L 214 78 Q 220 60 240 58",
+          "note": "Abbey, Farm Curve and the Maggotts-Becketts complex"
+        },
+        {
+          "n": 2,
+          "path": "M 240 58 L 300 52 Q 322 50 330 68 L 344 100 Q 352 118 336 128 L 300 148 Q 286 156 290 170",
+          "note": "Hangar Straight into Stowe and Vale"
+        },
+        {
+          "n": 3,
+          "path": "M 290 170 L 296 194 Q 300 210 284 216 L 214 236 Q 198 240 188 228 L 172 208 Q 164 198 150 200 L 108 208 Q 92 211 84 222 Q 74 236 70 220 Z",
+          "note": "Club corner and the run to the line"
+        }
+      ],
+      "corners": [
+        { "n": 1, "x": 82, "y": 176, "name": "Abbey" },
+        { "n": 3, "x": 130, "y": 128, "name": "Village" },
+        { "n": 6, "x": 206, "y": 96, "name": "Brooklands" },
+        { "n": 9, "x": 296, "y": 52, "name": "Maggotts" },
+        { "n": 15, "x": 340, "y": 116, "name": "Stowe" },
+        { "n": 17, "x": 292, "y": 184, "name": "Vale" },
+        { "n": 18, "x": 210, "y": 236, "name": "Club" }
+      ],
+      "history": [
+        { "year": 2025, "winner": "Lando Norris", "team": "McLaren", "startCompound": "Intermediate", "stops": 3, "safetyCars": 2, "poleTime": 84.892, "fastestLap": 89.97, "winMarginSec": 6.812 },
+        { "year": 2024, "winner": "Lewis Hamilton", "team": "Mercedes", "startCompound": "Medium", "stops": 2, "safetyCars": 0, "poleTime": 85.819, "fastestLap": 88.139, "winMarginSec": 1.465 },
+        { "year": 2023, "winner": "Max Verstappen", "team": "Red Bull", "startCompound": "Medium", "stops": 1, "safetyCars": 1, "poleTime": 86.72, "fastestLap": 90.275, "winMarginSec": 3.798 },
+        { "year": 2022, "winner": "Carlos Sainz", "team": "Ferrari", "startCompound": "Soft", "stops": 2, "safetyCars": 2, "poleTime": 90.983, "fastestLap": 90.51, "winMarginSec": 3.779 },
+        { "year": 2021, "winner": "Lewis Hamilton", "team": "Mercedes", "startCompound": "Medium", "stops": 1, "safetyCars": 1, "poleTime": 86.209, "fastestLap": 90.36, "winMarginSec": 3.871 },
+        { "year": 2020, "winner": "Lewis Hamilton", "team": "Mercedes", "startCompound": "Medium", "stops": 1, "safetyCars": 1, "poleTime": 84.303, "fastestLap": 87.097, "winMarginSec": 5.856 }
+      ],
+      "tyres": [
+        { "compound": "C3", "label": "Soft", "sets": 8, "expectedLifeLaps": 16, "degPerLapSec": 0.13, "note": "High lateral loads through Copse and Becketts limit stint length" },
+        { "compound": "C2", "label": "Medium", "sets": 3, "expectedLifeLaps": 26, "degPerLapSec": 0.09, "note": "Core race compound for a two-stop" },
+        { "compound": "C1", "label": "Hard", "sets": 2, "expectedLifeLaps": 38, "degPerLapSec": 0.06, "note": "Enables the one-stop when track temperature drops" },
+        { "compound": "INT", "label": "Intermediate", "sets": 4, "expectedLifeLaps": 22, "degPerLapSec": 0.14, "note": "Crossover tyre in the region's typical mixed weather" },
+        { "compound": "WET", "label": "Wet", "sets": 3, "expectedLifeLaps": 18, "degPerLapSec": 0.16, "note": "Full wet running is usually short before a red flag or crossover" }
+      ],
+      "pit": {
+        "pitLaneLengthM": 405,
+        "speedLimitKph": 80,
+        "pitLaneTimeSec": 18.2,
+        "stationaryTimeSec": 2.3,
+        "totalLossSec": 20.6,
+        "breakdown": [
+          { "label": "Entry deceleration", "seconds": 4.1 },
+          { "label": "Pit lane transit at limit", "seconds": 11.9 },
+          { "label": "Stationary", "seconds": 2.3 },
+          { "label": "Exit acceleration", "seconds": 2.3 }
+        ]
+      }
+    },
+    {
+      "id": "monza",
+      "ergastCircuitId": "monza",
+      "name": "Autodromo Nazionale Monza",
+      "event": "Italian Grand Prix",
+      "country": "Italy",
+      "round": 16,
+      "sessions": [
+        { "label": "Practice 1", "day": "Friday", "time": "13:30" },
+        { "label": "Practice 2", "day": "Friday", "time": "17:00" },
+        { "label": "Practice 3", "day": "Saturday", "time": "12:30" },
+        { "label": "Qualifying", "day": "Saturday", "time": "16:00" },
+        { "label": "Race", "day": "Sunday", "time": "15:00" }
+      ],
+      "lapDistanceKm": 5.793,
+      "raceLaps": 53,
+      "raceDistanceKm": 306.72,
+      "turns": 11,
+      "drsZones": 2,
+      "lapRecord": { "driver": "Rubens Barrichello", "time": 81.046, "year": 2004 },
+      "map": {
+        "viewBox": "0 0 400 260",
+        "outline": "M 86 226 L 96 96 Q 97 78 114 74 L 150 66 Q 166 62 172 76 L 182 98 Q 188 112 204 110 L 244 104 Q 262 101 268 86 L 278 62 Q 284 48 300 50 L 326 54 Q 344 57 342 76 L 330 168 Q 328 186 310 192 L 250 212 Q 234 218 232 232 Q 230 244 216 240 L 100 240 Q 86 240 86 226 Z"
+      },
+      "sectors": [
+        {
+          "n": 1,
+          "path": "M 86 226 L 96 96 Q 97 78 114 74 L 150 66 Q 166 62 172 76 L 182 98",
+          "note": "Main straight into Variante del Rettifilo and Curva Grande"
+        },
+        {
+          "n": 2,
+          "path": "M 182 98 Q 188 112 204 110 L 244 104 Q 262 101 268 86 L 278 62 Q 284 48 300 50 L 326 54 Q 344 57 342 76 L 330 168",
+          "note": "Roggia chicane and the two Lesmo corners"
+        },
+        {
+          "n": 3,
+          "path": "M 330 168 Q 328 186 310 192 L 250 212 Q 234 218 232 232 Q 230 244 216 240 L 100 240 Q 86 240 86 226 Z",
+          "note": "Ascari, back straight and Parabolica"
+        }
+      ],
+      "corners": [
+        { "n": 1, "x": 92, "y": 128, "name": "Rettifilo" },
+        { "n": 3, "x": 138, "y": 68, "name": "Curva Grande" },
+        { "n": 4, "x": 186, "y": 104, "name": "Variante della Roggia" },
+        { "n": 6, "x": 264, "y": 92, "name": "Lesmo 1" },
+        { "n": 7, "x": 314, "y": 52, "name": "Lesmo 2" },
+        { "n": 8, "x": 336, "y": 150, "name": "Variante Ascari" },
+        { "n": 11, "x": 236, "y": 226, "name": "Parabolica" }
+      ],
+      "history": [
+        { "year": 2025, "winner": "Max Verstappen", "team": "Red Bull", "startCompound": "Medium", "stops": 1, "safetyCars": 0, "poleTime": 78.792, "fastestLap": 81.964, "winMarginSec": 19.207 },
+        { "year": 2024, "winner": "Charles Leclerc", "team": "Ferrari", "startCompound": "Medium", "stops": 1, "safetyCars": 0, "poleTime": 79.813, "fastestLap": 82.653, "winMarginSec": 2.664 },
+        { "year": 2023, "winner": "Max Verstappen", "team": "Red Bull", "startCompound": "Medium", "stops": 1, "safetyCars": 0, "poleTime": 80.294, "fastestLap": 85.51, "winMarginSec": 6.064 },
+        { "year": 2022, "winner": "Max Verstappen", "team": "Red Bull", "startCompound": "Soft", "stops": 2, "safetyCars": 1, "poleTime": 80.161, "fastestLap": 84.03, "winMarginSec": 2.446 },
+        { "year": 2021, "winner": "Daniel Ricciardo", "team": "McLaren", "startCompound": "Medium", "stops": 1, "safetyCars": 1, "poleTime": 79.555, "fastestLap": 84.219, "winMarginSec": 1.747 },
+        { "year": 2020, "winner": "Pierre Gasly", "team": "AlphaTauri", "startCompound": "Soft", "stops": 2, "safetyCars": 1, "poleTime": 78.887, "fastestLap": 82.31, "winMarginSec": 0.415 }
+      ],
+      "tyres": [
+        { "compound": "C5", "label": "Soft", "sets": 8, "expectedLifeLaps": 14, "degPerLapSec": 0.11, "note": "Thermal degradation arrives quickly on the long straights" },
+        { "compound": "C4", "label": "Medium", "sets": 3, "expectedLifeLaps": 25, "degPerLapSec": 0.07, "note": "Usual first stint of the standard one-stop" },
+        { "compound": "C3", "label": "Hard", "sets": 2, "expectedLifeLaps": 40, "degPerLapSec": 0.04, "note": "Long second stint to the flag" },
+        { "compound": "INT", "label": "Intermediate", "sets": 4, "expectedLifeLaps": 20, "degPerLapSec": 0.15, "note": "Low downforce set-up makes the crossover point late" },
+        { "compound": "WET", "label": "Wet", "sets": 3, "expectedLifeLaps": 16, "degPerLapSec": 0.18, "note": "Spray on the straights is the main visibility limit" }
+      ],
+      "pit": {
+        "pitLaneLengthM": 385,
+        "speedLimitKph": 80,
+        "pitLaneTimeSec": 17.3,
+        "stationaryTimeSec": 2.2,
+        "totalLossSec": 24.1,
+        "breakdown": [
+          { "label": "Entry deceleration", "seconds": 6.2 },
+          { "label": "Pit lane transit at limit", "seconds": 11.4 },
+          { "label": "Stationary", "seconds": 2.2 },
+          { "label": "Exit acceleration", "seconds": 4.3 }
+        ]
+      }
+    }
+  ]
+}
