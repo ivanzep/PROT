@@ -5,7 +5,7 @@
     "api": {
       "base": "https://api.jolpi.ca/ergast/f1",
       "label": "the Jolpica F1 API",
-      "seasons": 8
+      "seasons": 10
     }
   },
   "circuits": [

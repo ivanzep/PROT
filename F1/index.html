@@ -21,9 +21,12 @@
       --warn: #f5a623;
       --purple: #a45cff;
 
-      --s1: #4cc9f0;
-      --s2: #f5a623;
-      --s3: #a45cff;
+      /* Categorical series colors, shared by the track map sectors and the
+         history chart. Validated for the dark card surfaces: OKLCH lightness
+         band, chroma floor, CVD separation, and contrast all pass. */
+      --s1: #2f9fcc;
+      --s2: #c48414;
+      --s3: #8a4fd6;
 
       --tyre-soft: #ff2d2d;
       --tyre-medium: #ffd12b;
@@ -450,13 +453,184 @@
       background: rgba(245, 166, 35, .1);
     }
 
+    /* ---------- history chart ---------- */
+
+    .chart-wrap {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .chart {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .chart .grid-line { stroke: var(--line); stroke-width: 1; }
+    .chart .axis-text { fill: var(--ink-faint); font-size: 10px; font-family: var(--mono); }
+    .chart .series-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .chart .series-dot { stroke: var(--card); stroke-width: 2; }
+    .chart .end-label { font-size: 11px; font-family: var(--mono); }
+    .chart .crosshair { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 3 3; }
+    .chart .hit { fill: transparent; }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-bottom: 10px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--ink-dim);
+    }
+
+    .legend i {
+      width: 12px;
+      height: 3px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .chart-tip {
+      position: absolute;
+      z-index: 2;
+      min-width: 140px;
+      padding: 8px 10px;
+      background: var(--bg-raise);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 12px;
+      pointer-events: none;
+      transform: translate(-50%, 0);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+    }
+
+    .chart-tip .year {
+      font-family: var(--mono);
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .chart-tip .who { color: var(--ink-dim); margin-bottom: 6px; }
+
+    .chart-tip .row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--ink-dim);
+    }
+
+    .chart-tip .row b {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .chart-tip i {
+      width: 10px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
+    .chart-empty {
+      padding: 26px 12px;
+      text-align: center;
+      font-size: 12px;
+      font-style: italic;
+      color: var(--ink-faint);
+      background: var(--card-soft);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .range {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      background: var(--card-soft);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    .range button {
+      font: inherit;
+      font-size: 11px;
+      padding: 4px 11px;
+      color: var(--ink-dim);
+      background: transparent;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .range button:hover { color: var(--ink); }
+
+    .range button[aria-pressed="true"] {
+      color: var(--ink);
+      background: var(--bg-raise);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    /* ---------- parked section ---------- */
+
+    .parked {
+      margin-top: 18px;
+      background: transparent;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 0;
+    }
+
+    .parked summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 14px 18px;
+      cursor: pointer;
+      list-style: none;
+      color: var(--ink-dim);
+    }
+
+    .parked summary::-webkit-details-marker { display: none; }
+
+    .parked summary::before {
+      content: "▸";
+      color: var(--ink-faint);
+      font-size: 11px;
+    }
+
+    .parked[open] summary::before { content: "▾"; }
+
+    .parked summary h2 { margin: 0; }
+
+    .parked summary .hint {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--ink-faint);
+    }
+
+    .parked-body { padding: 0 18px 18px; }
+
     /* ---------- tyres ---------- */
 
-    .tyres { display: grid; gap: 10px; }
+    .tyres {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+      gap: 10px;
+    }
 
     .tyre {
       display: grid;
       grid-template-columns: 44px minmax(0, 1fr);
+      align-content: start;
       gap: 12px;
       align-items: center;
       background: var(--card-soft);
@@ -696,18 +870,25 @@
 
           <section class="card">
             <div class="card-head">
-              <h2>Tire compounds</h2>
-              <span class="pill" id="tyrePill"></span>
+              <h2>Pit stop time loss</h2>
+              <span class="pill" id="pitPill"></span>
             </div>
-            <div class="tyres" id="tyreList"></div>
+            <div class="headline" id="pitTotal"></div>
+            <div class="headline-note" id="pitNote"></div>
+            <div class="stack" id="pitStack"></div>
+            <div class="stack-key" id="pitKey"></div>
+            <div class="tiles" id="pitTiles"></div>
           </section>
         </div>
 
-        <section class="card span-7">
+        <section class="card">
           <div class="card-head">
             <h2>Historic data</h2>
+            <div class="range" id="historyRange" role="group" aria-label="Seasons shown"></div>
             <span class="pill" id="historyPill"></span>
           </div>
+          <div class="legend" id="chartLegend"></div>
+          <div class="chart-wrap" id="chartWrap"></div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -730,23 +911,22 @@
           <p class="source-note" id="historySource"></p>
         </section>
 
-        <section class="card span-5">
-          <div class="card-head">
-            <h2>Pit stop time loss</h2>
-            <span class="pill" id="pitPill"></span>
-          </div>
-          <div class="headline" id="pitTotal"></div>
-          <div class="headline-note" id="pitNote"></div>
-          <div class="stack" id="pitStack"></div>
-          <div class="stack-key" id="pitKey"></div>
-          <div class="tiles" id="pitTiles"></div>
-        </section>
-
         <section class="card">
           <div class="card-head">
-            <h2>Live timing</h2>
-            <span class="pill offline" id="livePill">Not connected</span>
+            <h2>Tire compounds</h2>
+            <span class="pill" id="tyrePill"></span>
           </div>
+          <div class="tyres" id="tyreList"></div>
+        </section>
+      </div>
+
+      <details class="parked">
+        <summary>
+          <h2>Live timing</h2>
+          <span class="pill offline" id="livePill">Parked</span>
+          <span class="hint">Placeholder — expand to see the intended layout</span>
+        </summary>
+        <div class="parked-body">
           <p class="live-note" id="liveNote"></p>
           <div class="live-grid">
             <div class="live-panel">
@@ -795,8 +975,8 @@
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </details>
     </main>
   </div>
 
@@ -810,9 +990,12 @@
       // Ergast-compatible results API, configured in data.json under meta.api.
       api: { base: null, label: 'the results API', seasons: 8 },
       // { status: 'loading' | 'live' | 'fallback', rows: [], note } for the historic card.
+      // rows holds everything fetched; historySeasons controls how many are shown.
       history: null,
       historyCache: {},
       historyToken: 0,
+      historyRanges: [5, 10, 20],
+      historySeasons: 10,
       // TODO: a live feed would populate this with { laps: [], sectors: [], tyres: [] }
       // and renderLive() would switch from its empty state to real rows.
       live: null
@@ -862,7 +1045,7 @@
         'roundLabel', 'eventName', 'circuitLine', 'circuitSelect', 'errorBox', 'errorDetail',
         'dashboard', 'schedule', 'trackMap', 'sectorLegend', 'mapPill', 'distancePill',
         'raceTiles', 'historyPill', 'historyBody', 'historyFacts', 'tyrePill', 'tyreList',
-        'historySource', 'pitPill', 'pitTotal', 'pitNote', 'pitStack', 'pitKey', 'pitTiles', 'livePill',
+        'historySource', 'historyRange', 'chartLegend', 'chartWrap', 'pitPill', 'pitTotal', 'pitNote', 'pitStack', 'pitKey', 'pitTiles', 'livePill',
         'liveNote', 'liveLapsBody', 'liveSectorsBody', 'liveTyresBody'
       ];
       ids.forEach(id => { els[id] = document.getElementById(id); });
@@ -876,6 +1059,7 @@
         state.circuits = Array.isArray(data.circuits) ? data.circuits : [];
         if (!state.circuits.length) throw new Error('data.json contained no circuits');
         state.api = { ...state.api, ...(((data.meta || {}).api) || {}) };
+        if (state.historyRanges.includes(state.api.seasons)) state.historySeasons = state.api.seasons;
       } catch (error) {
         state.error = error.message || String(error);
         showError();
@@ -897,6 +1081,10 @@
         `<option value="${escapeHtml(circuit.id)}">${escapeHtml(circuit.event)} — ${escapeHtml(circuit.name)}</option>`
       )).join('');
       els.circuitSelect.addEventListener('change', event => selectCircuit(event.target.value));
+      els.historyRange.addEventListener('click', event => {
+        const count = Number(event.target.dataset.count);
+        if (count) setHistorySeasons(count);
+      });
     }
 
     function selectCircuit(id) {
@@ -1039,9 +1227,17 @@
       }));
     }
 
+    function visibleHistoryRows() {
+      const history = state.history || { rows: [] };
+      return (history.rows || []).slice(0, state.historySeasons);
+    }
+
     function renderHistory() {
       const history = state.history || { status: 'fallback', rows: [] };
-      const rows = history.rows || [];
+      const rows = visibleHistoryRows();
+
+      renderHistoryRange();
+      renderHistoryChart(rows);
 
       els.historyPill.className = 'pill';
       if (history.status === 'loading') {
@@ -1054,6 +1250,8 @@
         els.historyPill.classList.add('stale');
         els.historyPill.textContent = `${rows.length} runnings · sample`;
       }
+
+      els.historyRange.hidden = (history.rows || []).length <= Math.min(...state.historyRanges);
 
       els.historyBody.innerHTML = rows.length ? rows.map(row => `
         <tr>
@@ -1075,6 +1273,185 @@
         </div>`).join('');
 
       els.historySource.textContent = history.note || '';
+    }
+
+    /* ---------- history chart ----------
+       Two series on one axis: both are lap times in seconds, so they share a
+       scale. Missing values (no pole time before 2003) break the line rather
+       than being interpolated. */
+
+    const SERIES = [
+      { key: 'poleSec', label: 'Pole', color: 'var(--s1)' },
+      { key: 'fastestSec', label: 'Fastest lap', color: 'var(--s3)' }
+    ];
+
+    /* Rounds an axis step to a value that reads well in lap time terms, aiming
+       for roughly four to seven gridlines. */
+    function niceStep(raw) {
+      const candidates = [0.25, 0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300];
+      return candidates.find(candidate => candidate >= raw / 1.5) || candidates[candidates.length - 1];
+    }
+
+    /* Axis ticks drop the milliseconds when the step is a whole second. */
+    function formatAxisTime(seconds, step) {
+      const text = formatLapTime(seconds);
+      return step >= 1 ? text.replace(/\.\d+$/, '') : text;
+    }
+
+    function renderHistoryChart(rows) {
+      const points = [...rows].reverse();
+      const values = points.flatMap(row => SERIES.map(series => row[series.key])).filter(Number.isFinite);
+
+      els.chartLegend.innerHTML = SERIES.map(series => (
+        `<span><i style="background:${series.color}"></i>${escapeHtml(series.label)}</span>`
+      )).join('');
+
+      if (values.length < 2) {
+        els.chartWrap.innerHTML = '<div class="chart-empty">Not enough lap time data to plot</div>';
+        return;
+      }
+
+      // The viewBox tracks the container's aspect so text and marks keep a
+      // sensible size instead of shrinking with the card on narrow screens.
+      const narrow = (els.chartWrap.clientWidth || 1000) < 560;
+      const width = narrow ? 420 : 1000;
+      const height = narrow ? 300 : 250;
+      const pad = narrow
+        ? { top: 14, right: 20, bottom: 26, left: 58 }
+        : { top: 16, right: 96, bottom: 28, left: 74 };
+      const plotWidth = width - pad.left - pad.right;
+      const plotHeight = height - pad.top - pad.bottom;
+
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const span = max - min || 1;
+      const low = min - span * 0.15;
+      const high = max + span * 0.15;
+
+      const x = index => pad.left + (points.length === 1 ? plotWidth / 2 : (index / (points.length - 1)) * plotWidth);
+      const y = value => pad.top + plotHeight - ((value - low) / (high - low)) * plotHeight;
+
+      const step = niceStep((high - low) / 4);
+      const gridLines = [];
+      for (let value = Math.ceil(low / step) * step; value <= high; value += step) {
+        gridLines.push(`
+          <line class="grid-line" x1="${pad.left}" y1="${y(value).toFixed(1)}" x2="${pad.left + plotWidth}" y2="${y(value).toFixed(1)}"></line>
+          <text class="axis-text" x="${pad.left - 8}" y="${(y(value) + 3).toFixed(1)}" text-anchor="end">${escapeHtml(formatAxisTime(value, step))}</text>`);
+      }
+
+      // Label every year when there is room, otherwise thin them out.
+      const labelStep = Math.ceil(points.length / (narrow ? 4 : 10));
+      const last = points.length - 1;
+      const yearLabels = points.map((row, index) => {
+        // Always label the most recent season, dropping the neighbour it crowds.
+        const onStep = (last - index) % labelStep === 0;
+        return onStep
+          ? `<text class="axis-text" x="${x(index).toFixed(1)}" y="${height - 8}" text-anchor="middle">${escapeHtml(row.year)}</text>`
+          : '';
+      }).join('');
+
+      const seriesMarkup = SERIES.map(series => {
+        const segments = [];
+        let current = [];
+        points.forEach((row, index) => {
+          if (Number.isFinite(row[series.key])) {
+            current.push(`${x(index).toFixed(1)},${y(row[series.key]).toFixed(1)}`);
+          } else if (current.length) {
+            segments.push(current);
+            current = [];
+          }
+        });
+        if (current.length) segments.push(current);
+
+        const lines = segments
+          .filter(segment => segment.length > 1)
+          .map(segment => `<polyline class="series-line" stroke="${series.color}" points="${segment.join(' ')}"></polyline>`)
+          .join('');
+
+        const dots = points.map((row, index) => (
+          Number.isFinite(row[series.key])
+            ? `<circle class="series-dot" cx="${x(index).toFixed(1)}" cy="${y(row[series.key]).toFixed(1)}" r="4" fill="${series.color}"></circle>`
+            : ''
+        )).join('');
+
+        // Direct label at the most recent point carries identity without the legend.
+        const latest = [...points].reverse().find(row => Number.isFinite(row[series.key]));
+        const latestIndex = points.lastIndexOf(latest);
+        const label = latest && !narrow
+          ? `<text class="end-label" fill="${series.color}" x="${(x(latestIndex) + 9).toFixed(1)}" y="${(y(latest[series.key]) + 4).toFixed(1)}">${escapeHtml(series.label)}</text>`
+          : '';
+
+        return lines + dots + label;
+      }).join('');
+
+      els.chartWrap.innerHTML = `
+        <svg class="chart" viewBox="0 0 ${width} ${height}" role="img"
+             aria-label="Pole time and fastest lap by season; the table below lists the same values">
+          ${gridLines.join('')}
+          ${yearLabels}
+          <line class="crosshair" id="chartCrosshair" y1="${pad.top}" y2="${pad.top + plotHeight}" style="display:none"></line>
+          ${seriesMarkup}
+          <rect class="hit" id="chartHit" x="${pad.left - 12}" y="${pad.top}" width="${plotWidth + 24}" height="${plotHeight}"></rect>
+        </svg>
+        <div class="chart-tip" id="chartTip" style="display:none"></div>`;
+
+      wireChartHover(points, { x, y, width, height, pad, plotWidth });
+    }
+
+    function wireChartHover(points, geometry) {
+      const svg = els.chartWrap.querySelector('.chart');
+      const hit = els.chartWrap.querySelector('#chartHit');
+      const crosshair = els.chartWrap.querySelector('#chartCrosshair');
+      const tip = els.chartWrap.querySelector('#chartTip');
+      if (!svg || !hit) return;
+
+      const hide = () => {
+        crosshair.style.display = 'none';
+        tip.style.display = 'none';
+      };
+
+      const show = event => {
+        const box = svg.getBoundingClientRect();
+        const scale = geometry.width / box.width;
+        const localX = (event.clientX - box.left) * scale;
+
+        let nearest = 0;
+        points.forEach((row, index) => {
+          if (Math.abs(geometry.x(index) - localX) < Math.abs(geometry.x(nearest) - localX)) nearest = index;
+        });
+
+        const row = points[nearest];
+        crosshair.setAttribute('x1', geometry.x(nearest));
+        crosshair.setAttribute('x2', geometry.x(nearest));
+        crosshair.style.display = '';
+
+        tip.innerHTML = `
+          <div class="year">${escapeHtml(row.year)}</div>
+          <div class="who">${escapeHtml(row.winner)} · ${escapeHtml(row.team)}</div>
+          ${SERIES.map(series => `
+            <div class="row">
+              <i style="background:${series.color}"></i>${escapeHtml(series.label)}
+              <b>${escapeHtml(formatLapTime(row[series.key]))}</b>
+            </div>`).join('')}`;
+        // Kept inside the plot area and clamped away from the edges so it never
+        // covers the card header or spills out of the card.
+        const percent = (geometry.x(nearest) / geometry.width) * 100;
+        tip.style.display = '';
+        tip.style.left = `${Math.min(88, Math.max(12, percent))}%`;
+        tip.style.top = `${((geometry.pad.top + 10) / geometry.height) * box.height}px`;
+      };
+
+      hit.addEventListener('mousemove', show);
+      hit.addEventListener('mouseleave', hide);
+      svg.addEventListener('mouseleave', hide);
+    }
+
+    function renderHistoryRange() {
+      const options = state.historyRanges;
+      els.historyRange.innerHTML = options.map(count => `
+        <button type="button" data-count="${count}" aria-pressed="${count === state.historySeasons}">
+          ${count} seasons
+        </button>`).join('');
     }
 
     function buildHistoryFacts(rows) {
@@ -1157,8 +1534,9 @@
     }
 
     async function fetchWinners(circuit) {
-      const { base, seasons } = state.api;
+      const { base } = state.api;
       const id = circuit.ergastCircuitId;
+      const seasons = Math.max(...state.historyRanges);
 
       const [winners, runnersUp] = await Promise.all([
         fetchJson(`${base}/circuits/${id}/results/1.json?limit=100`),
@@ -1195,8 +1573,10 @@
        they load as a second pass and simply stay null where unavailable. */
     async function enrichRows(rows, onProgress) {
       const { base } = state.api;
+      const pending = rows.filter(row => !row.enriched);
+      if (!pending.length) return;
 
-      await mapWithLimit(rows, 2, async row => {
+      await mapWithLimit(pending, 2, async row => {
         const [pole, stops] = await Promise.all([
           fetchJson(`${base}/${row.year}/${row.round}/qualifying.json?limit=1`)
             .then(payload => {
@@ -1215,8 +1595,26 @@
 
         row.poleSec = pole;
         row.stops = stops;
+        row.enriched = true;
         onProgress();
       });
+    }
+
+    /* Only the seasons on screen are enriched — widening the range enriches the
+       rows that just became visible, and never re-requests one already done. */
+    async function enrichVisible(isStale) {
+      if (!state.history || state.history.status !== 'live') return;
+      await enrichRows(visibleHistoryRows(), () => {
+        if (!isStale()) renderHistory();
+      });
+    }
+
+    function setHistorySeasons(count) {
+      if (count === state.historySeasons) return;
+      state.historySeasons = count;
+      renderHistory();
+      const token = state.historyToken;
+      enrichVisible(() => token !== state.historyToken);
     }
 
     async function loadHistory(circuit) {
@@ -1248,9 +1646,7 @@
         state.history = { status: 'live', rows, note: `Results from ${state.api.label}. Pole times and pit stop counts loading…` };
         renderHistory();
 
-        await enrichRows(rows, () => {
-          if (!isStale()) renderHistory();
-        });
+        await enrichVisible(isStale);
         if (isStale()) return;
 
         state.history = {
@@ -1348,10 +1744,10 @@
     function renderLive() {
       const connected = Boolean(state.live);
       els.livePill.classList.toggle('offline', !connected);
-      els.livePill.textContent = connected ? 'Live' : 'Not connected';
+      els.livePill.textContent = connected ? 'Live' : 'Parked';
       els.liveNote.textContent = connected
         ? 'Streaming lap, sector and tire data for the current session.'
-        : `Awaiting a live feed for ${state.circuit.event}. Lap, sector and tire panels below are wired and will fill in once a session is connected.`;
+        : 'Parked until a timing feed is wired up. The panels below are the intended layout for lap times, sector times and tire usage; they render empty states and are not fed by anything yet.';
 
       // TODO: when state.live exists, render its laps/sectors/tyres arrays here
       // instead of the empty states below.
@@ -1368,6 +1764,13 @@
     function emptyRow(columns, message) {
       return `<tr class="empty-row"><td colspan="${columns}">${escapeHtml(message)}</td></tr>`;
     }
+
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      if (!state.circuit) return;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => renderHistoryChart(visibleHistoryRows()), 150);
+    });
 
     cacheElements();
     loadData();

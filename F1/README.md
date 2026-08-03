@@ -29,6 +29,17 @@ instead of the dashboard.
 | `index.html` | Markup, inline styles, and all rendering logic |
 | `data.json` | Circuit and weekend dataset |
 
+## Layout
+
+Cards are arranged so the historic data is the centrepiece:
+
+1. **Track map** beside a stacked **Race distance** and **Pit stop time loss** —
+   the context for reading everything below.
+2. **Historic data**, full width: season range control, lap time chart, results
+   table, then derived summaries.
+3. **Tire compounds**, full width, one card per compound.
+4. **Live timing**, collapsed and parked at the bottom.
+
 ## Switching circuits
 
 The dropdown in the header swaps circuits. Three are seeded — Monaco,
@@ -53,6 +64,20 @@ Then a second pass fills in, per race, the pole time
 requests to stay inside the public API's burst limit, and the table re-renders
 as each row lands. Pole times don't exist in the data before 2003 and pit stop
 counts before 2011, so those cells show `—` rather than guessing.
+
+The card shows 10 seasons by default (`meta.api.seasons`), switchable to 5 or 20.
+Up to 20 seasons are fetched once per circuit; changing the range re-slices what
+was already fetched, and only the rows actually on screen get the second-pass
+enrichment — widening the range enriches just the rows that became visible, and
+narrowing then widening again costs no requests at all.
+
+Above the table, a two-series line chart plots pole time and fastest lap by
+season — both are lap times in seconds, so they share one axis. Seasons with no
+pole time break the line rather than being interpolated across. Hovering
+anywhere on the plot gives a crosshair and a tooltip with that year's winner and
+both times; the table underneath is the same data in text form. The two series
+colors are shared with the track map sectors and were checked against the dark
+card surfaces for lightness, chroma, colorblind separation, and contrast.
 
 Behaviour when things go wrong:
 
@@ -108,13 +133,17 @@ expressed as a fraction of a racing lap.
 Adding a circuit is a matter of appending an object to `circuits` — no code
 changes.
 
-## What is stubbed
+## What is parked
 
-The **Live timing** card is a placeholder shell. Its three panels — lap times,
-sector times, tire usage — render empty states under a "Not connected" pill.
-The wiring is in place: `state.live` is `null`, and `renderLive()` runs on every
-`refresh()` and is where a feed would be rendered (see the `TODO` comments in
-`index.html`). Nothing is simulated or faked.
+The **Live timing** section is parked: collapsed at the bottom of the page,
+behind a "Parked" pill, out of the way of the rest of the dashboard. Expanding
+it shows the intended layout for lap times, sector times, and tire usage as
+empty states.
+
+The wiring is still there for when it is picked back up — `state.live` is
+`null`, and `renderLive()` runs on every `refresh()` and is where a feed would
+be rendered (see the `TODO` comments in `index.html`). Nothing is simulated or
+faked.
 
 ## Data caveats
 
