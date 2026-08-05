@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — August 5, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">1</span>
+      <h2>Urgent</h2>
+    </div>
+
+    <div class="card urgent" data-date="2026-08-04" data-labels="PROJECTS/SANFORD 145/MEETING NOTES">
+      <div class="card-top">
+        <span class="subject">&#128197; Sanford Weekly on August 4, 2026 @ 2:30 PM | Read Meeting Report</span>
+        <span class="meta">Aug 4, 2026 &middot; from executiveassistant@e.read.ai</span>
+      </div>
+      <div class="summary">Read.ai's report on the Aug 4 Sanford 145 OAC call lists nine action items assigned directly to Ivan &mdash; send the roof-revert exhibit to Bryce/Logan by 5pm, join the Aug 5 morning structural call with Logan/Bryce, follow up with Dexter Wilson/Andor Carr on Jesse's plan corrections, update Jim after that call, set up an evening call with Lindsay on the draw 3 package, notify the lender of the budget revision, sort out demo-contractor site access with David, and follow up with the neighbor's surveyor. Several of the same-day/next-day items are already past due as of this morning.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fcee8f6d59c868" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal &mdash; source has no reply recipient)</div>Self-reminder from the Aug 4 Sanford Weekly report &mdash; action items still open as of Aug 5:
+- Send the roof-revert exhibit to Bryce and Logan for review/submission to Megan and Andrew
+- Join the structural engineer call with Logan and Bryce
+- Follow up with Dexter Wilson and Andor Carr to help Jesse correct his plan info
+- Update Jim after the structural call to confirm consultants proceed or stand down
+- Set up a call with Lindsay to review the draw 3 package
+- Notify the lender of the budget revision once Laurel provides updates
+- Talk with David about site access for the demo contractor
+- Follow up with the neighbor's surveyor to schedule the survey
+Several of these were same-day/next-day items from the meeting &mdash; worth triaging first thing.</div>
+    </div>
+  </div>
+
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">4</span>
+      <h2>Action Needed</h2>
+    </div>
+
+    <div class="card action" data-date="2026-08-04" data-labels="IMPORTANT|PROJECTS/LA COSTA">
+      <div class="card-top">
+        <span class="subject">Re: La Costa Hotel - Design Coordination</span>
+        <span class="meta">Aug 4, 2026 &middot; from michael@thebrownstudio.com (to Garrett Prange, cc Lindsay/Rory/Ivan/Eric + Falling Waters team)</span>
+      </div>
+      <div class="summary">Michael is out of office through Monday Aug 10 and handed coordination with Falling Waters Landscape off to Lindsay, Rory, Abby, and Ivan. Garrett's team is waiting on answers about the outdoor showers, custom vs. aftermarket spas, board/bike storage, the public path width, pool bathroom/towel storage, and the BMP/cistern location, and offered a Wed or Thu 11am&ndash;2pm meeting.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+        <span class="label-tag">PROJECTS/LA COSTA</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19faf40075be696e" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Garrett,
+
+Since Michael's out until the 10th, I'll help coordinate on our end with Lindsay, Rory, and Abby. Thursday between 11 and 2 works for us if that's still open &mdash; happy to have you and your team stop by our office, or hop on a call if that's easier.
+
+We'll come prepared to talk through the outdoor showers, spa approach, storage for boards/bikes, the public path width, and the pool/BMP layout questions you raised.
+
+Let me know if Thursday works.
+
+Thanks,
+Ivan</div>
+    </div>
+
+    <div class="card action" data-date="2026-08-05" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have 7 overdue RFIs</span>
+        <span class="meta">Aug 5, 2026 &middot; from notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore's daily digest again flags the same 7 overdue RFIs on Sanford 145 (fire extinguisher locations, A-2 bath accessibility, paint colors, balcony guardrail attachment, balcony drainage, metal guardrail, and primary bed/bath window/door) &mdash; oldest due since June 9, still nothing closed out.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd195f63f23423" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal &mdash; automated notice has no reply recipient)</div>Self-reminder from Procore &mdash; 7 RFIs are still overdue on Sanford 145, unchanged since yesterday's notice: RFI 12 (Fire Extinguisher Locations), RFI 11 (A-2 Bath 1 Accessibility Review), RFI 9 (Paint Color Selections), RFI 7 (Balcony Guardrail Attachment), RFI 8 (A-2 Balcony Drainage), RFI 3 (8" Metal Guardrail), and RFI 5 (Plan A.2 Primary Bed/Bath Interior Window/Door). Log in to Procore and close these out.</div>
+    </div>
+
+    <div class="card action" data-date="2026-08-05" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Aug 5, 2026 &middot; from no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Automated Monograph notification again flags 22 overdue tasks across projects, the same count as yesterday &mdash; nothing appears to have been triaged yet.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd1cb830d57786" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal &mdash; automated notice has no reply recipient)</div>Self-reminder from Monograph &mdash; 22 tasks are still overdue as of Aug 5, unchanged from yesterday. Log in and triage: close out anything already done, and reschedule or reassign what's still open.</div>
+    </div>
+
+    <div class="card action" data-date="2026-05-27" data-labels="PROJECTS/HILLTOP HOTEL/MEETING NOTES|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Notes: "Hilltop Motel" (Gemini meeting notes)</span>
+        <span class="meta">May 27, 2026 &middot; from gemini-notes@google.com</span>
+      </div>
+      <div class="summary">Auto-generated notes from the Hilltop Motel investment/partnership meeting still list several follow-ups assigned to Ivan &mdash; send the owners-portal link, distribute the deck and financial models, and send the operating agreement to Tyler &mdash; unread more than ten weeks later.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span>
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b89b0100b8b5" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal &mdash; source has no reply recipient)</div>Self-reminder from the Hilltop Motel meeting notes (May 27) &mdash; still outstanding:
+- Send owners-portal access link
+- Distribute the project deck to stakeholders
+- Share financial models with the team
+- Send the financial model / return projections to Tyler (cc Patrick)
+- Send the operating agreement to Tyler
+- Coordinate funding amount with Alberto</div>
+    </div>
+  </div>
+
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">6</span>
+      <h2>FYI</h2>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-05" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RFI 13: *URGENT*Backflow Preventer Sizing &mdash; answered</span>
+        <span class="meta">Aug 5, 2026 &middot; Jesse Owens (Ardolino Coastal Eng.) &rarr; Laurel Buckley, logged in Procore; cc David Whisenant/Cody/Ivan</span>
+      </div>
+      <div class="summary">Energy Excavations asked for backflow preventer sizing on the fireline and potable water line; Jesse Owens confirmed both are 2" per WAS WR-01, and Laurel logged the answer as the official RFI 13 response in Procore (due Aug 7). Resolved &mdash; no action needed from Ivan, who's on the distribution list only.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fc9d16563f3fe2" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-05" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: Sanford 8 (145 Sanford Street)</span>
+        <span class="meta">Aug 5, 2026 &middot; from Jesse@coast-eng.com (to David Whisenant, cc Kathleen Noel/Ian Riffel/Lindsay/Ivan)</span>
+      </div>
+      <div class="summary">Leucadia Wastewater District is requesting a $2,000 check for additional lateral inspection services on Sanford 145; Jesse forwarded the request to David Whisenant to mail or drop off payment. Ivan is cc'd only &mdash; no action needed unless David needs help getting the check cut.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd226127411b70" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-05" data-labels="">
+      <div class="card-top">
+        <span class="subject">TDUG Inv 7196- Sanford 145</span>
+        <span class="meta">Aug 5, 2026 &middot; from adriana.lares@t-dug.com (to Linzie/Lindsay/Bryce Raleigh, cc Ivan)</span>
+      </div>
+      <div class="summary">T-DUG submitted invoice #7196 for Sanford 145 for processing, addressed to accounting (Linzie/Lindsay) and Dempsey Construction's Bryce Raleigh. Ivan is cc'd only &mdash; no action needed.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd0312f0183415" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-05" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">145 Sanford Street - Certificate of Coverage for Wallcraft Drywall Inc</span>
+        <span class="meta">Aug 5, 2026 &middot; from gg@paladinriskmanagement.com (to sanfordinsurance@thebrownstudio.com)</span>
+      </div>
+      <div class="summary">Routine wrap-up insurance enrollment confirmation for Wallcraft Drywall on Sanford 145 &mdash; informational only, no action needed unless a separate certificate of insurance or Insurance Credit Worksheet is required.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd069ff8ed1f92" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-04" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Sanford Project - CAD DWG release form</span>
+        <span class="meta">Aug 4, 2026 &middot; from logan@thebrownstudio.com (to Laurel Buckley, cc Jim Norum/Ivan/Cody)</span>
+      </div>
+      <div class="summary">Logan sent Hallmark/Four Corners Concrete the Foundation Plans in CAD to close out the outstanding CAD/DWG release request &mdash; Architecture drawings were already sent separately. No action needed from Ivan, who's cc'd only.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19f8fdbacf59811e" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-05-20" data-labels="PROJECTS/SANFORD 145/MEETING NOTES|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Your meeting recap &ndash; SANFORD 145 &ndash; COORDINATION</span>
+        <span class="meta">May 20, 2026 &middot; from fred@fireflies.ai (2 auto-recap emails)</span>
+      </div>
+      <div class="summary">Fireflies recap of the Sanford 145 coordination call: Title 24/VCHP compliance resolved, mechanical rooms reclassified as unconditioned attic space, and the permit package is due the following Tuesday.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span>
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e474c37f9358bf" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">4</span>
+      <h2>Low Priority</h2>
+    </div>
+
+    <div class="card low" data-date="2026-08-04" data-labels="PROJECTS/SANFORD 145/MEETING NOTES">
+      <div class="card-top">
+        <span class="subject">Sanford Weekly (Aug 4) &mdash; additional automated recaps</span>
+        <span class="meta">Aug 4, 2026 &middot; Gemini notes, Fathom, Fyxer, Lindsay's call notes, Procore OAC minutes, and the calendar invite (6 emails)</span>
+      </div>
+      <div class="summary">Five more auto-generated recaps/notifications of the same Aug 4 Sanford Weekly call, plus the meeting's calendar invite &mdash; duplicate coverage of the action items already summarized in the Urgent section above. No separate action needed.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fcef3e79f98266" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card low" data-date="2026-08-05" data-labels="">
+      <div class="card-top">
+        <span class="subject">How's your 2026 trending?</span>
+        <span class="meta">Aug 5, 2026 &middot; from comms@acs.autodesk.com</span>
+      </div>
+      <div class="summary">Autodesk Forma marketing email about mid-year construction trends &mdash; no action needed.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd25751f2dc4a3" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card low" data-date="2026-08-05" data-labels="">
+      <div class="card-top">
+        <span class="subject">[brownstudio.us5.quickconnect.to] Packages on Studio-Server are out-of-date</span>
+        <span class="meta">Aug 5, 2026 &middot; automated Synology DSM notice</span>
+      </div>
+      <div class="summary">Routine automated notice that a package on the office's Synology server (Studio-Server) is out of date &mdash; no action needed unless IT wants to apply the update.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd1edecbde140a" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card low" data-date="2026-05-27" data-labels="PROJECTS/HILLTOP HOTEL/MEETING NOTES|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Recap of your meeting with ORCA Surfboards</span>
+        <span class="meta">May 27, 2026 &middot; from no-reply@fathom.video</span>
+      </div>
+      <div class="summary">Fathom's auto-recap of the same Hilltop Motel meeting already covered by the Gemini notes above (acquired for $3.25M, 7-year non-recourse owner-carry loan, 75/25 profit split) &mdash; duplicate coverage, no new action.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span>
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b83fd83da65f" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+
+  <footer>
+    Generated automatically from Gmail (is:unread in:inbox) on August 5, 2026 &middot; 22 unread messages across 21 threads. Drafted replies are suggestions only &mdash; review before sending.
+  </footer>
+</div>
+</body>
+</html>
