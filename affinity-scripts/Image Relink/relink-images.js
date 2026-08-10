@@ -46,6 +46,26 @@ function extensionFilter(path) {
   return 'Matching Files|*.' + ext + '|All Files|*.*';
 }
 
+// FileSystemApi.getOpenFileName isn't present on every Affinity build
+// (confirmed missing on at least one 3.x release even though community
+// scripts use it), so fall back to a plain text prompt - already
+// confirmed working elsewhere - for typing/pasting the corrected path.
+function pickFile(originalPath, defaultPath) {
+  if (typeof FileSystemApi.getOpenFileName === 'function') {
+    try {
+      return FileSystemApi.getOpenFileName(extensionFilter(originalPath)) || null;
+    } catch (e) {
+      // fall through to the prompt below
+    }
+  }
+  const entered = app.prompt(
+    'Enter the full path to "' + fileName(originalPath) + '" (leave blank to skip):',
+    'Relink Images',
+    defaultPath || originalPath,
+  );
+  return entered ? String(entered).trim() || null : null;
+}
+
 // FileSystemApi.exists() throws PERMISSION_DENIED for paths the script
 // hasn't been granted access to - which includes every path read straight
 // out of the document's link metadata, since the user never chose it via
@@ -121,7 +141,7 @@ function main() {
     }
 
     if (!candidate) {
-      const picked = FileSystemApi.getOpenFileName(extensionFilter(img.path));
+      const picked = pickFile(img.path, knownFolder ? knownFolder + '/' + name : null);
       if (!picked) {
         skipped.push(name);
         continue;
