@@ -185,7 +185,21 @@ Open `index.html` directly - no server needed, everything runs client-side.
    leave the computer on with something open" answer.
 5. **Time by app** / **Time by file** and the **Sessions** table give the
    same data as totals and as raw rows. Both CSV export buttons write exactly
-   what the current filters are showing.
+   what the current filters are showing, project column included.
+6. **Projects**: assign a project to any session via the dropdown in the
+   **Sessions** table's Project column (pick an existing one or **+ New
+   project...**), or select **Assign to filtered sessions** above the table to
+   apply one project to every session the current filters show in one action -
+   narrow down first (date range, app, file, search), then batch-assign.
+
+Assignments are **not** stored in the browser - they live only in a JSON file
+you explicitly export (**Export projects JSON** in the sidebar), keyed by each
+session's own start time/app/title so reloading the same logs plus that file
+always re-matches correctly, on this machine or any other. Drop the exported
+file back onto the log dropzone (or paste it, alongside or instead of log
+files - the viewer sniffs the content and routes it correctly either way) to
+reload it. The sidebar shows **Unsaved** whenever assignments differ from the
+last exported/loaded file, as a reminder to export before closing the tab.
 
 Filters (date range, session type, per-app and per-file checklists, minimum
 length, away threshold, text search) apply across every panel at once. Apps and

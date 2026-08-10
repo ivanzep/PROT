@@ -489,6 +489,42 @@
     #tooltip .tt-title { font-weight: 640; }
     #tooltip .tt-line { color: #d0d5dd; }
 
+    /* ---- projects ----------------------------------------------------- */
+
+    .batch-assign {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .batch-assign select, .batch-assign input[type="text"] {
+      width: auto;
+      min-width: 130px;
+    }
+
+    .batch-assign .hint { flex-basis: 100%; margin-top: -2px; }
+
+    select.project-select {
+      width: 100%;
+      min-width: 130px;
+      max-width: 170px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 6px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 12.5px;
+    }
+
+    select.project-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(31, 111, 235, .12);
+    }
+
     /* ---- bars ------------------------------------------------------- */
 
     .bars { display: grid; gap: 10px; }
@@ -730,13 +766,28 @@
       </section>
 
       <section>
+        <h2>Projects</h2>
+        <div class="pills" id="projectStatusPills"></div>
+        <div class="btn-row" style="margin-top:10px">
+          <button id="exportProjectsBtn">Export projects JSON</button>
+        </div>
+        <p class="hint" style="margin-bottom:0">
+          Assign a project per session in the Sessions table, or batch-assign
+          to everything the filters currently show. Assignments live only in
+          this exported file, not the browser - export after assigning, and
+          drop the file back onto the Log files box above (with or without
+          log files alongside it) to reload it on this or any other machine.
+        </p>
+      </section>
+
+      <section>
         <h2>Export</h2>
         <div class="btn-row">
           <button id="exportSessionsBtn">Filtered sessions CSV</button>
           <button id="exportAwayBtn">Away periods CSV</button>
         </div>
         <p class="hint" style="margin-bottom:0">
-          Exports exactly what the filters above are showing.
+          Exports exactly what the filters above are showing, project column included.
         </p>
       </section>
     </aside>
@@ -802,11 +853,17 @@
             <h2>Sessions</h2>
             <div class="hint" id="sessionNote"></div>
           </div>
+          <div class="batch-assign">
+            <select id="batchProjectSelect"><option value="">Choose existing project&hellip;</option></select>
+            <input type="text" id="batchProjectNew" placeholder="or type a new project name">
+            <button id="batchAssignBtn">Assign to filtered sessions</button>
+            <span class="hint" style="margin:0">Applies to every session the current filters show above, not just what's visible on screen.</span>
+          </div>
           <div class="table-wrap"><div class="scroll-y"><table>
             <thead>
               <tr>
                 <th>Start</th><th>Length</th><th>Type</th><th>App</th>
-                <th>File</th><th>Window title</th>
+                <th>File</th><th>Project</th><th>Window title</th>
               </tr>
             </thead>
             <tbody id="sessionBody"></tbody>
@@ -834,7 +891,10 @@
       hiddenFiles: new Set(), // entry.file values unchecked in the Files filter
       dateRangeTouched: false, // false = date inputs auto-track the full loaded range
       dataMinDay: null,
-      dataMaxDay: null
+      dataMaxDay: null,
+      projectAssignments: new Map(), // entryKey(entry) -> project name, loaded/saved as a sidecar file
+      knownProjects: new Set(),      // every project name ever seen, for the dropdowns - never auto-pruned
+      projectsDirty: false           // true once assignments differ from the last loaded/exported file
     };
 
     const SERIES = [
@@ -850,9 +910,10 @@
       'dateFrom', 'dateTo', 'dateResetBtn', 'showActive', 'showIdle', 'showLocked',
       'appChecklist', 'appsAllBtn', 'appsNoneBtn', 'fileChecklist', 'filesAllBtn',
       'filesNoneBtn', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours',
-      'exportSessionsBtn', 'exportAwayBtn', 'statusPills', 'tiles', 'timeline',
-      'timelineNote', 'legend', 'awayBody', 'awayNote', 'appBars', 'fileBars',
-      'sessionBody', 'sessionNote', 'tooltip'
+      'exportSessionsBtn', 'exportAwayBtn', 'exportProjectsBtn', 'projectStatusPills',
+      'batchProjectSelect', 'batchProjectNew', 'batchAssignBtn', 'statusPills',
+      'tiles', 'timeline', 'timelineNote', 'legend', 'awayBody', 'awayNote',
+      'appBars', 'fileBars', 'sessionBody', 'sessionNote', 'tooltip'
     ]) {
       els[id] = document.getElementById(id);
     }
@@ -1053,8 +1114,101 @@
       const files = Array.from(fileList || []);
       for (const file of files) {
         const text = await file.text();
+        if (loadIfProjectsFile(text)) continue;
         const parsed = parseLogText(text);
         addEntries(parsed.entries, file.name, parsed.errors);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Projects - a sidecar file, not the browser, is the source of truth.
+    // Assignments key off entryKey(entry) (the same identity already used to
+    // dedupe log rows), so reloading the same logs plus the same projects
+    // file always re-matches correctly; there is no other ID to keep in sync.
+    // ------------------------------------------------------------------
+
+    function looksLikeProjectsFile(text) {
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (err) {
+        return false;
+      }
+      return !!(parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        && parsed.assignments && typeof parsed.assignments === 'object');
+    }
+
+    /** Returns true (and applies the file) if `text` is a projects file; false otherwise. */
+    function loadIfProjectsFile(text) {
+      if (!looksLikeProjectsFile(text)) return false;
+      const parsed = JSON.parse(text);
+      for (const [key, project] of Object.entries(parsed.assignments || {})) {
+        if (typeof project !== 'string' || !project.trim()) continue;
+        state.projectAssignments.set(key, project.trim());
+        state.knownProjects.add(project.trim());
+      }
+      state.projectsDirty = false; // freshly loaded content matches the file on disk
+      refresh();
+      return true;
+    }
+
+    function getProject(entry) {
+      return state.projectAssignments.get(entryKey(entry)) || '';
+    }
+
+    function setProjectByKey(key, project) {
+      const trimmed = project.trim();
+      if (trimmed) {
+        state.projectAssignments.set(key, trimmed);
+        state.knownProjects.add(trimmed);
+      } else {
+        state.projectAssignments.delete(key);
+      }
+      state.projectsDirty = true;
+    }
+
+    function exportProjects() {
+      const assignments = {};
+      for (const [key, project] of state.projectAssignments) assignments[key] = project;
+      const payload = { version: 1, assignments };
+      downloadText('win-monitor-projects.json', JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
+      state.projectsDirty = false;
+      refresh();
+    }
+
+    /** Shared <option> list for both the per-row selects and the batch-assign select. */
+    function buildProjectOptionsHtml(selectedValue, opts) {
+      opts = opts || {};
+      const projects = [...state.knownProjects].sort((a, b) => a.localeCompare(b));
+      const options = [];
+      if (opts.blankLabel) {
+        const blankSelected = !selectedValue ? ' selected' : '';
+        options.push(`<option value=""${blankSelected}>${opts.blankLabel}</option>`);
+      }
+      for (const project of projects) {
+        const selected = project === selectedValue ? ' selected' : '';
+        options.push(`<option value="${escapeHtml(project)}"${selected}>${escapeHtml(project)}</option>`);
+      }
+      if (opts.includeNewOption) options.push('<option value="__new__">+ New project&hellip;</option>');
+      return options.join('');
+    }
+
+    function renderProjectStatus() {
+      const pills = [];
+      const assigned = state.projectAssignments.size;
+      const projects = state.knownProjects.size;
+      pills.push(`<span class="pill">${assigned} session${assigned === 1 ? '' : 's'} assigned &middot; ${projects} project${projects === 1 ? '' : 's'}</span>`);
+      if (state.projectsDirty) {
+        pills.push('<span class="pill warn">Unsaved &mdash; export to keep</span>');
+      } else if (assigned > 0) {
+        pills.push('<span class="pill ok">Matches exported file</span>');
+      }
+      els.projectStatusPills.innerHTML = pills.join('');
+
+      const previousSelection = els.batchProjectSelect.value;
+      els.batchProjectSelect.innerHTML = buildProjectOptionsHtml('', { blankLabel: 'Choose existing project&hellip;' });
+      if ([...els.batchProjectSelect.options].some(opt => opt.value === previousSelection)) {
+        els.batchProjectSelect.value = previousSelection;
       }
     }
 
@@ -1200,6 +1354,7 @@
       renderTimeline(visible, filters);
       renderAway(visible, filters);
       renderBars(visible);
+      renderProjectStatus();
       renderSessions(visible);
     }
 
@@ -1520,7 +1675,7 @@
 
     function renderSessions(visible) {
       if (!visible.length) {
-        els.sessionBody.innerHTML = '<tr><td colspan="6" class="empty">Nothing matches the current filters.</td></tr>';
+        els.sessionBody.innerHTML = '<tr><td colspan="7" class="empty">Nothing matches the current filters.</td></tr>';
         els.sessionNote.textContent = '';
         return;
       }
@@ -1538,6 +1693,7 @@
           <td><span class="tag ${entry.type}">${entry.type === 'active' ? 'Focus' : (entry.type === 'locked' ? 'Locked' : 'Idle')}</span></td>
           <td><span class="bar-name"><span class="swatch" style="background:${colorFor(entry)}"></span><span>${escapeHtml(entry.app || '—')}</span></span></td>
           <td class="mono">${escapeHtml(entry.file || '—')}</td>
+          <td><select class="project-select" data-key="${escapeHtml(entryKey(entry))}">${buildProjectOptionsHtml(getProject(entry), { blankLabel: '&mdash;', includeNewOption: true })}</select></td>
           <td class="wrap">${escapeHtml(entry.title || '—')}</td>
         </tr>`).join('');
     }
@@ -1587,8 +1743,8 @@
         + `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
     }
 
-    function downloadText(filename, text) {
-      const blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
+    function downloadText(filename, text, mimeType) {
+      const blob = new Blob([text], { type: mimeType || 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -1601,12 +1757,12 @@
 
     function exportRows(rows, filename) {
       if (!rows.length) return;
-      const header = ['start', 'end', 'seconds', 'type', 'app', 'appName', 'file', 'path', 'title'];
+      const header = ['start', 'end', 'seconds', 'type', 'app', 'appName', 'file', 'path', 'title', 'project'];
       const lines = [header.join(',')];
       for (const entry of rows) {
         lines.push([
           toIso(entry.start), toIso(entry.end), Math.round(entry.seconds), entry.type,
-          entry.app, entry.appName, entry.file, entry.path, entry.title
+          entry.app, entry.appName, entry.file, entry.path, entry.title, getProject(entry)
         ].map(csvField).join(','));
       }
       downloadText(filename, lines.join('\r\n'));
@@ -1727,6 +1883,7 @@
     });
 
     els.importBtn.addEventListener('click', () => {
+      if (loadIfProjectsFile(els.pasteBox.value)) return;
       const parsed = parseLogText(els.pasteBox.value);
       if (!parsed.entries.length && !parsed.errors) return;
       addEntries(parsed.entries, 'pasted log', parsed.errors);
@@ -1811,6 +1968,48 @@
       const filters = getFilters();
       const away = applyFilters(filters).filter(entry => entry.away && entry.seconds >= filters.awaySeconds);
       exportRows(away, 'win-monitor-away.csv');
+    });
+
+    els.exportProjectsBtn.addEventListener('click', exportProjects);
+
+    els.sessionBody.addEventListener('change', event => {
+      const select = event.target.closest('select.project-select');
+      if (!select) return;
+      const key = select.dataset.key;
+      let value = select.value;
+      if (value === '__new__') {
+        const typed = window.prompt('New project name:');
+        if (!typed || !typed.trim()) { refresh(); return; } // cancelled - re-render reverts the dropdown
+        value = typed.trim();
+      }
+      setProjectByKey(key, value);
+      refresh();
+    });
+
+    els.batchAssignBtn.addEventListener('click', () => {
+      const targets = applyFilters(getFilters());
+      if (!targets.length) return;
+
+      const typed = els.batchProjectNew.value.trim();
+      const project = typed || els.batchProjectSelect.value;
+      if (!project) {
+        window.alert('Choose an existing project or type a new one first.');
+        return;
+      }
+
+      const changingCount = targets.filter(entry => {
+        const current = getProject(entry);
+        return current && current !== project;
+      }).length;
+      if (changingCount > 0) {
+        const proceed = window.confirm(
+          `This reassigns ${changingCount} session(s) currently set to a different project to "${project}". Continue?`);
+        if (!proceed) return;
+      }
+
+      for (const entry of targets) setProjectByKey(entryKey(entry), project);
+      els.batchProjectNew.value = '';
+      refresh();
     });
 
     refresh();
