@@ -506,7 +506,18 @@
       min-width: 130px;
     }
 
-    .batch-assign .hint { flex-basis: 100%; margin-top: -2px; }
+    button:disabled {
+      opacity: .5;
+      cursor: default;
+    }
+
+    button:disabled:hover { background: #fff; }
+
+    th.select-col, td.select-col {
+      width: 1%;
+      white-space: nowrap;
+      text-align: center;
+    }
 
     select.project-select {
       width: 100%;
@@ -857,11 +868,17 @@
             <select id="batchProjectSelect"><option value="">Choose existing project&hellip;</option></select>
             <input type="text" id="batchProjectNew" placeholder="or type a new project name">
             <button id="batchAssignBtn">Assign to filtered sessions</button>
-            <span class="hint" style="margin:0">Applies to every session the current filters show above, not just what's visible on screen.</span>
+            <button id="assignSelectedBtn" disabled>Assign to selected (<span id="selectedCount">0</span>)</button>
           </div>
+          <p class="hint" style="margin:0 0 12px">
+            <strong>Filtered sessions</strong> means everything the filters above show, whether
+            or not it's scrolled into view. <strong>Selected</strong> means checked rows only -
+            click a row's checkbox, shift-click another to select the range between them.
+          </p>
           <div class="table-wrap"><div class="scroll-y"><table>
             <thead>
               <tr>
+                <th class="select-col"><input type="checkbox" id="selectAllSessions" title="Select all"></th>
                 <th>Start</th><th>Length</th><th>Type</th><th>App</th>
                 <th>File</th><th>Project</th><th>Window title</th>
               </tr>
@@ -894,7 +911,9 @@
       dataMaxDay: null,
       projectAssignments: new Map(), // entryKey(entry) -> project name, loaded/saved as a sidecar file
       knownProjects: new Set(),      // every project name ever seen, for the dropdowns - never auto-pruned
-      projectsDirty: false           // true once assignments differ from the last loaded/exported file
+      projectsDirty: false,          // true once assignments differ from the last loaded/exported file
+      selectedSessionKeys: new Set(), // entryKey(entry) values checked in the Sessions table right now
+      lastSessionCheckboxIndex: null  // anchor row for shift-click range selection
     };
 
     const SERIES = [
@@ -911,9 +930,10 @@
       'appChecklist', 'appsAllBtn', 'appsNoneBtn', 'fileChecklist', 'filesAllBtn',
       'filesNoneBtn', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours',
       'exportSessionsBtn', 'exportAwayBtn', 'exportProjectsBtn', 'projectStatusPills',
-      'batchProjectSelect', 'batchProjectNew', 'batchAssignBtn', 'statusPills',
-      'tiles', 'timeline', 'timelineNote', 'legend', 'awayBody', 'awayNote',
-      'appBars', 'fileBars', 'sessionBody', 'sessionNote', 'tooltip'
+      'batchProjectSelect', 'batchProjectNew', 'batchAssignBtn', 'assignSelectedBtn',
+      'selectedCount', 'selectAllSessions', 'statusPills', 'tiles', 'timeline',
+      'timelineNote', 'legend', 'awayBody', 'awayNote', 'appBars', 'fileBars',
+      'sessionBody', 'sessionNote', 'tooltip'
     ]) {
       els[id] = document.getElementById(id);
     }
@@ -1674,9 +1694,17 @@
     }
 
     function renderSessions(visible) {
+      // A row rendered here is the only thing that counts as "selectable" -
+      // prune any selection left over from before a filter change hid it, so
+      // the header checkbox and "N selected" count never silently include
+      // rows the user can no longer see.
+      state.lastSessionCheckboxIndex = null;
+
       if (!visible.length) {
-        els.sessionBody.innerHTML = '<tr><td colspan="7" class="empty">Nothing matches the current filters.</td></tr>';
+        els.sessionBody.innerHTML = '<tr><td colspan="8" class="empty">Nothing matches the current filters.</td></tr>';
         els.sessionNote.textContent = '';
+        state.selectedSessionKeys.clear();
+        renderSelectionStatus();
         return;
       }
 
@@ -1686,16 +1714,38 @@
         ? `Showing the first 500 of ${rows.length} sessions — export for the rest`
         : `${rows.length} session${rows.length === 1 ? '' : 's'}`;
 
-      els.sessionBody.innerHTML = capped.map(entry => `
+      const renderedKeys = new Set(capped.map(entryKey));
+      for (const key of state.selectedSessionKeys) {
+        if (!renderedKeys.has(key)) state.selectedSessionKeys.delete(key);
+      }
+
+      els.sessionBody.innerHTML = capped.map((entry, index) => {
+        const key = entryKey(entry);
+        const checked = state.selectedSessionKeys.has(key) ? ' checked' : '';
+        return `
         <tr>
+          <td class="select-col"><input type="checkbox" class="session-select" data-key="${escapeHtml(key)}" data-index="${index}"${checked}></td>
           <td class="num">${escapeHtml(formatClockSeconds(entry.start))}<div class="hint">${escapeHtml(dayKey(entry.start))}</div></td>
           <td class="num">${escapeHtml(formatDuration(entry.seconds))}</td>
           <td><span class="tag ${entry.type}">${entry.type === 'active' ? 'Focus' : (entry.type === 'locked' ? 'Locked' : 'Idle')}</span></td>
           <td><span class="bar-name"><span class="swatch" style="background:${colorFor(entry)}"></span><span>${escapeHtml(entry.app || '—')}</span></span></td>
           <td class="mono">${escapeHtml(entry.file || '—')}</td>
-          <td><select class="project-select" data-key="${escapeHtml(entryKey(entry))}">${buildProjectOptionsHtml(getProject(entry), { blankLabel: '&mdash;', includeNewOption: true })}</select></td>
+          <td><select class="project-select" data-key="${escapeHtml(key)}">${buildProjectOptionsHtml(getProject(entry), { blankLabel: '&mdash;', includeNewOption: true })}</select></td>
           <td class="wrap">${escapeHtml(entry.title || '—')}</td>
-        </tr>`).join('');
+        </tr>`;
+      }).join('');
+
+      renderSelectionStatus();
+    }
+
+    function renderSelectionStatus() {
+      const rowCheckboxes = [...els.sessionBody.querySelectorAll('input.session-select')];
+      const total = rowCheckboxes.length;
+      const checkedCount = state.selectedSessionKeys.size;
+      els.selectAllSessions.checked = total > 0 && checkedCount === total;
+      els.selectAllSessions.indeterminate = checkedCount > 0 && checkedCount < total;
+      els.selectedCount.textContent = checkedCount;
+      els.assignSelectedBtn.disabled = checkedCount === 0;
     }
 
     // ------------------------------------------------------------------
@@ -2008,6 +2058,75 @@
       }
 
       for (const entry of targets) setProjectByKey(entryKey(entry), project);
+      els.batchProjectNew.value = '';
+      refresh();
+    });
+
+    // Plain click toggles just that row. Shift-click extends the selection
+    // (always to checked, never a toggle) across every row between the last
+    // clicked checkbox and this one, inclusive - the standard file-manager
+    // range-select gesture. A checkbox is already an independent per-row
+    // toggle by construction, which is what ctrl-click means in row-click
+    // selection schemes, so no separate ctrl handling is needed here.
+    els.sessionBody.addEventListener('click', event => {
+      const checkbox = event.target.closest('input.session-select');
+      if (!checkbox) return;
+      const key = checkbox.dataset.key;
+      const index = Number(checkbox.dataset.index);
+
+      if (event.shiftKey && state.lastSessionCheckboxIndex !== null) {
+        const [from, to] = [state.lastSessionCheckboxIndex, index].sort((a, b) => a - b);
+        const rowCheckboxes = [...els.sessionBody.querySelectorAll('input.session-select')];
+        for (let i = from; i <= to; i++) {
+          const rowCheckbox = rowCheckboxes[i];
+          if (!rowCheckbox) continue;
+          rowCheckbox.checked = true;
+          state.selectedSessionKeys.add(rowCheckbox.dataset.key);
+        }
+      } else if (checkbox.checked) {
+        state.selectedSessionKeys.add(key);
+      } else {
+        state.selectedSessionKeys.delete(key);
+      }
+
+      state.lastSessionCheckboxIndex = index;
+      renderSelectionStatus();
+    });
+
+    els.selectAllSessions.addEventListener('change', () => {
+      const checked = els.selectAllSessions.checked;
+      els.sessionBody.querySelectorAll('input.session-select').forEach(checkbox => {
+        checkbox.checked = checked;
+        if (checked) state.selectedSessionKeys.add(checkbox.dataset.key);
+        else state.selectedSessionKeys.delete(checkbox.dataset.key);
+      });
+      state.lastSessionCheckboxIndex = null;
+      renderSelectionStatus();
+    });
+
+    els.assignSelectedBtn.addEventListener('click', () => {
+      if (!state.selectedSessionKeys.size) return;
+
+      const typed = els.batchProjectNew.value.trim();
+      const project = typed || els.batchProjectSelect.value;
+      if (!project) {
+        window.alert('Choose an existing project or type a new one first.');
+        return;
+      }
+
+      const keys = [...state.selectedSessionKeys];
+      const changingCount = keys.filter(key => {
+        const current = state.projectAssignments.get(key);
+        return current && current !== project;
+      }).length;
+      if (changingCount > 0) {
+        const proceed = window.confirm(
+          `This reassigns ${changingCount} session(s) currently set to a different project to "${project}". Continue?`);
+        if (!proceed) return;
+      }
+
+      for (const key of keys) setProjectByKey(key, project);
+      state.selectedSessionKeys.clear();
       els.batchProjectNew.value = '';
       refresh();
     });

@@ -188,9 +188,12 @@ Open `index.html` directly - no server needed, everything runs client-side.
    what the current filters are showing, project column included.
 6. **Projects**: assign a project to any session via the dropdown in the
    **Sessions** table's Project column (pick an existing one or **+ New
-   project...**), or select **Assign to filtered sessions** above the table to
-   apply one project to every session the current filters show in one action -
-   narrow down first (date range, app, file, search), then batch-assign.
+   project...**). Batch-assign two ways: **Assign to filtered sessions**
+   applies to everything the current filters show (narrow down by date/app/
+   file/search first, then batch-assign); **Assign to selected** applies only
+   to rows you've checked - click a row's checkbox, shift-click another to
+   select the whole range between them, or use the header checkbox to
+   select/clear everything on screen.
 
 Assignments are **not** stored in the browser - they live only in a JSON file
 you explicitly export (**Export projects JSON** in the sidebar), keyed by each
