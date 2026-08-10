@@ -220,7 +220,13 @@ function Get-ActiveDocument {
     if ([string]::IsNullOrWhiteSpace($Title)) { return $result }
 
     $isBrowser = $script:BrowserProcesses -contains $ProcessName.ToLowerInvariant()
-    $segments = Split-TitleSegments -Title $Title
+    # @() re-wraps the result as an array at the call site: a function's `return
+    # @(...)` still unwinds a single-element array to a bare scalar across the
+    # return boundary, and a title with no " - "/"|" separator (e.g. an Explorer
+    # window titled just "win-monitor") is exactly that one-element case. Without
+    # this, $segments.Count below throws PropertyNotFoundException under
+    # Set-StrictMode, because a scalar [string] has .Length, not .Count.
+    $segments = @(Split-TitleSegments -Title $Title)
 
     foreach ($segment in $segments) {
         $candidate = Remove-DirtyMarker -Segment $segment
