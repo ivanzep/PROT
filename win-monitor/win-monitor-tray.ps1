@@ -216,11 +216,19 @@ function Update-TrayTooltip {
     # version-dependent: some .NET/Windows combinations accept up to 127
     # characters, others (seen in practice) throw ArgumentException past 63.
     # 63 is the one that's safe everywhere, so that's the budget, not 127.
+    #
+    # The "..." below is plain ASCII on purpose, not a single U+2026 ellipsis
+    # character: this file has no BOM, and Windows PowerShell 5.1 reads a
+    # BOM-less .ps1 using the system's ANSI code page rather than UTF-8, so a
+    # literal multi-byte character here silently turns into several garbled
+    # characters at runtime on non-Western-European locales - which quietly
+    # blew this exact budget and crashed. ASCII has no encoding to get wrong.
+    $ellipsis = '...'
     $baseLine = 'win-monitor'
     $overhead = $baseLine.Length + "`nNow: ".Length
-    $budget = [Math]::Max(1, 63 - $overhead)
+    $budget = [Math]::Max($ellipsis.Length, 63 - $overhead)
     if ($label.Length -gt $budget) {
-        $label = $label.Substring(0, [Math]::Max(0, $budget - 1)) + '…'
+        $label = $label.Substring(0, $budget - $ellipsis.Length) + $ellipsis
     }
 
     $notifyIcon.Text = "$baseLine`nNow: $label"
