@@ -183,9 +183,12 @@ Open `index.html` directly - no server needed, everything runs client-side.
 4. **Away periods** lists every idle/locked stretch past the "Away over"
    threshold, with the window that was left open - this is the "did they
    leave the computer on with something open" answer.
-5. **Time by app** / **Time by file** and the **Sessions** table give the
-   same data as totals and as raw rows. Both CSV export buttons write exactly
-   what the current filters are showing, project column included.
+5. **Time by app** / **Time by file** / **Time by project** and the
+   **Sessions** table give the same data as totals and as raw rows. Time by
+   project buckets everything with no project under **Unassigned**, so the
+   totals always account for the full tracked span. Both CSV export buttons
+   write exactly what the current filters are showing, project column
+   included.
 6. **Projects**: assign a project to any session via the dropdown in the
    **Sessions** table's Project column (pick an existing one or **+ New
    project...**). Batch-assign two ways: **Assign to filtered sessions**
@@ -198,17 +201,22 @@ Open `index.html` directly - no server needed, everything runs client-side.
 Assignments are **not** stored in the browser - they live only in a JSON file
 you explicitly export (**Export projects JSON** in the sidebar), keyed by each
 session's own start time/app/title so reloading the same logs plus that file
-always re-matches correctly, on this machine or any other. Drop the exported
-file back onto the log dropzone (or paste it, alongside or instead of log
-files - the viewer sniffs the content and routes it correctly either way) to
-reload it. The sidebar shows **Unsaved** whenever assignments differ from the
-last exported/loaded file, as a reminder to export before closing the tab.
+always re-matches correctly, on this machine or any other. Use **Import
+projects JSON** to load one back in (or drop it onto the log dropzone, alongside
+or instead of log files - the viewer sniffs the content and routes it
+correctly either way). The sidebar shows **Unsaved** whenever assignments
+differ from the last exported/loaded file, as a reminder to export before
+closing the tab.
 
 Filters (date range, session type, per-app and per-file checklists, minimum
 length, away threshold, text search) apply across every panel at once. Apps and
 files hidden via their checklists (in the sidebar) stay hidden until re-checked
 or reset with **All**. Durations default to decimal hours (`1.50h`); toggle
-**Decimal hours** off under Display for `1h 30m` instead.
+**Decimal hours** off under Display for `1h 30m` instead. The arrow buttons
+beside the date range page through dates by the range's own length - one day
+at a time if From/To are the same day, a week at a time for a selected week,
+and so on - and disable themselves once paging further wouldn't overlap any
+loaded data.
 
 Every results panel (Summary, Timeline, Away periods, Time by app/file,
 Sessions) has a collapse arrow next to its title - click it to fold a panel

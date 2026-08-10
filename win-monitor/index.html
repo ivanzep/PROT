@@ -744,6 +744,7 @@
             <button type="button" class="mini" id="dateResetBtn">Full range</button>
           </div>
           <div class="date-range">
+            <button type="button" class="mini" id="dateBackBtn" title="Shift the range back by its own length">&larr;</button>
             <div>
               <label for="dateFrom" class="subtle-label">From</label>
               <input type="date" id="dateFrom">
@@ -752,7 +753,12 @@
               <label for="dateTo" class="subtle-label">To</label>
               <input type="date" id="dateTo">
             </div>
+            <button type="button" class="mini" id="dateForwardBtn" title="Shift the range forward by its own length">&rarr;</button>
           </div>
+          <p class="hint" style="margin:4px 0 0">
+            &larr;/&rarr; move the whole range by its own length - a day at a
+            time for a single day, a week at a time for a week, etc.
+          </p>
         </div>
         <div class="field">
           <label>Show</label>
@@ -810,14 +816,17 @@
         <h2>Projects</h2>
         <div class="pills" id="projectStatusPills"></div>
         <div class="btn-row" style="margin-top:10px">
+          <button id="importProjectsBtn">Import projects JSON</button>
           <button id="exportProjectsBtn">Export projects JSON</button>
         </div>
+        <input type="file" id="projectsFileInput" accept=".json" hidden>
         <p class="hint" style="margin-bottom:0">
           Assign a project per session in the Sessions table, or batch-assign
           to everything the filters currently show. Assignments live only in
-          this exported file, not the browser - export after assigning, and
-          drop the file back onto the Log files box above (with or without
-          log files alongside it) to reload it on this or any other machine.
+          an exported file, not the browser - export after assigning, and use
+          <strong>Import projects JSON</strong> (or drop the file onto the Log
+          files box above, with or without log files alongside it) to reload
+          it on this or any other machine.
         </p>
       </section>
 
@@ -922,6 +931,20 @@
           <div class="card-head">
             <span class="card-head-title">
               <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Time by project</h2>
+            </span>
+          </div>
+          <div class="section-body">
+            <div class="bars" id="projectBars"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel">
+        <section class="collapsible">
+          <div class="card-head">
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
               <h2>Sessions</h2>
             </span>
             <div class="hint" id="sessionNote"></div>
@@ -993,11 +1016,12 @@
       'dateFrom', 'dateTo', 'dateResetBtn', 'showActive', 'showIdle', 'showLocked',
       'appChecklist', 'appsAllBtn', 'appsNoneBtn', 'fileChecklist', 'filesAllBtn',
       'filesNoneBtn', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours',
-      'exportSessionsBtn', 'exportAwayBtn', 'exportProjectsBtn', 'projectStatusPills',
-      'batchProjectSelect', 'batchProjectNew', 'batchAssignBtn', 'assignSelectedBtn',
-      'selectedCount', 'selectAllSessions', 'statusPills', 'tiles', 'timeline',
-      'timelineNote', 'legend', 'awayBody', 'awayNote', 'appBars', 'fileBars',
-      'sessionBody', 'sessionNote', 'tooltip'
+      'exportSessionsBtn', 'exportAwayBtn', 'importProjectsBtn', 'projectsFileInput',
+      'exportProjectsBtn', 'projectStatusPills', 'batchProjectSelect', 'batchProjectNew',
+      'batchAssignBtn', 'assignSelectedBtn', 'selectedCount', 'selectAllSessions',
+      'statusPills', 'tiles', 'timeline', 'timelineNote', 'legend', 'awayBody',
+      'awayNote', 'appBars', 'fileBars', 'projectBars', 'sessionBody', 'sessionNote',
+      'tooltip', 'dateBackBtn', 'dateForwardBtn'
     ]) {
       els[id] = document.getElementById(id);
     }
@@ -1057,6 +1081,37 @@
     function startOfDay(key) {
       const [year, month, day] = key.split('-').map(Number);
       return new Date(year, month - 1, day, 0, 0, 0, 0);
+    }
+
+    /**
+     * Calendar-date addition via setDate(), not raw millisecond arithmetic -
+     * a DST transition can shift "+ N * 86400000ms" onto the wrong side of
+     * local midnight, silently landing on the wrong day; setDate() operates
+     * on the date component itself so it can't drift that way.
+     */
+    function addDays(key, days) {
+      const date = startOfDay(key);
+      date.setDate(date.getDate() + days);
+      return dayKey(date);
+    }
+
+    /** Shifts both ends of the date range by the range's own length - a day
+     *  at a time for a single selected day, a week at a time for a week, etc. */
+    function shiftDateRange(direction) {
+      if (!els.dateFrom.value || !els.dateTo.value) return;
+      const spanDays = Math.round(
+        (startOfDay(els.dateTo.value) - startOfDay(els.dateFrom.value)) / 86400000) + 1;
+      const delta = direction * spanDays;
+      els.dateFrom.value = addDays(els.dateFrom.value, delta);
+      els.dateTo.value = addDays(els.dateTo.value, delta);
+      state.dateRangeTouched = true;
+      refresh();
+    }
+
+    function updateDateNavButtons() {
+      const hasData = !!(state.dataMinDay && state.dataMaxDay);
+      els.dateBackBtn.disabled = !hasData || !els.dateFrom.value || els.dateFrom.value <= state.dataMinDay;
+      els.dateForwardBtn.disabled = !hasData || !els.dateTo.value || els.dateTo.value >= state.dataMaxDay;
     }
 
     // ------------------------------------------------------------------
@@ -1440,6 +1495,7 @@
       renderBars(visible);
       renderProjectStatus();
       renderSessions(visible);
+      updateDateNavButtons();
     }
 
     function totals(entries) {
@@ -1709,6 +1765,7 @@
     function renderBars(visible) {
       const appTotals = new Map();
       const fileTotals = new Map();
+      const projectTotals = new Map();
       for (const entry of visible) {
         if (entry.type !== 'active') continue;
         const app = entry.app || 'Unknown';
@@ -1720,6 +1777,8 @@
           if (!current.path && entry.path) current.path = entry.path;
           fileTotals.set(key, current);
         }
+        const project = getProject(entry) || 'Unassigned';
+        projectTotals.set(project, (projectTotals.get(project) || 0) + entry.seconds);
       }
 
       els.appBars.innerHTML = barRows(
@@ -1737,6 +1796,13 @@
           note: info.path
         })),
         'No file names were readable from the window titles in view.'
+      );
+
+      els.projectBars.innerHTML = barRows(
+        [...projectTotals.entries()].map(([name, seconds]) => ({
+          name, seconds, color: name === 'Unassigned' ? OTHER_COLOR : 'var(--accent)'
+        })),
+        'No sessions in view have a project assigned yet.'
       );
     }
 
@@ -2041,6 +2107,9 @@
       refresh();
     });
 
+    els.dateBackBtn.addEventListener('click', () => shiftDateRange(-1));
+    els.dateForwardBtn.addEventListener('click', () => shiftDateRange(1));
+
     function toggleChecklistKey(checklistEl, hiddenSet) {
       checklistEl.addEventListener('change', event => {
         const box = event.target.closest('input[type="checkbox"]');
@@ -2085,6 +2154,17 @@
     });
 
     els.exportProjectsBtn.addEventListener('click', exportProjects);
+
+    els.importProjectsBtn.addEventListener('click', () => els.projectsFileInput.click());
+    els.projectsFileInput.addEventListener('change', async event => {
+      const file = event.target.files[0];
+      event.target.value = '';
+      if (!file) return;
+      const text = await file.text();
+      if (!loadIfProjectsFile(text)) {
+        window.alert(`"${file.name}" doesn't look like a projects file exported from this viewer.`);
+      }
+    });
 
     els.sessionBody.addEventListener('change', event => {
       const select = event.target.closest('select.project-select');
