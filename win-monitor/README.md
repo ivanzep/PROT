@@ -61,9 +61,11 @@ win-monitor.cmd -IdleThresholdSeconds 120
 Running `win-monitor.ps1` directly (or via `win-monitor.cmd`) is a console app:
 close its window and it dies. `win-monitor-tray.ps1` is the background-friendly
 wrapper - it starts `win-monitor.ps1` as a separate hidden process and puts a
-small blue dot in the system tray over it. Right-click it for **Open log
-folder**, **Open log viewer**, **Idle threshold**, and **Exit**; double-click
-opens the viewer.
+small blue dot in the system tray over it. Hover it and the tooltip's second
+line shows whatever currently has focus (`Now: chrome: GitHub - ...`),
+refreshed every couple of seconds, so you can tell at a glance that it's
+actually tracking. Right-click for **Open log folder**, **Open log viewer**,
+**Idle threshold**, and **Exit**; double-click opens the viewer.
 
 Easiest: double-click **`win-monitor-tray.cmd`**. No PowerShell prompt, and
 unlike `win-monitor.cmd` it doesn't leave a console window open - the tray
@@ -196,3 +198,12 @@ or reset with **All**. Durations default to decimal hours (`1.50h`); toggle
   can't see (elevated windows report only their title, for instance).
 - **The file name is inferred, not verified.** Treat it as a strong hint for a
   human reviewing the log, not as ground truth for anything automated.
+- **The tray tooltip polls independently of the logger.** `win-monitor-tray.ps1`
+  reads the OS foreground window itself, on its own 2-second timer, rather than
+  asking the separate `win-monitor.ps1` process what it's currently logging -
+  simpler than building an IPC channel between the two, at the cost of the
+  tooltip only ever showing "what's in front right now," not the logger's own
+  idle/locked state. During an away period the log correctly attributes that
+  time to whatever was left open; the tooltip just shows the desktop or
+  whatever's since been clicked. The log/viewer is the record; the tooltip is
+  a glance.

@@ -70,6 +70,7 @@ Add-Type -AssemblyName Microsoft.VisualBasic
 if (-not ('WinMonitor.Tray.NativeIcon' -as [type])) {
     Add-Type -TypeDefinition @'
 using System;
+using System.Text;
 using System.Runtime.InteropServices;
 
 namespace WinMonitor.Tray {
@@ -79,6 +80,42 @@ namespace WinMonitor.Tray {
         // never calls this leaks one GDI handle per icon it ever creates.
         [DllImport("user32.dll")]
         public static extern bool DestroyIcon(IntPtr handle);
+    }
+
+    // A minimal, tray-side copy of the same "what's in the foreground right
+    // now" calls win-monitor.ps1 itself uses - just enough to show a live
+    // status line in the tooltip. Polling this independently, rather than
+    // reading it back from the logger process, avoids needing any IPC
+    // channel between the two.
+    public static class NativeWindow {
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowTextW(IntPtr hWnd, StringBuilder text, int count);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowTextLengthW(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+        public static string GetTitle(IntPtr hWnd) {
+            if (hWnd == IntPtr.Zero) return "";
+            int length = GetWindowTextLengthW(hWnd);
+            if (length <= 0) return "";
+            StringBuilder sb = new StringBuilder(length + 1);
+            GetWindowTextW(hWnd, sb, sb.Capacity);
+            return sb.ToString();
+        }
+
+        // Wrapped so PowerShell callers don't need an [out]/[ref] parameter -
+        // same shape as win-monitor.ps1's own GetWindowProcessId helper.
+        public static uint GetProcessId(IntPtr hWnd) {
+            uint processId = 0;
+            GetWindowThreadProcessId(hWnd, out processId);
+            return processId;
+        }
     }
 }
 '@
@@ -134,6 +171,58 @@ function Format-ThresholdLabel {
     param([int] $Seconds)
     if ($Seconds % 60 -eq 0) { return '{0} min' -f ($Seconds / 60) }
     return "${Seconds}s"
+}
+
+# --------------------------------------------------------------------------
+# Live status line - "Now: <app> - <title>" in the tray tooltip, refreshed on
+# a timer. This reflects whatever currently has OS focus, independent of
+# win-monitor.ps1's own idle/locked state machine: while active it's exactly
+# what's being logged; during an idle or locked stretch it can only show
+# what's in front of it right now, not that the logger has carried the
+# earlier window forward as the away session's subject (see the log/viewer
+# for that - the tooltip is a glance, not the record).
+# --------------------------------------------------------------------------
+
+$script:loggingActive = $true
+
+function Get-ForegroundSummary {
+    $handle = [WinMonitor.Tray.NativeWindow]::GetForegroundWindow()
+    if ($handle -eq [IntPtr]::Zero) { return $null }
+
+    $title = [WinMonitor.Tray.NativeWindow]::GetTitle($handle)
+    $processId = [WinMonitor.Tray.NativeWindow]::GetProcessId($handle)
+
+    $processName = ''
+    try {
+        $processName = (Get-Process -Id $processId -ErrorAction Stop).ProcessName
+    } catch {
+        # Process exited between the call and the lookup - not fatal for a tooltip.
+    }
+
+    return [pscustomobject]@{ Process = $processName; Title = $title }
+}
+
+function Update-TrayTooltip {
+    if (-not $script:loggingActive) { return }
+
+    $summary = Get-ForegroundSummary
+    $label = '-'
+    if ($summary -and $summary.Title) {
+        $label = if ($summary.Process) { "$($summary.Process): $($summary.Title)" } else { $summary.Title }
+    }
+
+    $baseLine = "win-monitor - idle after $(Format-ThresholdLabel -Seconds $script:IdleThresholdSeconds)"
+
+    # NotifyIcon.Text tops out at 127 characters on modern Windows; the
+    # settings line always fits on its own, so only the live window label -
+    # unbounded, since window titles are - gets trimmed to make room.
+    $overhead = $baseLine.Length + "`nNow: ".Length
+    $budget = [Math]::Max(1, 127 - $overhead)
+    if ($label.Length -gt $budget) {
+        $label = $label.Substring(0, [Math]::Max(0, $budget - 1)) + '…'
+    }
+
+    $notifyIcon.Text = "$baseLine`nNow: $label"
 }
 
 # --------------------------------------------------------------------------
@@ -221,7 +310,9 @@ function Set-IdleThreshold {
     $script:monitorProcess = Start-Monitor -Seconds $Seconds
     if (-not $script:monitorProcess) {
         # Start-Monitor already showed the error; logging is simply stopped
-        # now, so say so rather than pretending the change took effect.
+        # now, so say so rather than pretending the change took effect, and
+        # stop the tooltip timer from overwriting that message.
+        $script:loggingActive = $false
         $notifyIcon.Text = 'win-monitor - logging stopped (see error)'
         return
     }
@@ -229,9 +320,8 @@ function Set-IdleThreshold {
     $script:IdleThresholdSeconds = $Seconds
     Save-ThresholdSetting
     Update-ThresholdMenuChecks
-    $label = Format-ThresholdLabel -Seconds $Seconds
-    $notifyIcon.Text = "win-monitor - logging (idle after $label)"
-    $notifyIcon.ShowBalloonTip(2500, 'win-monitor', "Idle threshold set to $label.", 'Info')
+    Update-TrayTooltip
+    $notifyIcon.ShowBalloonTip(2500, 'win-monitor', "Idle threshold set to $(Format-ThresholdLabel -Seconds $Seconds).", 'Info')
 }
 
 # Each preset reads its target value from the clicked item's own Tag rather
@@ -281,10 +371,15 @@ $itemExit = $menu.Items.Add('Exit')
 
 $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
 $notifyIcon.Icon = $icon
-$notifyIcon.Text = "win-monitor - logging (idle after $(Format-ThresholdLabel -Seconds $script:IdleThresholdSeconds))"
 $notifyIcon.ContextMenuStrip = $menu
 $notifyIcon.Visible = $true
+Update-TrayTooltip
 $notifyIcon.ShowBalloonTip(4000, 'win-monitor', 'Running in the background. Right-click the tray icon for options.', 'Info')
+
+$statusTimer = New-Object System.Windows.Forms.Timer
+$statusTimer.Interval = 2000
+$statusTimer.Add_Tick({ Update-TrayTooltip })
+$statusTimer.Start()
 
 $script:exiting = $false
 
@@ -295,6 +390,8 @@ function Stop-Tray {
     $script:exiting = $true
 
     try {
+        $statusTimer.Stop()
+        $statusTimer.Dispose()
         Stop-Monitor
     } finally {
         $notifyIcon.Visible = $false
