@@ -2,7 +2,7 @@
 .SYNOPSIS
     Runs win-monitor.ps1 as a hidden background process with a system tray icon,
     so there is no console window to keep open and a visible way to stop it or
-    change the idle threshold.
+    change the idle threshold and minimum active time.
 
 .DESCRIPTION
     win-monitor.ps1 on its own is a console app: closing its window kills it, and
@@ -13,21 +13,21 @@
     This script is the middle ground. It launches win-monitor.ps1 as a separate,
     hidden child process - the logger itself is completely unchanged and still
     runs standalone if you want it to - and shows a tray icon with a right-click
-    menu (open the log folder, open the log viewer, change the idle threshold,
-    exit) so it's both invisible day-to-day and reachable when you need it.
+    menu (open the log folder, open the log viewer, change the idle threshold or
+    minimum active time, exit) so it's both invisible day-to-day and reachable
+    when you need it.
 
-    Stopping - whether via Exit or an idle-threshold change - is graceful: a
-    stop-flag file that win-monitor.ps1 checks once per poll (see its
-    -StopFlagPath parameter) and exits on, the same way Ctrl+C does in a
-    console - the session in progress is flushed, not dropped. There is no
-    console here to send Ctrl+C to, which is why the logger needed that flag
-    in the first place.
+    Stopping - whether via Exit or a settings change - is graceful: a stop-flag
+    file that win-monitor.ps1 checks once per poll (see its -StopFlagPath
+    parameter) and exits on, the same way Ctrl+C does in a console - the session
+    in progress is flushed, not dropped. There is no console here to send
+    Ctrl+C to, which is why the logger needed that flag in the first place.
 
-    The idle threshold picked from the tray menu is saved to
-    tray-settings.json in -LogDirectory and reused on every future launch,
-    including ones started by the Scheduled Task at logon - so it only needs
-    setting once. -IdleThresholdSeconds below is just the seed value for a
-    fresh install, before any such file exists.
+    Settings picked from the tray menu are saved to tray-settings.json in
+    -LogDirectory and reused on every future launch, including ones started by
+    the Scheduled Task at logon - so they only need setting once.
+    -IdleThresholdSeconds and -MinSessionSeconds below are just the seed values
+    for a fresh install, before any such file exists.
 
 .PARAMETER LogDirectory
     Passed through to win-monitor.ps1. Default: %LOCALAPPDATA%\win-monitor.
@@ -36,6 +36,13 @@
     Starting idle threshold, passed through to win-monitor.ps1 - but only on
     the very first run. Once changed from the tray menu, the saved value in
     tray-settings.json takes over and this parameter is ignored. Default 300.
+
+.PARAMETER MinSessionSeconds
+    Starting minimum active time, passed through to win-monitor.ps1 as
+    -MinSessionSeconds - focus sessions shorter than this are dropped as
+    alt-tab/window-switching noise rather than logged. Same first-run-only
+    caveat as -IdleThresholdSeconds: the tray menu's saved choice wins after
+    that. Default 3.
 
 .EXAMPLE
     .\win-monitor-tray.ps1
@@ -57,7 +64,9 @@
 param(
     [string] $LogDirectory = (Join-Path $env:LOCALAPPDATA 'win-monitor'),
     [ValidateRange(5, 86400)]
-    [int]    $IdleThresholdSeconds = 300
+    [int]    $IdleThresholdSeconds = 300,
+    [ValidateRange(0, 3600)]
+    [int]    $MinSessionSeconds = 3
 )
 
 Set-StrictMode -Version Latest
@@ -140,29 +149,49 @@ New-Item -ItemType Directory -Path $LogDirectory -Force -ErrorAction SilentlyCon
 Remove-Item -LiteralPath $stopFlagPath -Force -ErrorAction SilentlyContinue
 
 # --------------------------------------------------------------------------
-# Idle threshold - seeded from the parameter, overridden by whatever was last
-# saved from the tray menu.
+# Settings - each seeded from its parameter, independently overridden by
+# whatever was last saved from the tray menu. A corrupt or partially-missing
+# settings file falls back to the parameter on a per-field basis, not as a
+# whole, so a bad value in one field doesn't discard a good value in the other.
 # --------------------------------------------------------------------------
 
 $script:IdleThresholdSeconds = $IdleThresholdSeconds
+$script:MinSessionSeconds = $MinSessionSeconds
 if (Test-Path -LiteralPath $settingsPath) {
+    $saved = $null
     try {
         $saved = Get-Content -LiteralPath $settingsPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
-        $candidate = [int]$saved.IdleThresholdSeconds
-        if ($candidate -ge 5 -and $candidate -le 86400) {
-            $script:IdleThresholdSeconds = $candidate
+    } catch {
+        # Corrupt or unreadable settings file - both fields fall back to
+        # their parameters below, since $saved stays $null.
+    }
+
+    try {
+        $idleCandidate = [int]$saved.IdleThresholdSeconds
+        if ($idleCandidate -ge 5 -and $idleCandidate -le 86400) {
+            $script:IdleThresholdSeconds = $idleCandidate
         }
     } catch {
-        # Corrupt or unreadable settings file - fall back to the parameter.
+        # Field missing or not a number - falls back to the parameter.
+    }
+    try {
+        $minActiveCandidate = [int]$saved.MinSessionSeconds
+        if ($minActiveCandidate -ge 0 -and $minActiveCandidate -le 3600) {
+            $script:MinSessionSeconds = $minActiveCandidate
+        }
+    } catch {
+        # Field missing or not a number - falls back to the parameter.
     }
 }
 
-function Save-ThresholdSetting {
+function Save-Settings {
     try {
-        [pscustomobject]@{ IdleThresholdSeconds = $script:IdleThresholdSeconds } |
-            ConvertTo-Json | Set-Content -LiteralPath $settingsPath -Encoding UTF8
+        [pscustomobject]@{
+            IdleThresholdSeconds = $script:IdleThresholdSeconds
+            MinSessionSeconds    = $script:MinSessionSeconds
+        } | ConvertTo-Json | Set-Content -LiteralPath $settingsPath -Encoding UTF8
     } catch {
-        # Non-fatal - the tray keeps running at the in-memory value even if
+        # Non-fatal - the tray keeps running at the in-memory values even if
         # this particular save failed (e.g. a locked or read-only file).
     }
 }
@@ -170,6 +199,13 @@ function Save-ThresholdSetting {
 function Format-ThresholdLabel {
     param([int] $Seconds)
     if ($Seconds % 60 -eq 0) { return '{0} min' -f ($Seconds / 60) }
+    return "${Seconds}s"
+}
+
+function Format-MinActiveLabel {
+    param([int] $Seconds)
+    if ($Seconds -eq 0) { return 'off' }
+    if ($Seconds -ge 60 -and $Seconds % 60 -eq 0) { return '{0} min' -f ($Seconds / 60) }
     return "${Seconds}s"
 }
 
@@ -240,10 +276,13 @@ function Update-TrayTooltip {
 # --------------------------------------------------------------------------
 
 function Start-Monitor {
-    param([int] $Seconds)
+    param(
+        [int] $IdleSeconds,
+        [int] $MinActiveSeconds
+    )
 
-    $processArgs = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -LogDirectory "{1}" -IdleThresholdSeconds {2} -StopFlagPath "{3}" -Quiet' `
-        -f $monitorPath, $LogDirectory, $Seconds, $stopFlagPath
+    $processArgs = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -LogDirectory "{1}" -IdleThresholdSeconds {2} -MinSessionSeconds {3} -StopFlagPath "{4}" -Quiet' `
+        -f $monitorPath, $LogDirectory, $IdleSeconds, $MinActiveSeconds, $stopFlagPath
     try {
         return Start-Process -FilePath 'powershell.exe' -ArgumentList $processArgs -WindowStyle Hidden -PassThru
     } catch {
@@ -265,7 +304,7 @@ function Stop-Monitor {
     Remove-Item -LiteralPath $stopFlagPath -Force -ErrorAction SilentlyContinue
 }
 
-$script:monitorProcess = Start-Monitor -Seconds $script:IdleThresholdSeconds
+$script:monitorProcess = Start-Monitor -IdleSeconds $script:IdleThresholdSeconds -MinActiveSeconds $script:MinSessionSeconds
 if (-not $script:monitorProcess) { exit 1 }
 
 # --------------------------------------------------------------------------
@@ -305,18 +344,35 @@ $thresholdMenu = New-Object System.Windows.Forms.ToolStripMenuItem 'Idle thresho
 [void]$menu.Items.Add($thresholdMenu)
 $script:thresholdPresetItems = @()
 
+$minActiveMenu = New-Object System.Windows.Forms.ToolStripMenuItem 'Minimum active time'
+[void]$menu.Items.Add($minActiveMenu)
+$script:minActivePresetItems = @()
+
 function Update-ThresholdMenuChecks {
     foreach ($presetItem in $script:thresholdPresetItems) {
         $presetItem.Checked = ($presetItem.Tag -eq $script:IdleThresholdSeconds)
     }
 }
 
-function Set-IdleThreshold {
-    param([int] $Seconds)
-    if ($Seconds -eq $script:IdleThresholdSeconds) { return }
+function Update-MinActiveMenuChecks {
+    foreach ($presetItem in $script:minActivePresetItems) {
+        $presetItem.Checked = ($presetItem.Tag -eq $script:MinSessionSeconds)
+    }
+}
+
+# Both submenus change through this one function, which restarts the child
+# logger with whichever value changed plus whatever the other one currently
+# is - win-monitor.ps1 has no way to reconfigure itself in place, so a
+# restart is the only path either setting has.
+function Set-LoggerSettings {
+    param(
+        [int] $IdleSeconds = $script:IdleThresholdSeconds,
+        [int] $MinActiveSeconds = $script:MinSessionSeconds
+    )
+    if ($IdleSeconds -eq $script:IdleThresholdSeconds -and $MinActiveSeconds -eq $script:MinSessionSeconds) { return }
 
     Stop-Monitor
-    $script:monitorProcess = Start-Monitor -Seconds $Seconds
+    $script:monitorProcess = Start-Monitor -IdleSeconds $IdleSeconds -MinActiveSeconds $MinActiveSeconds
     if (-not $script:monitorProcess) {
         # Start-Monitor already showed the error; logging is simply stopped
         # now, so say so rather than pretending the change took effect, and
@@ -326,11 +382,15 @@ function Set-IdleThreshold {
         return
     }
 
-    $script:IdleThresholdSeconds = $Seconds
-    Save-ThresholdSetting
+    $script:IdleThresholdSeconds = $IdleSeconds
+    $script:MinSessionSeconds = $MinActiveSeconds
+    Save-Settings
     Update-ThresholdMenuChecks
+    Update-MinActiveMenuChecks
     Update-TrayTooltip
-    $notifyIcon.ShowBalloonTip(2500, 'win-monitor', "Idle threshold set to $(Format-ThresholdLabel -Seconds $Seconds).", 'Info')
+    $notifyIcon.ShowBalloonTip(2500, 'win-monitor',
+        "Idle threshold $(Format-ThresholdLabel -Seconds $IdleSeconds), minimum active time $(Format-MinActiveLabel -Seconds $MinActiveSeconds).",
+        'Info')
 }
 
 # Each preset reads its target value from the clicked item's own Tag rather
@@ -341,7 +401,7 @@ foreach ($minutes in @(2, 5, 10, 15, 30, 60)) {
     $presetItem.Tag = $minutes * 60
     $presetItem.Add_Click({
         param($eventSender, $eventArgs)
-        Set-IdleThreshold -Seconds $eventSender.Tag
+        Set-LoggerSettings -IdleSeconds $eventSender.Tag
     })
     [void]$thresholdMenu.DropDownItems.Add($presetItem)
     $script:thresholdPresetItems += $presetItem
@@ -368,7 +428,45 @@ $itemCustomThreshold.Add_Click({
         [System.Windows.Forms.MessageBox]::Show('Enter a value between 5 seconds and 1440 minutes (24 hours).', 'win-monitor') | Out-Null
         return
     }
-    Set-IdleThreshold -Seconds $secondsValue
+    Set-LoggerSettings -IdleSeconds $secondsValue
+})
+
+# Presets in seconds, not minutes - unlike the idle threshold, values here are
+# normally single-digit seconds, where "0.05 min" would be a worse prompt
+# than "3s".
+foreach ($seconds in @(0, 2, 3, 5, 10, 30, 60)) {
+    $label = if ($seconds -eq 0) { 'Off (log everything)' } else { "$seconds seconds" }
+    $presetItem = New-Object System.Windows.Forms.ToolStripMenuItem $label
+    $presetItem.Tag = $seconds
+    $presetItem.Add_Click({
+        param($eventSender, $eventArgs)
+        Set-LoggerSettings -MinActiveSeconds $eventSender.Tag
+    })
+    [void]$minActiveMenu.DropDownItems.Add($presetItem)
+    $script:minActivePresetItems += $presetItem
+}
+Update-MinActiveMenuChecks
+
+[void]$minActiveMenu.DropDownItems.Add((New-Object System.Windows.Forms.ToolStripSeparator))
+$itemCustomMinActive = $minActiveMenu.DropDownItems.Add('Custom...')
+$itemCustomMinActive.Add_Click({
+    $response = [Microsoft.VisualBasic.Interaction]::InputBox(
+        "Seconds a window must hold focus before it's logged - shorter switches are dropped as alt-tab noise (0-3600). 0 logs everything.",
+        'win-monitor - minimum active time',
+        "$script:MinSessionSeconds")
+    if ([string]::IsNullOrWhiteSpace($response)) { return }   # Cancelled
+
+    $secondsValue = 0.0
+    if (-not [double]::TryParse($response, [ref] $secondsValue)) {
+        [System.Windows.Forms.MessageBox]::Show("'$response' isn't a number.", 'win-monitor') | Out-Null
+        return
+    }
+    $secondsValue = [int][math]::Round($secondsValue)
+    if ($secondsValue -lt 0 -or $secondsValue -gt 3600) {
+        [System.Windows.Forms.MessageBox]::Show('Enter a value between 0 and 3600 seconds (1 hour).', 'win-monitor') | Out-Null
+        return
+    }
+    Set-LoggerSettings -MinActiveSeconds $secondsValue
 })
 
 [void]$menu.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))

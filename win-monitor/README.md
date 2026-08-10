@@ -65,7 +65,8 @@ small blue dot in the system tray over it. Hover it and the tooltip's second
 line shows whatever currently has focus (`Now: chrome: GitHub - ...`),
 refreshed every couple of seconds, so you can tell at a glance that it's
 actually tracking. Right-click for **Open log folder**, **Open log viewer**,
-**Idle threshold**, and **Exit**; double-click opens the viewer.
+**Idle threshold**, **Minimum active time**, and **Exit**; double-click opens
+the viewer.
 
 Easiest: double-click **`win-monitor-tray.cmd`**. No PowerShell prompt, and
 unlike `win-monitor.cmd` it doesn't leave a console window open - the tray
@@ -78,13 +79,22 @@ From a PowerShell prompt instead:
 ```
 
 **Idle threshold** is a submenu with presets (2/5/10/15/30/60 minutes) plus a
-**Custom...** prompt for anything else. Changing it restarts the logger
-underneath with the new value and remembers your choice in
-`tray-settings.json` (next to the log files) - it's picked up on every future
-launch, including ones the Scheduled Task starts at logon, so it's a one-time
-setting rather than something to redo after every reboot.
+**Custom...** prompt for anything else.
 
-**Exit** is a graceful stop, not a kill (and so is a threshold change): it
+**Minimum active time** is `win-monitor.ps1`'s existing `-MinSessionSeconds`
+(previously only settable at the command line) exposed the same way - a
+submenu with second-based presets (0=off, 2/3/5/10/30/60s) plus **Custom...**
+- for filtering out quick alt-tab/window-switching noise. A focus session
+shorter than this is dropped entirely rather than logged; it never happened
+as far as the log is concerned. 0 keeps every session, however brief.
+
+Changing either setting restarts the logger underneath with both current
+values and remembers the choice in `tray-settings.json` (next to the log
+files) - picked up on every future launch, including ones the Scheduled Task
+starts at logon, so each is a one-time setting rather than something to redo
+after every reboot.
+
+**Exit** is a graceful stop, not a kill (and so is a settings change): it
 drops a stop-flag file that `win-monitor.ps1` checks once per poll and exits
 on - same as Ctrl+C in a console - so the session in progress gets flushed to
 the log rather than lost. There's no console for the tray to send Ctrl+C to,
