@@ -22,8 +22,10 @@
     Name under which the task is registered. Default: win-monitor.
 
 .PARAMETER IdleThresholdSeconds
-    Passed through to win-monitor-tray.ps1, which passes it on to win-monitor.ps1.
-    Default 300.
+    Passed through to win-monitor-tray.ps1 as the starting idle threshold - but
+    only until it's changed from the tray icon's own menu, after which the
+    saved choice in tray-settings.json takes over on every future logon and
+    this parameter is ignored. Default 300.
 
 .PARAMETER LogDirectory
     Passed through to win-monitor-tray.ps1, which passes it on to win-monitor.ps1.

@@ -1,7 +1,8 @@
 <#
 .SYNOPSIS
     Runs win-monitor.ps1 as a hidden background process with a system tray icon,
-    so there is no console window to keep open and a visible way to stop it.
+    so there is no console window to keep open and a visible way to stop it or
+    change the idle threshold.
 
 .DESCRIPTION
     win-monitor.ps1 on its own is a console app: closing its window kills it, and
@@ -12,20 +13,29 @@
     This script is the middle ground. It launches win-monitor.ps1 as a separate,
     hidden child process - the logger itself is completely unchanged and still
     runs standalone if you want it to - and shows a tray icon with a right-click
-    menu (open the log folder, open the log viewer, exit) so it's both invisible
-    day-to-day and reachable when you need it.
+    menu (open the log folder, open the log viewer, change the idle threshold,
+    exit) so it's both invisible day-to-day and reachable when you need it.
 
-    Stopping is graceful: "Exit" drops a stop-flag file that win-monitor.ps1
-    checks once per poll (see its -StopFlagPath parameter) and exits on, the
-    same way Ctrl+C does in a console - the session in progress is flushed, not
-    dropped. There is no console here to send Ctrl+C to, which is why the
-    logger needed that flag in the first place.
+    Stopping - whether via Exit or an idle-threshold change - is graceful: a
+    stop-flag file that win-monitor.ps1 checks once per poll (see its
+    -StopFlagPath parameter) and exits on, the same way Ctrl+C does in a
+    console - the session in progress is flushed, not dropped. There is no
+    console here to send Ctrl+C to, which is why the logger needed that flag
+    in the first place.
+
+    The idle threshold picked from the tray menu is saved to
+    tray-settings.json in -LogDirectory and reused on every future launch,
+    including ones started by the Scheduled Task at logon - so it only needs
+    setting once. -IdleThresholdSeconds below is just the seed value for a
+    fresh install, before any such file exists.
 
 .PARAMETER LogDirectory
     Passed through to win-monitor.ps1. Default: %LOCALAPPDATA%\win-monitor.
 
 .PARAMETER IdleThresholdSeconds
-    Passed through to win-monitor.ps1. Default 300.
+    Starting idle threshold, passed through to win-monitor.ps1 - but only on
+    the very first run. Once changed from the tray menu, the saved value in
+    tray-settings.json takes over and this parameter is ignored. Default 300.
 
 .EXAMPLE
     .\win-monitor-tray.ps1
@@ -38,8 +48,9 @@
 
 .NOTES
     Windows only. PowerShell 5.1 (in-box) or PowerShell 7+.
-    Requires no admin rights and no installed modules - System.Windows.Forms and
-    System.Drawing ship with Windows.
+    Requires no admin rights and no installed modules - System.Windows.Forms,
+    System.Drawing, and Microsoft.VisualBasic (for the "Custom..." prompt) all
+    ship with Windows.
 #>
 
 [CmdletBinding()]
@@ -54,6 +65,7 @@ $ErrorActionPreference = 'Stop'
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName Microsoft.VisualBasic
 
 if (-not ('WinMonitor.Tray.NativeIcon' -as [type])) {
     Add-Type -TypeDefinition @'
@@ -75,6 +87,7 @@ namespace WinMonitor.Tray {
 $monitorPath = Join-Path $PSScriptRoot 'win-monitor.ps1'
 $viewerPath = Join-Path $PSScriptRoot 'index.html'
 $stopFlagPath = Join-Path $LogDirectory '.stop-requested'
+$settingsPath = Join-Path $LogDirectory 'tray-settings.json'
 
 if (-not (Test-Path -LiteralPath $monitorPath)) {
     [System.Windows.Forms.MessageBox]::Show(
@@ -90,24 +103,72 @@ New-Item -ItemType Directory -Path $LogDirectory -Force -ErrorAction SilentlyCon
 Remove-Item -LiteralPath $stopFlagPath -Force -ErrorAction SilentlyContinue
 
 # --------------------------------------------------------------------------
-# Launch the logger as its own hidden, independent process. Built as one
-# pre-quoted command-line string (matching Register-WinMonitorTask.ps1)
-# rather than an -ArgumentList array, since Start-Process's array handling
-# does not quote embedded spaces consistently between Windows PowerShell 5.1
-# and PowerShell 7.
+# Idle threshold - seeded from the parameter, overridden by whatever was last
+# saved from the tray menu.
 # --------------------------------------------------------------------------
 
-$monitorArgs = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -LogDirectory "{1}" -IdleThresholdSeconds {2} -StopFlagPath "{3}" -Quiet' `
-    -f $monitorPath, $LogDirectory, $IdleThresholdSeconds, $stopFlagPath
-
-try {
-    $monitorProcess = Start-Process -FilePath 'powershell.exe' -ArgumentList $monitorArgs -WindowStyle Hidden -PassThru
-} catch {
-    [System.Windows.Forms.MessageBox]::Show(
-        "win-monitor.ps1 failed to start: $($_.Exception.Message)",
-        'win-monitor', 'OK', 'Error') | Out-Null
-    exit 1
+$script:IdleThresholdSeconds = $IdleThresholdSeconds
+if (Test-Path -LiteralPath $settingsPath) {
+    try {
+        $saved = Get-Content -LiteralPath $settingsPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        $candidate = [int]$saved.IdleThresholdSeconds
+        if ($candidate -ge 5 -and $candidate -le 86400) {
+            $script:IdleThresholdSeconds = $candidate
+        }
+    } catch {
+        # Corrupt or unreadable settings file - fall back to the parameter.
+    }
 }
+
+function Save-ThresholdSetting {
+    try {
+        [pscustomobject]@{ IdleThresholdSeconds = $script:IdleThresholdSeconds } |
+            ConvertTo-Json | Set-Content -LiteralPath $settingsPath -Encoding UTF8
+    } catch {
+        # Non-fatal - the tray keeps running at the in-memory value even if
+        # this particular save failed (e.g. a locked or read-only file).
+    }
+}
+
+function Format-ThresholdLabel {
+    param([int] $Seconds)
+    if ($Seconds % 60 -eq 0) { return '{0} min' -f ($Seconds / 60) }
+    return "${Seconds}s"
+}
+
+# --------------------------------------------------------------------------
+# The logger child process - started, stopped, and restarted (on a threshold
+# change) independently of the tray icon itself.
+# --------------------------------------------------------------------------
+
+function Start-Monitor {
+    param([int] $Seconds)
+
+    $processArgs = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -LogDirectory "{1}" -IdleThresholdSeconds {2} -StopFlagPath "{3}" -Quiet' `
+        -f $monitorPath, $LogDirectory, $Seconds, $stopFlagPath
+    try {
+        return Start-Process -FilePath 'powershell.exe' -ArgumentList $processArgs -WindowStyle Hidden -PassThru
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show(
+            "win-monitor.ps1 failed to start: $($_.Exception.Message)",
+            'win-monitor', 'OK', 'Error') | Out-Null
+        return $null
+    }
+}
+
+function Stop-Monitor {
+    # Same graceful-stop mechanism Exit uses: the flag file is what lets a
+    # process with no console ask win-monitor.ps1 to flush and exit on its
+    # own, instead of being killed mid-session.
+    if (-not $script:monitorProcess) { return }
+    New-Item -ItemType File -Path $stopFlagPath -Force -ErrorAction SilentlyContinue | Out-Null
+    if (-not $script:monitorProcess.HasExited) { $script:monitorProcess.WaitForExit(5000) | Out-Null }
+    if (-not $script:monitorProcess.HasExited) { Stop-Process -Id $script:monitorProcess.Id -Force -ErrorAction SilentlyContinue }
+    Remove-Item -LiteralPath $stopFlagPath -Force -ErrorAction SilentlyContinue
+}
+
+$script:monitorProcess = Start-Monitor -Seconds $script:IdleThresholdSeconds
+if (-not $script:monitorProcess) { exit 1 }
 
 # --------------------------------------------------------------------------
 # Tray icon - a small filled circle drawn at runtime (no .ico asset to ship),
@@ -131,7 +192,7 @@ $icon = [System.Drawing.Icon]::FromHandle($hIcon)
 $bitmap.Dispose()
 
 # --------------------------------------------------------------------------
-# Menu + tray icon
+# Menu
 # --------------------------------------------------------------------------
 
 $menu = New-Object System.Windows.Forms.ContextMenuStrip
@@ -141,11 +202,86 @@ $itemOpenViewer = $menu.Items.Add('Open log viewer')
 # MainMenu/MenuItem classes, a literal "-" item here is not auto-converted
 # into a separator, so it needs a real ToolStripSeparator.
 [void]$menu.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
+
+$thresholdMenu = New-Object System.Windows.Forms.ToolStripMenuItem 'Idle threshold'
+[void]$menu.Items.Add($thresholdMenu)
+$script:thresholdPresetItems = @()
+
+function Update-ThresholdMenuChecks {
+    foreach ($presetItem in $script:thresholdPresetItems) {
+        $presetItem.Checked = ($presetItem.Tag -eq $script:IdleThresholdSeconds)
+    }
+}
+
+function Set-IdleThreshold {
+    param([int] $Seconds)
+    if ($Seconds -eq $script:IdleThresholdSeconds) { return }
+
+    Stop-Monitor
+    $script:monitorProcess = Start-Monitor -Seconds $Seconds
+    if (-not $script:monitorProcess) {
+        # Start-Monitor already showed the error; logging is simply stopped
+        # now, so say so rather than pretending the change took effect.
+        $notifyIcon.Text = 'win-monitor - logging stopped (see error)'
+        return
+    }
+
+    $script:IdleThresholdSeconds = $Seconds
+    Save-ThresholdSetting
+    Update-ThresholdMenuChecks
+    $label = Format-ThresholdLabel -Seconds $Seconds
+    $notifyIcon.Text = "win-monitor - logging (idle after $label)"
+    $notifyIcon.ShowBalloonTip(2500, 'win-monitor', "Idle threshold set to $label.", 'Info')
+}
+
+# Each preset reads its target value from the clicked item's own Tag rather
+# than closing over a loop variable, so one shared handler is safe to reuse
+# across all of them.
+foreach ($minutes in @(2, 5, 10, 15, 30, 60)) {
+    $presetItem = New-Object System.Windows.Forms.ToolStripMenuItem "$minutes minutes"
+    $presetItem.Tag = $minutes * 60
+    $presetItem.Add_Click({
+        param($eventSender, $eventArgs)
+        Set-IdleThreshold -Seconds $eventSender.Tag
+    })
+    [void]$thresholdMenu.DropDownItems.Add($presetItem)
+    $script:thresholdPresetItems += $presetItem
+}
+Update-ThresholdMenuChecks
+
+[void]$thresholdMenu.DropDownItems.Add((New-Object System.Windows.Forms.ToolStripSeparator))
+$itemCustomThreshold = $thresholdMenu.DropDownItems.Add('Custom...')
+$itemCustomThreshold.Add_Click({
+    $currentMinutes = [math]::Round($script:IdleThresholdSeconds / 60, 1)
+    $response = [Microsoft.VisualBasic.Interaction]::InputBox(
+        "Minutes of no keyboard/mouse input before it's logged as idle (0.1-1440).",
+        'win-monitor - idle threshold',
+        "$currentMinutes")
+    if ([string]::IsNullOrWhiteSpace($response)) { return }   # Cancelled
+
+    $minutesValue = 0.0
+    if (-not [double]::TryParse($response, [ref] $minutesValue)) {
+        [System.Windows.Forms.MessageBox]::Show("'$response' isn't a number.", 'win-monitor') | Out-Null
+        return
+    }
+    $secondsValue = [int][math]::Round($minutesValue * 60)
+    if ($secondsValue -lt 5 -or $secondsValue -gt 86400) {
+        [System.Windows.Forms.MessageBox]::Show('Enter a value between 5 seconds and 1440 minutes (24 hours).', 'win-monitor') | Out-Null
+        return
+    }
+    Set-IdleThreshold -Seconds $secondsValue
+})
+
+[void]$menu.Items.Add((New-Object System.Windows.Forms.ToolStripSeparator))
 $itemExit = $menu.Items.Add('Exit')
+
+# --------------------------------------------------------------------------
+# The icon itself
+# --------------------------------------------------------------------------
 
 $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
 $notifyIcon.Icon = $icon
-$notifyIcon.Text = "win-monitor - logging (idle after ${IdleThresholdSeconds}s)"
+$notifyIcon.Text = "win-monitor - logging (idle after $(Format-ThresholdLabel -Seconds $script:IdleThresholdSeconds))"
 $notifyIcon.ContextMenuStrip = $menu
 $notifyIcon.Visible = $true
 $notifyIcon.ShowBalloonTip(4000, 'win-monitor', 'Running in the background. Right-click the tray icon for options.', 'Info')
@@ -159,17 +295,8 @@ function Stop-Tray {
     $script:exiting = $true
 
     try {
-        New-Item -ItemType File -Path $stopFlagPath -Force -ErrorAction SilentlyContinue | Out-Null
-        if ($monitorProcess -and -not $monitorProcess.HasExited) {
-            # Give the logger a chance to flush the in-progress session via its
-            # own finally block before falling back to a hard kill.
-            $monitorProcess.WaitForExit(5000) | Out-Null
-        }
-        if ($monitorProcess -and -not $monitorProcess.HasExited) {
-            Stop-Process -Id $monitorProcess.Id -Force -ErrorAction SilentlyContinue
-        }
+        Stop-Monitor
     } finally {
-        Remove-Item -LiteralPath $stopFlagPath -Force -ErrorAction SilentlyContinue
         $notifyIcon.Visible = $false
         $notifyIcon.Dispose()
         [WinMonitor.Tray.NativeIcon]::DestroyIcon($hIcon) | Out-Null
