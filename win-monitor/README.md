@@ -10,13 +10,14 @@ period instead, carrying whatever window was on screen when the user stopped
 touching the machine - so idle time is attributed to what was left open, not to
 whatever grabbed focus next.
 
-Two pieces:
+Three pieces:
 
 | File | Purpose |
 | --- | --- |
-| `win-monitor.ps1` | The logger. Windows only, runs in the foreground or via the console-less scheduled task below. |
-| `win-monitor.cmd` | Double-click launcher for `win-monitor.ps1` - no PowerShell prompt, no execution-policy prompt needed. |
-| `Register-WinMonitorTask.ps1` | Registers/removes a per-user Scheduled Task so the logger starts at logon and runs hidden - this is the "runs in the background" part. |
+| `win-monitor.ps1` | The logger. Windows only, runs standalone in the foreground, or as the hidden child process `win-monitor-tray.ps1` launches. |
+| `win-monitor.cmd` | Double-click launcher for `win-monitor.ps1` on its own, in the foreground - no PowerShell prompt, no execution-policy prompt needed. For watching it log live or one-off testing, not for daily background use. |
+| `win-monitor-tray.ps1` | Runs the logger as a hidden background process behind a system tray icon (open the log folder, open the viewer, Exit). This is what actually "runs in the background" day to day - see below. |
+| `Register-WinMonitorTask.ps1` | Registers/removes a per-user Scheduled Task so `win-monitor-tray.ps1` starts at logon with no console window. |
 | `index.html` | A local, offline log viewer: drop in the JSONL/CSV files the logger writes (or paste log lines, or click "Load sample") and get a timeline, an away-periods table, and time-by-app/file breakdowns. |
 
 No installer, no runtime to add - PowerShell ships with Windows and nothing here needs admin rights. Copy the `win-monitor` folder anywhere (a USB stick works) and it runs as-is.
@@ -56,12 +57,31 @@ win-monitor.cmd -IdleThresholdSeconds 120
 
 ### Running it in the background
 
+Running `win-monitor.ps1` directly (or via `win-monitor.cmd`) is a console app:
+close its window and it dies. `win-monitor-tray.ps1` is the background-friendly
+wrapper - it starts `win-monitor.ps1` as a separate hidden process and puts a
+small blue dot in the system tray over it. Right-click it for **Open log
+folder**, **Open log viewer**, and **Exit**; double-click opens the viewer.
+
+```powershell
+.\win-monitor-tray.ps1
+```
+
+**Exit** is a graceful stop, not a kill: it drops a stop-flag file that
+`win-monitor.ps1` checks once per poll and exits on - same as Ctrl+C in a
+console - so the session in progress gets flushed to the log rather than lost.
+There's no console for the tray to send Ctrl+C to, which is why the logger
+gained a `-StopFlagPath` parameter for exactly this.
+
+To have it start automatically at logon, with no window at all - not even the
+tray one's console:
+
 ```powershell
 .\Register-WinMonitorTask.ps1 -StartNow
 ```
 
-This registers a Scheduled Task that starts at logon with no console window and
-no admin rights required. It deliberately runs as an **interactive** logon task,
+This registers a Scheduled Task whose action is `win-monitor-tray.ps1`, no
+admin rights required. It deliberately runs as an **interactive** logon task,
 not a "whether the user is logged on or not" one - that second kind runs in
 Session 0, where there is no desktop and `GetForegroundWindow` always returns
 nothing, so the log would be empty. Interactive is also why no elevation is
@@ -69,9 +89,13 @@ needed: it runs at the user's own privilege level, same as any app they open.
 
 ```powershell
 Get-ScheduledTask -TaskName win-monitor      # check it's registered
-Stop-ScheduledTask -TaskName win-monitor     # stop it for this session
-.\Register-WinMonitorTask.ps1 -Unregister    # remove it (logs are untouched)
+.\Register-WinMonitorTask.ps1 -Unregister    # remove the task (logs are untouched)
 ```
+
+To stop a running instance, right-click the tray icon and choose **Exit** -
+that's the flush-first, graceful path. `Stop-ScheduledTask -TaskName
+win-monitor` also works but force-kills both the tray host and the logger
+without flushing whatever session was in progress.
 
 ## What gets logged
 

@@ -20,6 +20,16 @@
 .PARAMETER LogDirectory
     Where the daily log files are written. Default: %LOCALAPPDATA%\win-monitor.
 
+.PARAMETER StopFlagPath
+    If this file exists when a poll runs, the logger flushes the session in
+    progress and exits cleanly, same as Ctrl+C - this is how a supervisor
+    process without a console to send Ctrl+C to (win-monitor-tray.ps1, for
+    instance) asks a hidden, backgrounded instance to stop. Checked once per
+    poll, so a stop request lands within -PollSeconds. Default: a
+    ".stop-requested" file inside -LogDirectory. The file itself carries no
+    information; only its presence matters, and it is not deleted here -
+    whatever creates it is expected to remove it before the next run.
+
 .PARAMETER IdleThresholdSeconds
     No input for this long counts as the user having walked away. Default 300.
 
@@ -62,6 +72,7 @@
 [CmdletBinding()]
 param(
     [string] $LogDirectory = (Join-Path $env:LOCALAPPDATA 'win-monitor'),
+    [string] $StopFlagPath = (Join-Path $LogDirectory '.stop-requested'),
     [ValidateRange(5, 86400)]
     [int]    $IdleThresholdSeconds = 300,
     [ValidateRange(0.2, 60)]
@@ -524,6 +535,7 @@ function Write-MonitorEvent {
 
 $script:DroppedSessions = 0
 $script:DroppedSeconds = 0
+$script:StopRequested = $false
 
 if (-not $DryRun -and -not (Test-Path -LiteralPath $LogDirectory)) {
     New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
@@ -546,6 +558,10 @@ $pollMs = [int]($PollSeconds * 1000)
 
 try {
     while ($true) {
+        if (Test-Path -LiteralPath $StopFlagPath) {
+            $script:StopRequested = $true
+            break
+        }
         if ($DurationMinutes -gt 0 -and ([datetimeoffset]::Now - $startedAt).TotalMinutes -ge $DurationMinutes) {
             break
         }
@@ -581,7 +597,8 @@ try {
     Write-MonitorEvent -Event 'stop' -Moment $stoppedAt
 
     Write-Host ''
-    Write-Host ('Stopped after {0:hh\:mm\:ss}.' -f ($stoppedAt - $startedAt))
+    Write-Host ('Stopped after {0:hh\:mm\:ss}{1}.' -f `
+        ($stoppedAt - $startedAt), $(if ($script:StopRequested) { ' (stop requested)' } else { '' }))
     if ($script:DroppedSessions -gt 0) {
         Write-Host ('Dropped {0} session(s) under {1}s ({2}s total).' -f `
             $script:DroppedSessions, $MinSessionSeconds, [math]::Round($script:DroppedSeconds, 1))

@@ -1,11 +1,16 @@
 <#
 .SYNOPSIS
-    Registers (or removes) a Scheduled Task that starts win-monitor at logon,
-    with no console window.
+    Registers (or removes) a Scheduled Task that starts the win-monitor tray
+    icon at logon, with no console window.
 
 .DESCRIPTION
     This is how the prototype "runs in the background": a per-user Scheduled Task
-    triggered at logon, running in the interactive session.
+    triggered at logon, running in the interactive session, launching
+    win-monitor-tray.ps1 - which in turn starts win-monitor.ps1 itself as a
+    hidden child process and shows a system tray icon over it (right-click for
+    the log folder, the log viewer, or Exit). The task's action is the tray
+    script, not the logger directly, so there's always a visible, clickable way
+    to stop logging without going through Task Manager.
 
     The interactive part is not optional. A task configured to "run whether the
     user is logged on or not" executes in session 0, where there is no desktop and
@@ -17,16 +22,21 @@
     Name under which the task is registered. Default: win-monitor.
 
 .PARAMETER IdleThresholdSeconds
-    Passed through to win-monitor.ps1. Default 300.
+    Passed through to win-monitor-tray.ps1, which passes it on to win-monitor.ps1.
+    Default 300.
 
 .PARAMETER LogDirectory
-    Passed through to win-monitor.ps1. Defaults to the script's own default.
+    Passed through to win-monitor-tray.ps1, which passes it on to win-monitor.ps1.
+    Defaults to the scripts' own default.
 
 .PARAMETER StartNow
     Also start the task immediately instead of waiting for the next logon.
 
 .PARAMETER Unregister
-    Remove the task instead of creating it.
+    Remove the task instead of creating it. Only removes the scheduled task
+    itself - if the tray icon is currently running, use its Exit menu item (or
+    Stop-ScheduledTask, which force-kills it without flushing the in-progress
+    session) to stop that instance.
 
 .EXAMPLE
     .\Register-WinMonitorTask.ps1 -StartNow
@@ -57,18 +67,17 @@ if ($Unregister) {
     return
 }
 
-$monitorPath = Join-Path $PSScriptRoot 'win-monitor.ps1'
-if (-not (Test-Path -LiteralPath $monitorPath)) {
-    throw "win-monitor.ps1 not found next to this script (looked in $PSScriptRoot)."
+$trayPath = Join-Path $PSScriptRoot 'win-monitor-tray.ps1'
+if (-not (Test-Path -LiteralPath $trayPath)) {
+    throw "win-monitor-tray.ps1 not found next to this script (looked in $PSScriptRoot)."
 }
 
 $arguments = @(
     '-NoProfile'
     '-WindowStyle Hidden'
     '-ExecutionPolicy Bypass'
-    '-File "{0}"' -f $monitorPath
+    '-File "{0}"' -f $trayPath
     '-IdleThresholdSeconds {0}' -f $IdleThresholdSeconds
-    '-Quiet'
 )
 if ($LogDirectory) { $arguments += '-LogDirectory "{0}"' -f $LogDirectory }
 
@@ -94,17 +103,18 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Principal $principal `
     -Settings $settings `
-    -Description 'Logs the active window, its open file, and idle periods to a local file.' `
+    -Description 'Tray icon for win-monitor: logs the active window, its open file, and idle periods to a local file.' `
     -Force | Out-Null
 
-Write-Host "Registered scheduled task '$TaskName' (starts at logon, runs hidden)."
+Write-Host "Registered scheduled task '$TaskName' (starts at logon, tray icon only - no console window)."
 
 if ($StartNow) {
     Start-ScheduledTask -TaskName $TaskName
-    Write-Host 'Started it now as well.'
+    Write-Host 'Started it now as well - look for the tray icon.'
 }
 
 Write-Host ''
 Write-Host ('Check it:   Get-ScheduledTask -TaskName ''{0}''' -f $TaskName)
-Write-Host ('Stop it:    Stop-ScheduledTask -TaskName ''{0}''' -f $TaskName)
+Write-Host 'Stop it:    right-click the tray icon and choose Exit (flushes the session in progress)'
+Write-Host ('            or Stop-ScheduledTask -TaskName ''{0}'' (force-kills it, nothing flushed)' -f $TaskName)
 Write-Host 'Remove it:  .\Register-WinMonitorTask.ps1 -Unregister'
