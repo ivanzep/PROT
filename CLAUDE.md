@@ -10,6 +10,7 @@ This repo is a collection of independent prototypes, one per folder, almost all 
 - `inbox-digests/` — dated inbox digest reports (`YYYY-MM-DD-inbox-digest.html`) plus an `index.html` archive that browses them.
 - `F1/` — a race weekend dashboard (`index.html`, `data.json`, `README.md`). Needs a local HTTP server rather than `file://` because it fetches `data.json`.
 - `win-monitor/` — a Windows background activity logger (`win-monitor.ps1`, `win-monitor-tray.ps1`, `Register-WinMonitorTask.ps1`, `README.md`) plus a browser-based log viewer (`index.html`). The only prototype whose primary artifact isn't a browser page — the logger is plain Windows PowerShell, not JS.
+- `affinity-scripts/` — JavaScript scripts for Affinity Photo/Designer/Publisher's built-in scripting engine (run from Affinity's Scripts panel, not a browser). `README.md` covers install steps and per-script notes.
 
 Treat each folder as its own project. The sections below cover them individually; don't carry conventions from one into another.
 
@@ -80,3 +81,10 @@ A Windows background logger that records which window has focus, the file it has
 - `win-monitor/index.html` is a self-contained, single-file log viewer (same inline `<style>`/`<script>` shape as `file-renamer/index.html`) that reads the JSONL/CSV files the logger writes — via drop, file picker, or paste — and renders a timeline, an away-periods table, time-by-app/file bars, and a sessions table. It has no dependency on the PowerShell side beyond the log format; "Load sample" seeds a two-day example without needing a real log.
 - The file name is inferred from the window title, not read from any API — there is no way to plainly ask Windows what file a window has open. `Get-ActiveDocument` in `win-monitor.ps1` documents the heuristics and their known failure modes (generic titles, browser tabs without a recognized document extension); treat `file` as a strong hint, not ground truth.
 - `win-monitor/README.md` is the detailed reference — log format, session types, the poll/last-input timing model, and viewer usage. Read it before changing the logging or parsing logic.
+
+## affinity-scripts
+
+JavaScript scripts for Affinity Photo/Designer/Publisher 3.x's built-in scripting engine — run from Affinity's Scripts panel, not a browser or Node. No shared code with the rest of the repo; each script is standalone.
+
+- `affinity-scripts/relink-images.js` walks the active document's spreads/layers for linked (not embedded) image nodes, checks each recorded path with `FileSystemApi.exists`, and for anything missing or moved offers a native file picker (`FileSystemApi.getOpenFileName`) to relink it — reusing the folder the user picked for the previous fix before asking again, since moved assets are usually moved together. Writing the corrected path back (`imageResourceInterface.imageFilePath = newPath`) is a best-effort call: the SDK confirms that property as readable (used by community scripts) but its writability isn't documented, so failures are caught per-file and reported rather than aborting the batch — see `affinity-scripts/README.md` for the fallback (Resource Manager > Relink).
+- The scripting object model (`/application`, `/fs`, `/dialog`, `doc.spreads` → `spread.layers.all`, `node.imageResourceInterface`) was confirmed by reading real community scripts in `JiriKrblich/Affinity-Community-Scripts` (e.g. its RGB Finder and Smart Exporter scripts), not from official reference docs — Affinity's own SDK reference is served locally from within the app (via an MCP server on `localhost:6767`) and isn't published on the web.
