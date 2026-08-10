@@ -210,6 +210,13 @@ files hidden via their checklists (in the sidebar) stay hidden until re-checked
 or reset with **All**. Durations default to decimal hours (`1.50h`); toggle
 **Decimal hours** off under Display for `1h 30m` instead.
 
+Every results panel (Summary, Timeline, Away periods, Time by app/file,
+Sessions) has a collapse arrow next to its title - click it to fold a panel
+you're not using out of the way. Collapsing doesn't pause anything underneath;
+filters and edits still apply, they just aren't rendered until you expand it
+again. The sidebar's own sections (Log files, Filters, Projects, etc.) don't
+collapse - only the results panels do.
+
 ## Design notes / limits
 
 - **Poll-based, not event-based.** The logger samples the foreground window

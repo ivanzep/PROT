@@ -121,13 +121,43 @@
 
     .card-head {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 12px;
     }
 
     .card-head h2 { margin: 0; }
+
+    .card-head-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .collapse-toggle {
+      border: none;
+      background: transparent;
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
+      flex: none;
+      transition: transform .15s ease;
+    }
+
+    .collapse-toggle:hover { background: #f2f4f7; color: var(--ink); }
+
+    section.collapsible.collapsed .collapse-toggle { transform: rotate(-90deg); }
+    section.collapsible.collapsed .card-head { margin-bottom: 0; }
+    section.collapsible.collapsed .section-body { display: none; }
 
     .hint {
       color: var(--muted);
@@ -805,86 +835,120 @@
 
     <div class="results">
       <div class="panel">
-        <section>
+        <section class="collapsible">
           <div class="card-head">
-            <h2>Summary</h2>
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Summary</h2>
+            </span>
             <div class="pills" id="statusPills"></div>
           </div>
-          <div class="tiles" id="tiles"></div>
+          <div class="section-body">
+            <div class="tiles" id="tiles"></div>
+          </div>
         </section>
       </div>
 
       <div class="panel">
-        <section>
+        <section class="collapsible">
           <div class="card-head">
-            <h2>Timeline</h2>
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Timeline</h2>
+            </span>
             <div class="hint" id="timelineNote"></div>
           </div>
-          <div id="timeline"></div>
-          <div class="legend" id="legend"></div>
+          <div class="section-body">
+            <div id="timeline"></div>
+            <div class="legend" id="legend"></div>
+          </div>
         </section>
       </div>
 
       <div class="panel">
-        <section>
+        <section class="collapsible">
           <div class="card-head">
-            <h2>Away periods</h2>
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Away periods</h2>
+            </span>
             <div class="hint" id="awayNote"></div>
           </div>
-          <div class="table-wrap"><div class="scroll-y"><table>
-            <thead>
-              <tr>
-                <th>Started</th><th>Ended</th><th>Length</th><th>Reason</th>
-                <th>Window left open</th><th>File</th>
-              </tr>
-            </thead>
-            <tbody id="awayBody"></tbody>
-          </table></div></div>
+          <div class="section-body">
+            <div class="table-wrap"><div class="scroll-y"><table>
+              <thead>
+                <tr>
+                  <th>Started</th><th>Ended</th><th>Length</th><th>Reason</th>
+                  <th>Window left open</th><th>File</th>
+                </tr>
+              </thead>
+              <tbody id="awayBody"></tbody>
+            </table></div></div>
+          </div>
         </section>
       </div>
 
       <div class="two-col">
         <div class="panel">
-          <section>
-            <div class="card-head"><h2>Time by app</h2></div>
-            <div class="bars" id="appBars"></div>
+          <section class="collapsible">
+            <div class="card-head">
+              <span class="card-head-title">
+                <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+                <h2>Time by app</h2>
+              </span>
+            </div>
+            <div class="section-body">
+              <div class="bars" id="appBars"></div>
+            </div>
           </section>
         </div>
         <div class="panel">
-          <section>
-            <div class="card-head"><h2>Time by file</h2></div>
-            <div class="bars" id="fileBars"></div>
+          <section class="collapsible">
+            <div class="card-head">
+              <span class="card-head-title">
+                <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+                <h2>Time by file</h2>
+              </span>
+            </div>
+            <div class="section-body">
+              <div class="bars" id="fileBars"></div>
+            </div>
           </section>
         </div>
       </div>
 
       <div class="panel">
-        <section>
+        <section class="collapsible">
           <div class="card-head">
-            <h2>Sessions</h2>
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Sessions</h2>
+            </span>
             <div class="hint" id="sessionNote"></div>
           </div>
-          <div class="batch-assign">
-            <select id="batchProjectSelect"><option value="">Choose existing project&hellip;</option></select>
-            <input type="text" id="batchProjectNew" placeholder="or type a new project name">
-            <button id="batchAssignBtn">Assign to filtered sessions</button>
-            <button id="assignSelectedBtn" disabled>Assign to selected (<span id="selectedCount">0</span>)</button>
+          <div class="section-body">
+            <div class="batch-assign">
+              <select id="batchProjectSelect"><option value="">Choose existing project&hellip;</option></select>
+              <input type="text" id="batchProjectNew" placeholder="or type a new project name">
+              <button id="batchAssignBtn">Assign to filtered sessions</button>
+              <button id="assignSelectedBtn" disabled>Assign to selected (<span id="selectedCount">0</span>)</button>
+            </div>
+            <p class="hint" style="margin:0 0 12px">
+              <strong>Filtered sessions</strong> means everything the filters above show, whether
+              or not it's scrolled into view. <strong>Selected</strong> means checked rows only -
+              click a row's checkbox, shift-click another to select the range between them.
+            </p>
+            <div class="table-wrap"><div class="scroll-y"><table>
+              <thead>
+                <tr>
+                  <th class="select-col"><input type="checkbox" id="selectAllSessions" title="Select all"></th>
+                  <th>Start</th><th>Length</th><th>Type</th><th>App</th>
+                  <th>File</th><th>Project</th><th>Window title</th>
+                </tr>
+              </thead>
+              <tbody id="sessionBody"></tbody>
+            </table></div></div>
           </div>
-          <p class="hint" style="margin:0 0 12px">
-            <strong>Filtered sessions</strong> means everything the filters above show, whether
-            or not it's scrolled into view. <strong>Selected</strong> means checked rows only -
-            click a row's checkbox, shift-click another to select the range between them.
-          </p>
-          <div class="table-wrap"><div class="scroll-y"><table>
-            <thead>
-              <tr>
-                <th class="select-col"><input type="checkbox" id="selectAllSessions" title="Select all"></th>
-                <th>Start</th><th>Length</th><th>Type</th><th>App</th>
-                <th>File</th><th>Project</th><th>Window title</th>
-              </tr>
-            </thead>
-            <tbody id="sessionBody"></tbody>
-          </table></div></div>
         </section>
       </div>
     </div>
@@ -2129,6 +2193,18 @@
       state.selectedSessionKeys.clear();
       els.batchProjectNew.value = '';
       refresh();
+    });
+
+    // Collapse toggles live in the static card-head markup, never inside
+    // anything refresh() replaces via innerHTML, so a one-time listener per
+    // button (no delegation) is enough - they're never re-created.
+    document.querySelectorAll('.collapse-toggle').forEach(button => {
+      button.addEventListener('click', () => {
+        const section = button.closest('section.collapsible');
+        const collapsed = section.classList.toggle('collapsed');
+        button.setAttribute('aria-expanded', String(!collapsed));
+        button.title = collapsed ? 'Expand section' : 'Collapse section';
+      });
     });
 
     refresh();
