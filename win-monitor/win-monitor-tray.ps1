@@ -211,13 +211,14 @@ function Update-TrayTooltip {
         $label = if ($summary.Process) { "$($summary.Process): $($summary.Title)" } else { $summary.Title }
     }
 
-    $baseLine = "win-monitor - idle after $(Format-ThresholdLabel -Seconds $script:IdleThresholdSeconds)"
-
-    # NotifyIcon.Text tops out at 127 characters on modern Windows; the
-    # settings line always fits on its own, so only the live window label -
-    # unbounded, since window titles are - gets trimmed to make room.
+    # A short, fixed first line - not "win-monitor - idle after 5 min" - to
+    # leave real room for the window label. NotifyIcon.Text's limit is
+    # version-dependent: some .NET/Windows combinations accept up to 127
+    # characters, others (seen in practice) throw ArgumentException past 63.
+    # 63 is the one that's safe everywhere, so that's the budget, not 127.
+    $baseLine = 'win-monitor'
     $overhead = $baseLine.Length + "`nNow: ".Length
-    $budget = [Math]::Max(1, 127 - $overhead)
+    $budget = [Math]::Max(1, 63 - $overhead)
     if ($label.Length -gt $budget) {
         $label = $label.Substring(0, [Math]::Max(0, $budget - 1)) + '…'
     }
