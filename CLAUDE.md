@@ -4,11 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository overview
 
-This repo is a collection of independent browser prototypes, one per folder. They share no code and no tooling: there is no build system, package manager, dependency manifest, or test suite anywhere in the repo, and no prototype has external dependencies.
+This repo is a collection of independent prototypes, one per folder, almost all of them browser-based. They share no code and no tooling: there is no build system, package manager, dependency manifest, or test suite anywhere in the repo, and no prototype has external dependencies.
 
 - `file-renamer/` — a self-contained, single-file "Batch File Renamer" web app (`index.html` with inline `<style>` and `<script>`).
 - `inbox-digests/` — dated inbox digest reports (`YYYY-MM-DD-inbox-digest.html`) plus an `index.html` archive that browses them.
-- `F1/` — a race weekend dashboard (`index.html`, `data.json`, `README.md`). The only prototype that is more than one file, and the only one that needs a local HTTP server rather than `file://`.
+- `F1/` — a race weekend dashboard (`index.html`, `data.json`, `README.md`). Needs a local HTTP server rather than `file://` because it fetches `data.json`.
+- `win-monitor/` — a Windows background activity logger (`win-monitor.ps1`, `Register-WinMonitorTask.ps1`, `README.md`) plus a browser-based log viewer (`index.html`). The only prototype whose primary artifact isn't a browser page — the logger is plain Windows PowerShell, not JS.
 
 Treat each folder as its own project. The sections below cover them individually; don't carry conventions from one into another.
 
@@ -67,3 +68,13 @@ A race weekend dashboard: track map with per-sector highlighting, race distance,
 - `F1/data.json` holds the circuit dataset; adding a circuit needs no code changes. `F1/index.html` holds all markup, styles, and logic.
 - Historic results are fetched live from the Ergast-compatible API configured under `meta.api` in `data.json`; the seeded `history` arrays are the offline fallback and render until (or instead of) a successful response. A pill above the table always says whether the data is live or sample.
 - `F1/README.md` is the detailed reference — data shape, API behaviour, layout, and what is parked. Read it before changing the data layer.
+
+## win-monitor
+
+A Windows background logger that records which window has focus, the file it has open (parsed from the title bar), and how long it held focus — plus every stretch where the machine sat idle or locked, so someone can tell when it was left unattended with windows open.
+
+- `win-monitor/win-monitor.ps1` is the logger: a single PowerShell script, no installed modules, using `Add-Type` for a handful of `user32.dll`/`kernel32.dll` P/Invoke calls (foreground window, window title, last-input time, input-desktop check for lock state). It writes one JSONL + CSV pair per day to `%LOCALAPPDATA%\win-monitor`. `Step-Session` (the idle/active/locked state machine) and `Get-ActiveDocument` (title → file-name heuristics) are the two functions to read first — both are pure enough to unit test by extracting them from the script via `System.Management.Automation.Language.Parser` and calling directly, which is how this prototype was verified (this repo has no test runner, and PowerShell isn't available to run interactively here — see `win-monitor/README.md` for the reasoning behind the idle/lock timing).
+- `win-monitor/Register-WinMonitorTask.ps1` registers the per-user Scheduled Task that makes it "run in the background": logon-triggered, hidden window, **Interactive** logon type at **Limited** run level. Don't change it to "run whether logged on or not" — that executes in Session 0 with no desktop, so `GetForegroundWindow` returns nothing and the log goes empty.
+- `win-monitor/index.html` is a self-contained, single-file log viewer (same inline `<style>`/`<script>` shape as `file-renamer/index.html`) that reads the JSONL/CSV files the logger writes — via drop, file picker, or paste — and renders a timeline, an away-periods table, time-by-app/file bars, and a sessions table. It has no dependency on the PowerShell side beyond the log format; "Load sample" seeds a two-day example without needing a real log.
+- The file name is inferred from the window title, not read from any API — there is no way to plainly ask Windows what file a window has open. `Get-ActiveDocument` in `win-monitor.ps1` documents the heuristics and their known failure modes (generic titles, browser tabs without a recognized document extension); treat `file` as a strong hint, not ground truth.
+- `win-monitor/README.md` is the detailed reference — log format, session types, the poll/last-input timing model, and viewer usage. Read it before changing the logging or parsing logic.
