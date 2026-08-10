@@ -7,9 +7,13 @@ Small JavaScript scripts for Affinity's built-in scripting engine (Affinity Phot
 Scans the active document for **linked** (not embedded) images and, for any whose file is missing or has moved, lets you point at the corrected file and relinks it.
 
 - Walks every spread/layer in the active document and collects linked image nodes.
-- Checks each linked image's recorded path with `FileSystemApi.exists`.
-- For each missing one, first tries the folder you picked for the previous missing image (matched by file name) — handy when a whole folder of assets moved together — then falls back to a native file picker (`FileSystemApi.getOpenFileName`) for anything it can't guess.
+- Tries each linked image's recorded path with `FileSystemApi.exists` — see the sandbox note below for why this can't reliably tell "missing" from "fine."
+- For each one it can't confirm, first tries the folder you picked for the previous image (matched by file name) — handy when a whole folder of assets moved together — then falls back to a native file picker (`FileSystemApi.getOpenFileName`). Cancel the picker to leave an image as-is.
 - Shows a summary dialog (relinked / skipped / failed) when done.
+
+### Sandbox limitation: it can't silently tell what's actually missing
+
+Affinity's scripting sandbox only grants file-system access to paths the user has explicitly picked through a native dialog — not to arbitrary paths a script reads out of a document's own metadata. `FileSystemApi.exists()` throws `PERMISSION_DENIED` when checked against a linked image's recorded path for exactly this reason. The script catches that and treats "can't confirm" the same as "needs a look," which means **every** linked image will be offered for relinking, not just the genuinely broken ones — click Cancel in the file picker for any that are already fine. This is a real constraint of the platform, not a bug to chase further; the built-in **Resource Manager** panel can do this silently only because it's part of Affinity itself, not a sandboxed script.
 
 ### Install
 

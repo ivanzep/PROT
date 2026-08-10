@@ -46,6 +46,19 @@ function extensionFilter(path) {
   return 'Matching Files|*.' + ext + '|All Files|*.*';
 }
 
+// FileSystemApi.exists() throws PERMISSION_DENIED for paths the script
+// hasn't been granted access to - which includes every path read straight
+// out of the document's link metadata, since the user never chose it via
+// a native dialog. Treat "can't tell" the same as "missing" (true only on
+// a confirmed, permitted check) rather than letting it crash the script.
+function canConfirmExists(path) {
+  try {
+    return FileSystemApi.exists(path);
+  } catch (e) {
+    return false;
+  }
+}
+
 // Best-effort write-back: the scripting SDK confirms imageFilePath as a
 // readable property (used by community scripts) but does not document a
 // public setter. Try the direct assignment and fail gracefully so a
@@ -73,7 +86,7 @@ function main() {
     return;
   }
 
-  const missing = images.filter((img) => !FileSystemApi.exists(img.path));
+  const missing = images.filter((img) => !canConfirmExists(img.path));
   if (missing.length === 0) {
     app.alert(
       'All ' + images.length + ' linked image(s) already point to a valid file.',
@@ -81,6 +94,15 @@ function main() {
     );
     return;
   }
+
+  app.alert(
+    "Affinity's scripting sandbox won't let this script silently check " +
+      'whether a linked file still exists at its recorded path, so it ' +
+      "can't tell which of the " + missing.length + ' linked image(s) below ' +
+      'actually need fixing. You will be asked to locate each one - click ' +
+      'Cancel in the file picker for any that are already fine.',
+    'Relink Images',
+  );
 
   // Once the user picks a corrected folder for one missing file, try that
   // same folder (matched by file name) for the rest before asking again.
@@ -95,7 +117,7 @@ function main() {
 
     if (knownFolder) {
       const guess = knownFolder + '/' + name;
-      if (FileSystemApi.exists(guess)) candidate = guess;
+      if (canConfirmExists(guess)) candidate = guess;
     }
 
     if (!candidate) {
@@ -117,7 +139,7 @@ function main() {
 
   const lines = [
     'Linked images checked: ' + images.length,
-    'Missing or moved: ' + missing.length,
+    "Couldn't confirm (offered for review): " + missing.length,
     'Relinked: ' + relinked.length,
     'Skipped: ' + skipped.length,
     'Failed: ' + failed.length,
