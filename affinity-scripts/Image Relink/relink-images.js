@@ -130,4 +130,14 @@ function main() {
   app.alert(lines.join('\n'), 'Relink Images');
 }
 
-main();
+try {
+  main();
+} catch (e) {
+  // Surface failures instead of letting them fail silently - this API is
+  // undocumented, so if a call doesn't match your Affinity version this
+  // is the fastest way to see which one.
+  app.alert(
+    'Relink Images hit an error:\n\n' + (e && e.stack ? e.stack : String(e)),
+    'Relink Images - Error',
+  );
+}
