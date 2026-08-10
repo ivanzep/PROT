@@ -15,26 +15,41 @@ Two pieces:
 | File | Purpose |
 | --- | --- |
 | `win-monitor.ps1` | The logger. Windows only, runs in the foreground or via the console-less scheduled task below. |
+| `win-monitor.cmd` | Double-click launcher for `win-monitor.ps1` - no PowerShell prompt, no execution-policy prompt needed. |
 | `Register-WinMonitorTask.ps1` | Registers/removes a per-user Scheduled Task so the logger starts at logon and runs hidden - this is the "runs in the background" part. |
 | `index.html` | A local, offline log viewer: drop in the JSONL/CSV files the logger writes (or paste log lines, or click "Load sample") and get a timeline, an away-periods table, and time-by-app/file breakdowns. |
+
+No installer, no runtime to add - PowerShell ships with Windows and nothing here needs admin rights. Copy the `win-monitor` folder anywhere (a USB stick works) and it runs as-is.
 
 Nothing here talks to the network. The logger writes to a local file; the viewer
 is a static page that only reads files you hand it.
 
 ## Running the logger
 
+Easiest: double-click **`win-monitor.cmd`**. It unblocks and runs
+`win-monitor.ps1` for you, with no PowerShell prompt and no "this script is
+not digitally signed" interruption, and pauses at the end so the summary is
+readable before the window closes.
+
+From a PowerShell prompt instead:
+
 ```powershell
 cd win-monitor
 .\win-monitor.ps1
 ```
 
-Runs in the foreground, printing one line per session, until you press Ctrl+C -
-which flushes whatever session is in progress before exiting. Useful parameters:
+Either way it runs in the foreground, printing one line per session, until you
+press Ctrl+C - which flushes whatever session is in progress before exiting.
+Useful parameters (pass the same way to `win-monitor.cmd`):
 
 ```powershell
 .\win-monitor.ps1 -IdleThresholdSeconds 120     # away after 2 minutes instead of 5
 .\win-monitor.ps1 -DryRun                       # print sessions, write nothing
 .\win-monitor.ps1 -LogDirectory D:\Logs\wm      # log somewhere other than %LOCALAPPDATA%\win-monitor
+```
+
+```
+win-monitor.cmd -IdleThresholdSeconds 120
 ```
 
 `Get-Help .\win-monitor.ps1 -Full` documents every parameter.
