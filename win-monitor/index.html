@@ -240,6 +240,70 @@
 
     .check input { margin: 0; }
 
+    .filter-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .filter-head label { margin-bottom: 0; }
+
+    .mini-btns { display: flex; gap: 6px; }
+
+    button.mini {
+      padding: 3px 8px;
+      font-size: 11px;
+      border-radius: 5px;
+    }
+
+    .subtle-label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .date-range {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .date-range > div { flex: 1; min-width: 0; }
+
+    .checklist {
+      max-height: 160px;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px;
+      display: grid;
+      gap: 1px;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    .checklist-item:hover { background: #f2f4f7; }
+
+    .checklist-item input { margin: 0; flex: none; }
+
+    .checklist-item .checklist-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
     .pills {
       display: flex;
       flex-wrap: wrap;
@@ -598,8 +662,20 @@
       <section>
         <h2>Filters</h2>
         <div class="field">
-          <label for="daySelect">Day</label>
-          <select id="daySelect"><option value="all">All days</option></select>
+          <div class="filter-head">
+            <label>Date range</label>
+            <button type="button" class="mini" id="dateResetBtn">Full range</button>
+          </div>
+          <div class="date-range">
+            <div>
+              <label for="dateFrom" class="subtle-label">From</label>
+              <input type="date" id="dateFrom">
+            </div>
+            <div>
+              <label for="dateTo" class="subtle-label">To</label>
+              <input type="date" id="dateTo">
+            </div>
+          </div>
         </div>
         <div class="field">
           <label>Show</label>
@@ -608,6 +684,26 @@
             <span class="check"><input type="checkbox" id="showIdle" checked><label for="showIdle">Idle</label></span>
             <span class="check"><input type="checkbox" id="showLocked" checked><label for="showLocked">Locked</label></span>
           </div>
+        </div>
+        <div class="field">
+          <div class="filter-head">
+            <label>Apps</label>
+            <div class="mini-btns">
+              <button type="button" class="mini" id="appsAllBtn">All</button>
+              <button type="button" class="mini" id="appsNoneBtn">None</button>
+            </div>
+          </div>
+          <div class="checklist" id="appChecklist"></div>
+        </div>
+        <div class="field">
+          <div class="filter-head">
+            <label>Files</label>
+            <div class="mini-btns">
+              <button type="button" class="mini" id="filesAllBtn">All</button>
+              <button type="button" class="mini" id="filesNoneBtn">None</button>
+            </div>
+          </div>
+          <div class="checklist" id="fileChecklist"></div>
         </div>
         <div class="field row">
           <div>
@@ -622,6 +718,14 @@
         <div class="field">
           <label for="searchBox">Search app, file, or title</label>
           <input type="text" id="searchBox" placeholder="revit, .docx, invoice&hellip;">
+        </div>
+      </section>
+
+      <section>
+        <h2>Display</h2>
+        <div class="check">
+          <input type="checkbox" id="decimalHours" checked>
+          <label for="decimalHours">Decimal hours (e.g. 1.50h instead of 1h 30m)</label>
         </div>
       </section>
 
@@ -725,7 +829,12 @@
       entries: [],      // every parsed row, including monitor start/stop markers
       sources: [],      // file names / paste labels, for the status pills
       appColors: new Map(), // app -> css color, assigned once per dataset load
-      parseErrors: 0
+      parseErrors: 0,
+      hiddenApps: new Set(),  // entry.app values unchecked in the Apps filter
+      hiddenFiles: new Set(), // entry.file values unchecked in the Files filter
+      dateRangeTouched: false, // false = date inputs auto-track the full loaded range
+      dataMinDay: null,
+      dataMaxDay: null
     };
 
     const SERIES = [
@@ -738,10 +847,12 @@
     const els = {};
     for (const id of [
       'dropzone', 'fileInput', 'pasteBox', 'importBtn', 'sampleBtn', 'clearBtn',
-      'daySelect', 'showActive', 'showIdle', 'showLocked', 'minSeconds',
-      'awayMinutes', 'searchBox', 'exportSessionsBtn', 'exportAwayBtn',
-      'statusPills', 'tiles', 'timeline', 'timelineNote', 'legend', 'awayBody',
-      'awayNote', 'appBars', 'fileBars', 'sessionBody', 'sessionNote', 'tooltip'
+      'dateFrom', 'dateTo', 'dateResetBtn', 'showActive', 'showIdle', 'showLocked',
+      'appChecklist', 'appsAllBtn', 'appsNoneBtn', 'fileChecklist', 'filesAllBtn',
+      'filesNoneBtn', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours',
+      'exportSessionsBtn', 'exportAwayBtn', 'statusPills', 'tiles', 'timeline',
+      'timelineNote', 'legend', 'awayBody', 'awayNote', 'appBars', 'fileBars',
+      'sessionBody', 'sessionNote', 'tooltip'
     ]) {
       els[id] = document.getElementById(id);
     }
@@ -760,10 +871,14 @@
     }
 
     function formatDuration(seconds) {
-      const total = Math.max(0, Math.round(seconds));
-      const hours = Math.floor(total / 3600);
-      const minutes = Math.floor((total % 3600) / 60);
-      const secs = total % 60;
+      const total = Math.max(0, seconds);
+      if (els.decimalHours && els.decimalHours.checked) {
+        return `${(total / 3600).toFixed(2)}h`;
+      }
+      const rounded = Math.round(total);
+      const hours = Math.floor(rounded / 3600);
+      const minutes = Math.floor((rounded % 3600) / 60);
+      const secs = rounded % 60;
       if (hours) return minutes ? `${hours}h ${minutes}m` : `${hours}h`;
       if (minutes) return secs && minutes < 10 ? `${minutes}m ${secs}s` : `${minutes}m`;
       return `${secs}s`;
@@ -926,7 +1041,7 @@
       if (sourceLabel && !state.sources.includes(sourceLabel)) state.sources.push(sourceLabel);
       state.parseErrors += errors;
       assignAppColors();
-      rebuildDayOptions();
+      rebuildFilterOptions();
       refresh();
     }
 
@@ -981,7 +1096,8 @@
 
     function getFilters() {
       return {
-        day: els.daySelect.value,
+        dateFrom: els.dateFrom.value || null,
+        dateTo: els.dateTo.value || null,
         active: els.showActive.checked,
         idle: els.showIdle.checked,
         locked: els.showLocked.checked,
@@ -997,7 +1113,11 @@
         if (entry.type === 'active' && !filters.active) return false;
         if (entry.type === 'idle' && !filters.idle) return false;
         if (entry.type === 'locked' && !filters.locked) return false;
-        if (filters.day !== 'all' && dayKey(entry.start) !== filters.day) return false;
+        const key = dayKey(entry.start);
+        if (filters.dateFrom && key < filters.dateFrom) return false;
+        if (filters.dateTo && key > filters.dateTo) return false;
+        if (state.hiddenApps.has(entry.app)) return false;
+        if (entry.file && state.hiddenFiles.has(entry.file)) return false;
         if (entry.seconds < filters.minSeconds) return false;
         if (filters.search) {
           const haystack = `${entry.app} ${entry.appName} ${entry.file} ${entry.path} ${entry.title}`.toLowerCase();
@@ -1007,15 +1127,65 @@
       });
     }
 
-    function rebuildDayOptions() {
-      const days = [...new Set(state.entries.map(entry => dayKey(entry.start)))].sort();
-      const previous = els.daySelect.value;
-      const options = ['<option value="all">All days</option>'];
-      for (const day of days) {
-        options.push(`<option value="${escapeHtml(day)}">${escapeHtml(formatDayLabel(day))}</option>`);
+    /** Distinct apps/files, built from every loaded row (not the filtered set) so
+     *  the checklists don't shrink or reshuffle just because another filter narrowed
+     *  what's currently visible. */
+    function distinctApps() {
+      const map = new Map();
+      for (const entry of state.entries) {
+        if (entry.type === 'monitor') continue;
+        if (!map.has(entry.app)) map.set(entry.app, { key: entry.app, label: appLabel(entry), seconds: 0 });
+        map.get(entry.app).seconds += entry.seconds;
       }
-      els.daySelect.innerHTML = options.join('');
-      els.daySelect.value = days.includes(previous) ? previous : 'all';
+      return [...map.values()].sort((a, b) => b.seconds - a.seconds);
+    }
+
+    function distinctFiles() {
+      const map = new Map();
+      for (const entry of state.entries) {
+        if (!entry.file) continue;
+        if (!map.has(entry.file)) map.set(entry.file, { key: entry.file, label: entry.file, seconds: 0 });
+        map.get(entry.file).seconds += entry.seconds;
+      }
+      return [...map.values()].sort((a, b) => b.seconds - a.seconds);
+    }
+
+    function renderChecklist(container, items, hiddenSet, colorFn) {
+      if (!items.length) {
+        container.innerHTML = '<div class="hint" style="padding:4px 2px">Nothing loaded yet.</div>';
+        return;
+      }
+      container.innerHTML = items.map(item => {
+        const checked = hiddenSet.has(item.key) ? '' : 'checked';
+        const swatch = colorFn ? `<span class="swatch" style="background:${colorFn(item.key)}"></span>` : '';
+        const label = item.label || 'Unknown app';
+        return `<label class="checklist-item">
+          <input type="checkbox" data-key="${escapeHtml(item.key)}" ${checked}>
+          ${swatch}<span class="checklist-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
+        </label>`;
+      }).join('');
+    }
+
+    function rebuildFilterOptions() {
+      const days = [...new Set(
+        state.entries.filter(entry => entry.type !== 'monitor').map(entry => dayKey(entry.start))
+      )].sort();
+      state.dataMinDay = days[0] || null;
+      state.dataMaxDay = days[days.length - 1] || null;
+
+      if (state.dataMinDay && state.dataMaxDay) {
+        els.dateFrom.min = state.dataMinDay;
+        els.dateFrom.max = state.dataMaxDay;
+        els.dateTo.min = state.dataMinDay;
+        els.dateTo.max = state.dataMaxDay;
+        if (!state.dateRangeTouched) {
+          els.dateFrom.value = state.dataMinDay;
+          els.dateTo.value = state.dataMaxDay;
+        }
+      }
+
+      renderChecklist(els.appChecklist, distinctApps(), state.hiddenApps, key => state.appColors.get(key) || OTHER_COLOR);
+      renderChecklist(els.fileChecklist, distinctFiles(), state.hiddenFiles, null);
     }
 
     // ------------------------------------------------------------------
@@ -1087,10 +1257,16 @@
       const last = visible.reduce((max, entry) => (entry.end > max ? entry.end : max), visible[0].end);
       const span = (last - first) / 1000;
       const awayShare = span > 0 ? Math.round((sums.away / span) * 100) : 0;
+      const activeShare = span > 0 ? Math.round((sums.active / span) * 100) : 0;
 
       const tiles = [
         {
           hero: true,
+          label: 'Active Time',
+          value: formatDuration(sums.active),
+          note: `${switches} focus session${switches === 1 ? '' : 's'} &middot; ${activeShare}% of the tracked span`
+        },
+        {
           label: 'Time away from the machine',
           value: formatDuration(sums.away),
           note: `${awayShare}% of the tracked span &middot; ${longAway.length} period${longAway.length === 1 ? '' : 's'} over ${formatDuration(filters.awaySeconds)}`
@@ -1101,11 +1277,6 @@
           note: longest
             ? `from ${escapeHtml(formatClock(longest.start))}, ${escapeHtml(appLabel(longest))} left open`
             : 'No idle or locked periods'
-        },
-        {
-          label: 'Time at the keyboard',
-          value: formatDuration(sums.active),
-          note: `${switches} focus session${switches === 1 ? '' : 's'}`
         },
         {
           label: 'Tracked span',
@@ -1239,7 +1410,7 @@
         <div class="day">
           <div class="day-head">
             <span class="day-title">${escapeHtml(formatDayLabel(key))}</span>
-            <span class="day-meta">${formatDuration(daySums.active)} at the keyboard &middot; ${formatDuration(daySums.away)} away</span>
+            <span class="day-meta">${formatDuration(daySums.active)} active &middot; ${formatDuration(daySums.away)} away</span>
           </div>
           <div class="lane-label">In focus</div>
           <div class="track focus-lane">${gapBlocks}${focus.map(segment).join('')}</div>
@@ -1568,15 +1739,69 @@
       state.sources = [];
       state.appColors = new Map();
       state.parseErrors = 0;
+      state.hiddenApps.clear();
+      state.hiddenFiles.clear();
+      state.dateRangeTouched = false;
+      state.dataMinDay = null;
+      state.dataMaxDay = null;
       els.pasteBox.value = '';
-      rebuildDayOptions();
+      els.dateFrom.value = '';
+      els.dateTo.value = '';
+      rebuildFilterOptions();
       refresh();
     });
 
-    for (const id of ['daySelect', 'showActive', 'showIdle', 'showLocked', 'minSeconds', 'awayMinutes', 'searchBox']) {
+    for (const id of ['showActive', 'showIdle', 'showLocked', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours']) {
       els[id].addEventListener('input', refresh);
       els[id].addEventListener('change', refresh);
     }
+
+    for (const id of ['dateFrom', 'dateTo']) {
+      els[id].addEventListener('change', () => {
+        state.dateRangeTouched = true;
+        refresh();
+      });
+    }
+
+    els.dateResetBtn.addEventListener('click', () => {
+      state.dateRangeTouched = false;
+      els.dateFrom.value = state.dataMinDay || '';
+      els.dateTo.value = state.dataMaxDay || '';
+      refresh();
+    });
+
+    function toggleChecklistKey(checklistEl, hiddenSet) {
+      checklistEl.addEventListener('change', event => {
+        const box = event.target.closest('input[type="checkbox"]');
+        if (!box) return;
+        const key = box.dataset.key;
+        if (box.checked) hiddenSet.delete(key); else hiddenSet.add(key);
+        refresh();
+      });
+    }
+    toggleChecklistKey(els.appChecklist, state.hiddenApps);
+    toggleChecklistKey(els.fileChecklist, state.hiddenFiles);
+
+    els.appsAllBtn.addEventListener('click', () => {
+      state.hiddenApps.clear();
+      rebuildFilterOptions();
+      refresh();
+    });
+    els.appsNoneBtn.addEventListener('click', () => {
+      for (const item of distinctApps()) state.hiddenApps.add(item.key);
+      rebuildFilterOptions();
+      refresh();
+    });
+    els.filesAllBtn.addEventListener('click', () => {
+      state.hiddenFiles.clear();
+      rebuildFilterOptions();
+      refresh();
+    });
+    els.filesNoneBtn.addEventListener('click', () => {
+      for (const item of distinctFiles()) state.hiddenFiles.add(item.key);
+      rebuildFilterOptions();
+      refresh();
+    });
 
     els.exportSessionsBtn.addEventListener('click', () => {
       exportRows(applyFilters(getFilters()), 'win-monitor-sessions.csv');

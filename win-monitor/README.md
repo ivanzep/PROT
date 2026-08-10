@@ -136,8 +136,11 @@ Open `index.html` directly - no server needed, everything runs client-side.
    same data as totals and as raw rows. Both CSV export buttons write exactly
    what the current filters are showing.
 
-Filters (day, session type, minimum length, away threshold, text search) apply
-across every panel at once.
+Filters (date range, session type, per-app and per-file checklists, minimum
+length, away threshold, text search) apply across every panel at once. Apps and
+files hidden via their checklists (in the sidebar) stay hidden until re-checked
+or reset with **All**. Durations default to decimal hours (`1.50h`); toggle
+**Decimal hours** off under Display for `1h 30m` instead.
 
 ## Design notes / limits
 
