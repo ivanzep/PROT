@@ -245,6 +245,19 @@ collapse - only the results panels do.
   can't see (elevated windows report only their title, for instance).
 - **The file name is inferred, not verified.** Treat it as a strong hint for a
   human reviewing the log, not as ground truth for anything automated.
+- **Single-instance locking.** `win-monitor.ps1` holds a named OS mutex scoped
+  to its `-LogDirectory` for as long as it runs; a second instance targeting
+  the same folder exits immediately with a clear message instead of writing
+  overlapping sessions into the same file. Without this, two loggers running
+  at once (e.g. a manual console run left going alongside the tray's own
+  hidden instance) produce genuinely overlapping time ranges in the log -
+  real data corruption, not a display bug - and the viewer's totals (Active
+  Time in particular) start double-counting the overlap and can read
+  impossible values like "113% of the tracked span." The viewer detects this
+  independently of the fix (so it still catches logs collected before you
+  had it) and shows an **N overlapping sessions** pill plus a note on the
+  Active Time tile when it happens, rather than silently showing a
+  nonsensical number.
 - **The tray tooltip polls independently of the logger.** `win-monitor-tray.ps1`
   reads the OS foreground window itself, on its own 2-second timer, rather than
   asking the separate `win-monitor.ps1` process what it's currently logging -

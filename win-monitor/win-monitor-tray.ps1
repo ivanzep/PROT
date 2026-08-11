@@ -284,13 +284,30 @@ function Start-Monitor {
     $processArgs = '-NoProfile -ExecutionPolicy Bypass -File "{0}" -LogDirectory "{1}" -IdleThresholdSeconds {2} -MinSessionSeconds {3} -StopFlagPath "{4}" -Quiet' `
         -f $monitorPath, $LogDirectory, $IdleSeconds, $MinActiveSeconds, $stopFlagPath
     try {
-        return Start-Process -FilePath 'powershell.exe' -ArgumentList $processArgs -WindowStyle Hidden -PassThru
+        $process = Start-Process -FilePath 'powershell.exe' -ArgumentList $processArgs -WindowStyle Hidden -PassThru
     } catch {
         [System.Windows.Forms.MessageBox]::Show(
             "win-monitor.ps1 failed to start: $($_.Exception.Message)",
             'win-monitor', 'OK', 'Error') | Out-Null
         return $null
     }
+
+    # A healthy instance runs until stopped; exiting within a fraction of a
+    # second almost always means win-monitor.ps1's own single-instance lock
+    # rejected it because another process is already logging to the same
+    # -LogDirectory (see win-monitor.ps1's mutex check) - say so rather than
+    # silently leaving the tray pointed at a process that's already gone.
+    Start-Sleep -Milliseconds 600
+    if ($process.HasExited) {
+        [System.Windows.Forms.MessageBox]::Show(
+            "win-monitor.ps1 exited immediately (exit code $($process.ExitCode)). " +
+            "This usually means another instance is already logging to `"$LogDirectory`" - " +
+            'check for a leftover PowerShell process, or just use the tray icon that is already running.',
+            'win-monitor', 'OK', 'Warning') | Out-Null
+        return $null
+    }
+
+    return $process
 }
 
 function Stop-Monitor {

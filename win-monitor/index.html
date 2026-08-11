@@ -1534,6 +1534,31 @@
       return { active, idle, locked, away: idle + locked };
     }
 
+    /**
+     * Counts sessions whose time range overlaps an earlier one - a classic
+     * sweep-line pass (sort by start, track the running max end seen so
+     * far). A well-formed log from a single logger instance never has these:
+     * Step-Session always closes the prior session before opening the next.
+     * Overlaps mean two win-monitor.ps1 processes logged to the same folder
+     * at once (win-monitor.ps1 now refuses to do that via a single-instance
+     * lock, but older logs collected before that fix can still have it), and
+     * they make sums like Active Time double-count the overlapping stretch -
+     * the underlying reason a total can read over 100% of the tracked span.
+     */
+    function countOverlappingSessions(entries) {
+      const sorted = entries
+        .filter(entry => entry.type !== 'monitor')
+        .slice()
+        .sort((a, b) => a.start - b.start);
+      let overlaps = 0;
+      let maxEnd = null;
+      for (const entry of sorted) {
+        if (maxEnd !== null && entry.start < maxEnd) overlaps++;
+        if (maxEnd === null || entry.end > maxEnd) maxEnd = entry.end;
+      }
+      return overlaps;
+    }
+
     function renderPills(visible, filters) {
       const pills = [];
       if (!state.entries.length) {
@@ -1549,6 +1574,10 @@
           pills.push(`<span class="pill warn">${monitorGaps.length} gap${monitorGaps.length === 1 ? '' : 's'} with the monitor off</span>`);
         } else {
           pills.push('<span class="pill ok">Monitor coverage continuous</span>');
+        }
+        const overlapCount = countOverlappingSessions(state.entries);
+        if (overlapCount > 0) {
+          pills.push(`<span class="pill warn" title="Two or more sessions claim overlapping time ranges - usually means more than one win-monitor.ps1 process was logging to this folder at once. Totals like Active Time can double-count the overlap and read over 100%.">${overlapCount} overlapping session${overlapCount === 1 ? '' : 's'}</span>`);
         }
         if (state.parseErrors) {
           pills.push(`<span class="pill warn">${state.parseErrors} unreadable line${state.parseErrors === 1 ? '' : 's'}</span>`);
@@ -1585,7 +1614,9 @@
           hero: true,
           label: 'Active Time',
           value: formatDuration(sums.active),
-          note: `${switches} focus session${switches === 1 ? '' : 's'} &middot; ${activeShare}% of the tracked span`
+          note: activeShare > 100
+            ? `${switches} focus sessions &middot; ${activeShare}% of the tracked span - over 100% means overlapping sessions are double-counted (see the pill above)`
+            : `${switches} focus session${switches === 1 ? '' : 's'} &middot; ${activeShare}% of the tracked span`
         },
         {
           label: 'Time away from the machine',

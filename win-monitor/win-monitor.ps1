@@ -17,6 +17,13 @@
     Nothing leaves the machine. The log is a local JSONL file (plus a CSV mirror);
     there is no network code anywhere in this script.
 
+    Only one instance can log to a given -LogDirectory at a time - a second
+    one (a manual console run left going alongside win-monitor-tray.ps1's own
+    hidden instance, say) exits immediately instead of writing overlapping
+    sessions into the same file, which otherwise makes totals like Active
+    Time double-count the overlap and read impossible values like "113% of
+    the tracked span."
+
 .PARAMETER LogDirectory
     Where the daily log files are written. Default: %LOCALAPPDATA%\win-monitor.
 
@@ -530,6 +537,38 @@ function Write-MonitorEvent {
 }
 
 # --------------------------------------------------------------------------
+# Single-instance lock - two win-monitor.ps1 processes writing to the same
+# -LogDirectory at once (a manual console run left going alongside the
+# tray's own hidden instance, say) produce genuinely overlapping session
+# entries in the log: overlapping active/idle/locked spans that make Active
+# Time and other totals double-count and read impossible values like "113%
+# of the tracked span." A named, OS-level mutex - not a lock file - is used
+# specifically because Windows releases it automatically if this process is
+# killed or crashes, so a stale lock can never block a future run the way a
+# leftover lock *file* could.
+# --------------------------------------------------------------------------
+
+$script:instanceMutex = $null
+$script:instanceLockAcquired = $false
+
+if (-not $DryRun) {
+    $mutexName = 'Global\win-monitor-' + ($LogDirectory -replace '[^A-Za-z0-9]', '_')
+    $script:instanceMutex = New-Object System.Threading.Mutex($false, $mutexName)
+    try {
+        $script:instanceLockAcquired = $script:instanceMutex.WaitOne(0)
+    } catch [System.Threading.AbandonedMutexException] {
+        # A previous instance crashed while holding it - we still got it.
+        $script:instanceLockAcquired = $true
+    }
+    if (-not $script:instanceLockAcquired) {
+        Write-Host ''
+        Write-Host "win-monitor is already logging to $LogDirectory (another instance is running)." -ForegroundColor Yellow
+        Write-Host 'Exiting rather than writing overlapping sessions into the same log file.'
+        exit 1
+    }
+}
+
+# --------------------------------------------------------------------------
 # Main loop
 # --------------------------------------------------------------------------
 
@@ -606,4 +645,7 @@ try {
     if (-not $DryRun) {
         Write-Host ('Log: {0}' -f (Get-LogPath -Date (Get-Date) -Extension 'jsonl'))
     }
+
+    if ($script:instanceLockAcquired) { $script:instanceMutex.ReleaseMutex() }
+    if ($script:instanceMutex) { $script:instanceMutex.Dispose() }
 }
