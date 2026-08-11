@@ -1033,6 +1033,25 @@
           <label for="searchBox">Search app, file, or title</label>
           <input type="text" id="searchBox" placeholder="revit, .docx, invoice&hellip;">
         </div>
+        <div class="field">
+          <div class="check">
+            <input type="checkbox" id="dedupToggle">
+            <label for="dedupToggle">Merge near-duplicate sessions</label>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label for="dedupToleranceMs" class="subtle-label">Tolerance (ms)</label>
+              <input type="number" id="dedupToleranceMs" min="0" step="100" value="2000" disabled>
+            </div>
+          </div>
+          <p class="hint" style="margin:6px 0 0">
+            Collapses same app/file/title sessions whose start lands within this
+            many milliseconds of the previous one's end - the signature of two
+            <code>win-monitor.ps1</code> instances logging the same focus event
+            to the same file. Merges into one session spanning the earliest
+            start to the latest end.
+          </p>
+        </div>
       </section>
 
       <section>
@@ -1289,7 +1308,8 @@
       'awayNote', 'appBars', 'fileBars', 'projectBars', 'sessionBody', 'sessionNote',
       'tooltip', 'dateBackBtn', 'dateForwardBtn', 'zoomInBtn', 'zoomOutBtn',
       'zoomResetBtn', 'zoomReadout', 'expandOverlaps', 'resetColumnsBtn',
-      'sessionsTable', 'sessionHead', 'appFilterNote', 'fileFilterNote'
+      'sessionsTable', 'sessionHead', 'appFilterNote', 'fileFilterNote',
+      'dedupToggle', 'dedupToleranceMs'
     ]) {
       els[id] = document.getElementById(id);
     }
@@ -1690,6 +1710,88 @@
       return Math.max(0, Number(els.minSeconds.value) || 0);
     }
 
+    // ------------------------------------------------------------------
+    // Duplicate-session merging
+    // ------------------------------------------------------------------
+    //
+    // Two win-monitor.ps1 instances logging the same folder each write their
+    // own row for the same real focus event, a few milliseconds to a couple
+    // seconds apart (confirmed against a real log: the same window title
+    // logged 2-3 times with starts within ~1s of each other). This groups
+    // same app/file/title/type sessions and chain-merges consecutive ones
+    // whose gap is within the user's tolerance into a single session
+    // spanning the earliest start to the latest end - everywhere the app
+    // reads "the sessions" (filters, tiles, bars, the table, the timeline),
+    // not just the timeline. Monitor start/stop markers are never touched;
+    // they are not sessions and have no duplicate-logging problem to begin
+    // with.
+
+    function getDedupToleranceMs() {
+      return Math.max(0, Number(els.dedupToleranceMs.value) || 0);
+    }
+
+    function dedupKey(entry) {
+      return `${entry.type}|${entry.app}|${entry.file}|${entry.title}`;
+    }
+
+    /** Folds one same-key, time-sorted group into merged sessions via a
+     *  running cluster: an entry joins the current cluster if it starts at
+     *  or before the cluster's latest end plus the tolerance, otherwise it
+     *  closes that cluster and opens a new one. Chaining (comparing against
+     *  the cluster's end, not the first member's) lets a long real run of
+     *  near-duplicate polls collapse into one session instead of drifting
+     *  apart the moment the gap exceeds the tolerance measured from the start. */
+    function mergeGroup(group, toleranceMs) {
+      const sorted = [...group].sort((a, b) => a.start - b.start);
+      const clusters = [];
+      let cluster = null;
+      for (const entry of sorted) {
+        if (cluster && entry.start.getTime() <= cluster.end.getTime() + toleranceMs) {
+          cluster.members.push(entry);
+          if (entry.end > cluster.end) cluster.end = entry.end;
+        } else {
+          cluster = { end: entry.end, members: [entry] };
+          clusters.push(cluster);
+        }
+      }
+      return clusters.map(c => {
+        if (c.members.length === 1) return c.members[0];
+        const start = c.members[0].start;
+        const end = c.end;
+        return {
+          ...c.members[0],
+          start,
+          end,
+          seconds: Math.max(0, (end - start) / 1000),
+          mergedCount: c.members.length
+        };
+      });
+    }
+
+    /**
+     * The sessions every other part of the app treats as ground truth:
+     * state.entries with duplicates merged, or state.entries unchanged when
+     * the toggle is off. Recomputed on every call rather than cached - the
+     * real log this was built against merges in a few milliseconds, and
+     * caching correctly would mean invalidating on every entries mutation
+     * anyway.
+     */
+    function getWorkingEntries() {
+      if (!els.dedupToggle.checked) return state.entries;
+      const toleranceMs = getDedupToleranceMs();
+      const groups = new Map();
+      const merged = [];
+      for (const entry of state.entries) {
+        if (entry.type === 'monitor') { merged.push(entry); continue; }
+        const key = dedupKey(entry);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(entry);
+      }
+      for (const group of groups.values()) merged.push(...mergeGroup(group, toleranceMs));
+      merged.sort((a, b) => a.start - b.start);
+      return merged;
+    }
+
     function getFilters() {
       return {
         dateFrom: els.dateFrom.value || null,
@@ -1704,7 +1806,7 @@
     }
 
     function applyFilters(filters) {
-      return state.entries.filter(entry => {
+      return getWorkingEntries().filter(entry => {
         if (entry.type === 'monitor') return false;
         if (entry.type === 'active' && !filters.active) return false;
         if (entry.type === 'idle' && !filters.idle) return false;
@@ -1743,7 +1845,7 @@
       const minSeconds = getMinSeconds();
       const map = new Map();
       const belowFloor = new Set();
-      for (const entry of state.entries) {
+      for (const entry of getWorkingEntries()) {
         if (entry.type === 'monitor') continue;
         if (entry.seconds < minSeconds) { belowFloor.add(entry.app); continue; }
         if (!map.has(entry.app)) map.set(entry.app, { key: entry.app, label: appLabel(entry), seconds: 0 });
@@ -1760,7 +1862,7 @@
       const minSeconds = getMinSeconds();
       const map = new Map();
       const belowFloor = new Set();
-      for (const entry of state.entries) {
+      for (const entry of getWorkingEntries()) {
         if (!entry.file) continue;
         if (entry.seconds < minSeconds) { belowFloor.add(entry.file); continue; }
         if (!map.has(entry.file)) map.set(entry.file, { key: entry.file, label: entry.file, seconds: 0 });
@@ -1908,14 +2010,23 @@
         } else {
           pills.push('<span class="pill ok">Monitor coverage continuous</span>');
         }
-        const overlapCount = countOverlappingSessions(state.entries);
+        const working = getWorkingEntries();
+        if (els.dedupToggle.checked) {
+          const rawSessions = state.entries.filter(entry => entry.type !== 'monitor').length;
+          const mergedAway = rawSessions - working.filter(entry => entry.type !== 'monitor').length;
+          if (mergedAway > 0) {
+            pills.push(`<span class="pill ok" title="Same app/file/title sessions within ${getDedupToleranceMs()}ms of each other were folded into one.">merged ${mergedAway} duplicate session${mergedAway === 1 ? '' : 's'}</span>`);
+          }
+        }
+        const overlapCount = countOverlappingSessions(working);
         if (overlapCount > 0) {
           pills.push(`<span class="pill warn" title="Two or more sessions claim overlapping time ranges - usually means more than one win-monitor.ps1 process was logging to this folder at once. Totals like Active Time can double-count the overlap and read over 100%.">${overlapCount} overlapping session${overlapCount === 1 ? '' : 's'}</span>`);
         }
         if (state.parseErrors) {
           pills.push(`<span class="pill warn">${state.parseErrors} unreadable line${state.parseErrors === 1 ? '' : 's'}</span>`);
         }
-        if (visible.length !== state.entries.length) {
+        const workingSessionCount = working.filter(entry => entry.type !== 'monitor').length;
+        if (visible.length !== workingSessionCount) {
           pills.push(`<span class="pill">${visible.length} shown by filters</span>`);
         }
       }
@@ -2179,7 +2290,8 @@
         const detail = [
           entry.file ? `File: ${entry.file}` : '',
           entry.title,
-          `${formatClockSeconds(slice.from)} - ${formatClockSeconds(slice.to)}`
+          `${formatClockSeconds(slice.from)} - ${formatClockSeconds(slice.to)}`,
+          entry.mergedCount ? `${entry.mergedCount} near-duplicate entries merged` : ''
         ].filter(Boolean).join('\n');
         return `<div class="seg${entry.type === 'locked' ? ' locked' : ''}"
           style="left:${left.toFixed(3)}%;width:${width.toFixed(3)}%;background:${colorFor(entry)}"
@@ -2402,7 +2514,7 @@
           <td><span class="bar-name"><span class="swatch" style="background:${colorFor(entry)}"></span><span>${escapeHtml(entry.app || '—')}</span></span></td>
           <td class="mono">${escapeHtml(entry.file || '—')}</td>
           <td><select class="project-select" data-key="${escapeHtml(key)}">${buildProjectOptionsHtml(getProject(entry), { blankLabel: '&mdash;', includeNewOption: true })}</select></td>
-          <td class="wrap">${escapeHtml(entry.title || '—')}</td>
+          <td class="wrap">${escapeHtml(entry.title || '—')}${entry.mergedCount ? ` <span class="tag" title="${entry.mergedCount} near-duplicate log entries merged into this one session">&times;${entry.mergedCount}</span>` : ''}</td>
         </tr>`;
       }).join('');
 
@@ -2698,6 +2810,21 @@
     // re-read them like the filters above.
     for (const type of ['input', 'change']) {
       els.minSeconds.addEventListener(type, () => {
+        rebuildFilterOptions();
+        refresh();
+      });
+    }
+
+    // Merging duplicates changes which sessions exist at all - same as Min
+    // length, it has to rebuild the app/file checklists, not just re-read them.
+    els.dedupToggle.addEventListener('change', () => {
+      els.dedupToleranceMs.disabled = !els.dedupToggle.checked;
+      rebuildFilterOptions();
+      refresh();
+    });
+    for (const type of ['input', 'change']) {
+      els.dedupToleranceMs.addEventListener(type, () => {
+        if (!els.dedupToggle.checked) return;
         rebuildFilterOptions();
         refresh();
       });
