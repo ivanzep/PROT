@@ -173,7 +173,12 @@ same text you'd see in the taskbar. That means:
 Open `index.html` directly - no server needed, everything runs client-side.
 
 1. Drag the day's log file(s) onto the drop zone (or click it to browse), or
-   paste raw JSONL/CSV into the text box and hit **Import pasted log**.
+   paste raw JSONL/CSV into the text box and hit **Import pasted log**. Or
+   click **Load latest log** and pick the win-monitor log folder once - a
+   browser can't read an arbitrary folder without asking first - and it loads
+   only the newest `activity-*.jsonl` in it, by the date in the filename, so
+   you don't have to hunt for today's file by hand. Chromium-based browsers
+   only (same folder-picker API `file-renamer` uses).
 2. Click **Load sample** for a two-day example dataset without needing a real
    log - useful for seeing the layout before running the logger for real.
 3. The **Timeline** shows two lanes per day - what had focus, and when the

@@ -722,9 +722,17 @@
           Drop <code>activity-*.jsonl</code> or <code>.csv</code> here,<br>or click to choose files
         </div>
         <input type="file" id="fileInput" multiple accept=".jsonl,.json,.csv,.txt,.log" hidden>
+        <div class="btn-row" style="margin-top:10px">
+          <button id="loadLatestBtn">Load latest log</button>
+        </div>
+        <input type="file" id="folderInput" webkitdirectory directory multiple hidden>
         <p class="hint" style="margin-bottom:0">
           Written by <code>win-monitor.ps1</code>, one file per day, in
           <code>%LOCALAPPDATA%\win-monitor</code> unless you pointed it elsewhere.
+          <strong>Load latest log</strong> asks you to pick that folder once
+          (a browser can't read it on its own), then loads only the newest
+          <code>activity-*.jsonl</code> file in it - skip hunting for today's
+          file by hand. Chromium-based browsers only.
         </p>
       </section>
 
@@ -1012,7 +1020,7 @@
 
     const els = {};
     for (const id of [
-      'dropzone', 'fileInput', 'pasteBox', 'importBtn', 'sampleBtn', 'clearBtn',
+      'dropzone', 'fileInput', 'loadLatestBtn', 'folderInput', 'pasteBox', 'importBtn', 'sampleBtn', 'clearBtn',
       'dateFrom', 'dateTo', 'dateResetBtn', 'showActive', 'showIdle', 'showLocked',
       'appChecklist', 'appsAllBtn', 'appsNoneBtn', 'fileChecklist', 'filesAllBtn',
       'filesNoneBtn', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours',
@@ -1257,6 +1265,27 @@
         const parsed = parseLogText(text);
         addEntries(parsed.entries, file.name, parsed.errors);
       }
+    }
+
+    /**
+     * Picks the newest activity-YYYY-MM-DD.jsonl from a folder's file list
+     * ("Load latest log", backed by a <input webkitdirectory> picker - a
+     * browser can't read an arbitrary folder without one). The date is
+     * parsed from the filename, not file.lastModified: win-monitor.ps1 names
+     * the file for the day the entries in it belong to, which is the
+     * meaningful "latest" here and is immune to a copy/sync tool touching
+     * the file's modified time.
+     */
+    function findLatestActivityFile(fileList) {
+      const pattern = /^activity-\d{4}-\d{2}-\d{2}\.jsonl$/i;
+      let latest = null;
+      for (const file of fileList) {
+        if (!pattern.test(file.name)) continue;
+        // The filename's date component sorts lexically the same as
+        // chronologically, so plain string comparison is enough.
+        if (!latest || file.name > latest.name) latest = file;
+      }
+      return latest;
     }
 
     // ------------------------------------------------------------------
@@ -2044,6 +2073,18 @@
     els.fileInput.addEventListener('change', event => {
       loadFiles(event.target.files);
       event.target.value = '';
+    });
+
+    els.loadLatestBtn.addEventListener('click', () => els.folderInput.click());
+    els.folderInput.addEventListener('change', async event => {
+      const files = Array.from(event.target.files || []);
+      event.target.value = '';
+      const latest = findLatestActivityFile(files);
+      if (!latest) {
+        window.alert('No activity-YYYY-MM-DD.jsonl files found in that folder.');
+        return;
+      }
+      await loadFiles([latest]);
     });
 
     for (const type of ['dragenter', 'dragover']) {
