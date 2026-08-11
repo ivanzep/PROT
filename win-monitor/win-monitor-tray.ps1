@@ -131,7 +131,7 @@ namespace WinMonitor.Tray {
 }
 
 $monitorPath = Join-Path $PSScriptRoot 'win-monitor.ps1'
-$viewerPath = Join-Path $PSScriptRoot 'index.html'
+$viewerPath = Join-Path $PSScriptRoot 'index-v0.1.html'
 $stopFlagPath = Join-Path $LogDirectory '.stop-requested'
 $settingsPath = Join-Path $LogDirectory 'tray-settings.json'
 
@@ -326,7 +326,7 @@ if (-not $script:monitorProcess) { exit 1 }
 
 # --------------------------------------------------------------------------
 # Tray icon - a small filled circle drawn at runtime (no .ico asset to ship),
-# in the same blue used for the first series/accent color in index.html.
+# in the same blue used for the first series/accent color in index-v0.1.html.
 # --------------------------------------------------------------------------
 
 $bitmap = New-Object System.Drawing.Bitmap 32, 32
@@ -535,7 +535,7 @@ function Open-LogFolder {
 
 function Open-Viewer {
     if (-not (Test-Path -LiteralPath $viewerPath)) {
-        [System.Windows.Forms.MessageBox]::Show('index.html not found next to this script.', 'win-monitor') | Out-Null
+        [System.Windows.Forms.MessageBox]::Show('index-v0.1.html not found next to this script.', 'win-monitor') | Out-Null
         return
     }
     try {

@@ -553,7 +553,39 @@
       min-width: 0;
     }
 
-    .zoom-inner { min-width: 100%; }
+    /* Positioned so .range-highlight (absolute, top:0;bottom:0) spans the
+       inner box's full auto height - the box's own content (labels, lanes,
+       ruler) determines that height first, then the highlight resolves
+       against it, same mechanism any overlay-over-auto-height-content uses. */
+    .zoom-inner { min-width: 100%; position: relative; }
+
+    /* ---- range selection ---------------------------------------------- */
+
+    /* A dedicated drag strip rather than the lanes themselves, so dragging a
+       selection never fights with hovering a segment for its tooltip. */
+    .range-select {
+      position: relative;
+      height: 10px;
+      margin: 2px 0 6px;
+      border-radius: 3px;
+      background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px);
+      cursor: crosshair;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .range-select:hover { background-color: #f2f4f7; }
+
+    .range-highlight {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: rgba(31, 111, 235, .1);
+      border-left: 1px solid var(--accent);
+      border-right: 1px solid var(--accent);
+      pointer-events: none;
+    }
+
 
     .zoom-controls {
       display: flex;
@@ -685,6 +717,11 @@
       border-bottom: 1px solid var(--line);
       min-width: 0;
     }
+
+    /* This class's own display:flex is author CSS and beats the UA
+       stylesheet's [hidden]{display:none} at equal specificity, so without
+       this override the hidden attribute alone would not actually hide it. */
+    .batch-assign[hidden] { display: none; }
 
     .batch-assign select, .batch-assign input[type="text"] {
       width: auto;
@@ -1130,6 +1167,19 @@
             </div>
           </div>
           <div class="section-body">
+            <div class="batch-assign" id="rangeSelectionBar" hidden>
+              <span class="hint" id="rangeSelectionNote"></span>
+              <select id="rangeProjectSelect"><option value="">Choose existing project&hellip;</option></select>
+              <input type="text" id="rangeProjectNew" placeholder="or type a new project name">
+              <button id="rangeAssignBtn">Assign to range</button>
+              <button type="button" class="mini" id="rangeClearBtn">Clear selection</button>
+            </div>
+            <p class="hint" id="rangeSelectHint" style="margin:0 0 8px">
+              Drag the dashed strip above a day's "In focus" lane to select a
+              time range, then assign a project to whatever session falls
+              <strong>completely</strong> inside it. Click the strip without
+              dragging to clear a selection.
+            </p>
             <div id="timeline"></div>
             <div class="legend" id="legend"></div>
           </div>
@@ -1278,7 +1328,9 @@
       pendingTimelineScroll: new Map(), // dayKey -> scrollLeft to apply after the next render
       expandOverlaps: false,          // stack overlapping sessions onto separate lanes
       sessionSort: { key: 'start', dir: 'asc' },
-      sessionColWidths: null          // null until a column is dragged; then px per column index
+      sessionColWidths: null,         // null until a column is dragged; then px per column index
+      rangeSelection: null,           // { day: 'YYYY-MM-DD', from: Date, to: Date } | null
+      rangeSelectionMatches: []       // sessions currently fully inside rangeSelection, refreshed every render
     };
 
     const ZOOM_MIN = 1;
@@ -1309,7 +1361,8 @@
       'tooltip', 'dateBackBtn', 'dateForwardBtn', 'zoomInBtn', 'zoomOutBtn',
       'zoomResetBtn', 'zoomReadout', 'expandOverlaps', 'resetColumnsBtn',
       'sessionsTable', 'sessionHead', 'appFilterNote', 'fileFilterNote',
-      'dedupToggle', 'dedupToleranceMs'
+      'dedupToggle', 'dedupToleranceMs', 'rangeSelectionBar', 'rangeSelectionNote',
+      'rangeProjectSelect', 'rangeProjectNew', 'rangeAssignBtn', 'rangeClearBtn'
     ]) {
       els[id] = document.getElementById(id);
     }
@@ -1660,10 +1713,18 @@
       }
       els.projectStatusPills.innerHTML = pills.join('');
 
-      const previousSelection = els.batchProjectSelect.value;
-      els.batchProjectSelect.innerHTML = buildProjectOptionsHtml('', { blankLabel: 'Choose existing project&hellip;' });
-      if ([...els.batchProjectSelect.options].some(opt => opt.value === previousSelection)) {
-        els.batchProjectSelect.value = previousSelection;
+      refreshProjectSelect(els.batchProjectSelect);
+      refreshProjectSelect(els.rangeProjectSelect);
+    }
+
+    /** Repopulates a "choose existing project" <select> from state.knownProjects,
+     *  keeping the current selection if it still exists - shared by the Sessions
+     *  batch-assign select and the range-selection assign select. */
+    function refreshProjectSelect(selectEl) {
+      const previousSelection = selectEl.value;
+      selectEl.innerHTML = buildProjectOptionsHtml('', { blankLabel: 'Choose existing project&hellip;' });
+      if ([...selectEl.options].some(opt => opt.value === previousSelection)) {
+        selectEl.value = previousSelection;
       }
     }
 
@@ -2202,6 +2263,7 @@
         els.timeline.innerHTML = '<div class="empty">No sessions to plot.</div>';
         els.timelineNote.textContent = '';
         els.legend.innerHTML = '';
+        updateRangeSelectionBar([]);
         return;
       }
 
@@ -2254,6 +2316,40 @@
       els.timelineNote.textContent = notes.join(' · ');
 
       renderLegend(visible);
+      updateRangeSelectionBar(visible);
+    }
+
+    /**
+     * Keeps the range-selection toolbar (and its "N sessions" count) in sync
+     * with whatever is currently selected, on every render - so a filter
+     * change, a project assignment, or a Min length edit all correctly
+     * narrow or widen what "fully in range" means without the user having
+     * to redraw the selection.
+     */
+    function updateRangeSelectionBar(visible) {
+      const sel = state.rangeSelection;
+      if (!sel) {
+        els.rangeSelectionBar.hidden = true;
+        state.rangeSelectionMatches = [];
+        return;
+      }
+      const fromMs = sel.from.getTime();
+      const toMs = sel.to.getTime();
+      const matches = visible.filter(entry =>
+        dayKey(entry.start) === sel.day
+        && entry.start.getTime() >= fromMs
+        && entry.end.getTime() <= toMs
+      );
+      state.rangeSelectionMatches = matches;
+
+      // textContent, not innerHTML, so a literal middle dot is used directly
+      // rather than the &middot; entity this file uses in innerHTML strings.
+      const totalSeconds = matches.reduce((sum, entry) => sum + entry.seconds, 0);
+      els.rangeSelectionNote.textContent = matches.length
+        ? `${matches.length} session${matches.length === 1 ? '' : 's'} fully in range · ${formatDuration(totalSeconds)}`
+        : 'No sessions fall completely inside the selected range.';
+      els.rangeSelectionBar.hidden = false;
+      els.rangeAssignBtn.disabled = matches.length === 0;
     }
 
     function renderDay(key, slices, gaps) {
@@ -2343,6 +2439,20 @@
 
       const zoomWidth = (state.timelineZoom * 100).toFixed(4);
 
+      // Reproduces the drag highlight after every re-render (a filter change,
+      // a zoom, an assignment) since innerHTML replaces the whole day - the
+      // stored selection is an absolute time range, so it is repositioned
+      // fresh against this render's own position() rather than carried over
+      // as stale pixels.
+      let rangeHighlightHtml = '';
+      if (state.rangeSelection && state.rangeSelection.day === key) {
+        const left = Math.max(0, position(state.rangeSelection.from.getTime()));
+        const right = Math.min(100, position(state.rangeSelection.to.getTime()));
+        if (right > left) {
+          rangeHighlightHtml = `<div class="range-highlight" style="left:${left.toFixed(3)}%;width:${(right - left).toFixed(3)}%"></div>`;
+        }
+      }
+
       return {
         lanes: laneCount,
         html: `
@@ -2352,12 +2462,14 @@
             <span class="day-meta">${formatDuration(daySums.active)} active &middot; ${formatDuration(daySums.away)} away</span>
           </div>
           <div class="zoom-scroll" data-day="${escapeHtml(key)}">
-            <div class="zoom-inner" style="width:${zoomWidth}%">
+            <div class="zoom-inner" style="width:${zoomWidth}%" data-window-start="${windowStart}" data-window-span="${windowSpan}">
+              <div class="range-select" data-day="${escapeHtml(key)}" title="Drag to select a time range - click without dragging to clear it"></div>
               <div class="lane-label">In focus</div>
               ${focusHtml}
               <div class="lane-label">Away</div>
               ${awayHtml}
               <div class="ruler">${ticks.join('')}</div>
+              ${rangeHighlightHtml}
             </div>
           </div>
         </div>`
@@ -2793,6 +2905,7 @@
       state.dateRangeTouched = false;
       state.dataMinDay = null;
       state.dataMaxDay = null;
+      state.rangeSelection = null;
       els.pasteBox.value = '';
       els.dateFrom.value = '';
       els.dateTo.value = '';
@@ -3041,6 +3154,122 @@
 
     els.expandOverlaps.addEventListener('change', () => {
       state.expandOverlaps = els.expandOverlaps.checked;
+      refresh();
+    });
+
+    // ---- timeline: drag-select a range ---------------------------------
+    //
+    // Delegated on els.timeline (mirrors the sessionHead column-resizer
+    // pattern) since every .range-select strip is destroyed and recreated on
+    // each render. Live drag feedback is painted directly on a temporary
+    // .range-highlight element rather than going through refresh() on every
+    // pointermove - re-rendering ~1000+ timeline segments per pixel of mouse
+    // movement would be visibly janky. Only pointerup commits the final
+    // range to state and triggers one real re-render.
+
+    let rangeDrag = null;
+
+    function paintRangeDrag(drag) {
+      const left = Math.min(drag.startFraction, drag.endFraction) * 100;
+      const width = Math.abs(drag.endFraction - drag.startFraction) * 100;
+      drag.highlight.style.left = `${left}%`;
+      drag.highlight.style.width = `${width}%`;
+    }
+
+    function finishRangeDrag(drag) {
+      if (!drag.moved) {
+        // A click without a drag clears an existing selection on that same
+        // day (a quick way to deselect); on any other day it is a no-op.
+        if (state.rangeSelection && state.rangeSelection.day === drag.day) {
+          state.rangeSelection = null;
+        } else {
+          drag.highlight.remove();
+          return;
+        }
+      } else {
+        const lowFraction = Math.min(drag.startFraction, drag.endFraction);
+        const highFraction = Math.max(drag.startFraction, drag.endFraction);
+        state.rangeSelection = {
+          day: drag.day,
+          from: new Date(drag.windowStart + lowFraction * drag.windowSpan),
+          to: new Date(drag.windowStart + highFraction * drag.windowSpan)
+        };
+      }
+      refresh();
+    }
+
+    els.timeline.addEventListener('pointerdown', event => {
+      const strip = event.target.closest('.range-select');
+      if (!strip) return;
+      event.preventDefault();
+      const inner = strip.closest('.zoom-inner');
+      const rect = inner.getBoundingClientRect();
+      let highlight = inner.querySelector('.range-highlight');
+      if (!highlight) {
+        highlight = document.createElement('div');
+        highlight.className = 'range-highlight';
+        inner.appendChild(highlight);
+      }
+      const startFraction = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      rangeDrag = {
+        day: strip.dataset.day,
+        windowStart: Number(inner.dataset.windowStart),
+        windowSpan: Number(inner.dataset.windowSpan),
+        rectLeft: rect.left,
+        rectWidth: rect.width,
+        startFraction,
+        endFraction: startFraction,
+        highlight,
+        moved: false
+      };
+      paintRangeDrag(rangeDrag);
+      strip.setPointerCapture(event.pointerId);
+    });
+
+    els.timeline.addEventListener('pointermove', event => {
+      if (!rangeDrag) return;
+      const fraction = Math.min(1, Math.max(0, (event.clientX - rangeDrag.rectLeft) / rangeDrag.rectWidth));
+      if (Math.abs(fraction - rangeDrag.startFraction) > 0.001) rangeDrag.moved = true;
+      rangeDrag.endFraction = fraction;
+      paintRangeDrag(rangeDrag);
+    });
+
+    for (const type of ['pointerup', 'pointercancel']) {
+      els.timeline.addEventListener(type, () => {
+        if (!rangeDrag) return;
+        finishRangeDrag(rangeDrag);
+        rangeDrag = null;
+      });
+    }
+
+    els.rangeAssignBtn.addEventListener('click', () => {
+      const matches = state.rangeSelectionMatches;
+      if (!matches.length) return;
+
+      const typed = els.rangeProjectNew.value.trim();
+      const project = typed || els.rangeProjectSelect.value;
+      if (!project) {
+        window.alert('Choose an existing project or type a new one first.');
+        return;
+      }
+
+      const changingCount = matches.filter(entry => {
+        const current = getProject(entry);
+        return current && current !== project;
+      }).length;
+      if (changingCount > 0) {
+        const proceed = window.confirm(
+          `This reassigns ${changingCount} session(s) currently set to a different project to "${project}". Continue?`);
+        if (!proceed) return;
+      }
+
+      for (const entry of matches) setProjectByKey(entryKey(entry), project);
+      els.rangeProjectNew.value = '';
+      refresh();
+    });
+
+    els.rangeClearBtn.addEventListener('click', () => {
+      state.rangeSelection = null;
       refresh();
     });
 

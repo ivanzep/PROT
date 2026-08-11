@@ -19,7 +19,8 @@ Pieces:
 | `win-monitor-tray.ps1` | Runs the logger as a hidden background process behind a system tray icon (open the log folder, open the viewer, change the idle threshold, Exit). This is what actually "runs in the background" day to day - see below. |
 | `win-monitor-tray.cmd` | Double-click launcher for `win-monitor-tray.ps1` - starts the tray icon with no PowerShell prompt and no lingering console window. The easiest way to just start using it. |
 | `Register-WinMonitorTask.ps1` | Registers/removes a per-user Scheduled Task so `win-monitor-tray.ps1` starts at logon with no console window. |
-| `index.html` | A local, offline log viewer: drop in the JSONL/CSV files the logger writes (or paste log lines, or click "Load sample") and get a timeline, an away-periods table, and time-by-app/file breakdowns. |
+| `index-v0.1.html` | A local, offline log viewer: drop in the JSONL/CSV files the logger writes (or paste log lines, or click "Load sample") and get a timeline, an away-periods table, and time-by-app/file breakdowns. The current version - see "Viewer versions" below. |
+| `index-v0.0.html` | The original viewer, kept only as a snapshot of pre-fix behavior. Don't use it day to day - see "Viewer versions" below. |
 
 No installer, no runtime to add - PowerShell ships with Windows and nothing here needs admin rights. Copy the `win-monitor` folder anywhere (a USB stick works) and it runs as-is.
 
@@ -170,7 +171,21 @@ same text you'd see in the taskbar. That means:
 
 ## Using the viewer
 
-Open `index.html` directly - no server needed, everything runs client-side.
+Open `index-v0.1.html` directly - no server needed, everything runs client-side.
+
+### Viewer versions
+
+`index-v0.0.html` is the original viewer as first shipped. `index-v0.1.html`
+is the current one: a from-scratch layout rewrite (the sidebar could paint
+underneath the results column once a real log's longer app/file names were
+loaded - sample data never showed it, which is why it took a while to pin
+down) plus everything added since - timeline zoom, sortable/resizable
+Sessions columns, an "Expand overlaps" view that splits concurrently-logged
+sessions onto separate lines instead of hiding them, a Min length floor that
+actually drops apps/files with nothing long enough to show, and duplicate-
+session merging. `win-monitor-tray.ps1`'s "Open log viewer" opens
+`index-v0.1.html`. Keep using `index-v0.1.html` unless you're specifically
+comparing behavior against the original.
 
 1. Drag the day's log file(s) onto the drop zone (or click it to browse), or
    paste raw JSONL/CSV into the text box and hit **Import pasted log**. Or
