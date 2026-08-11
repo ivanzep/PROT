@@ -179,6 +179,16 @@
       min-width: 0;
     }
 
+    /* Right-hand side of a card head: the note plus whatever controls that
+       card owns (timeline zoom, column reset). */
+    .head-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
     .collapse-toggle {
       border: none;
       background: transparent;
@@ -517,7 +527,49 @@
       font-size: 11px;
       color: var(--muted);
       margin: 6px 0 3px;
+      /* Zoomed in, the lanes scroll horizontally underneath this label; a
+         fit-content sticky box keeps it pinned to the left of the scrollport
+         instead of sliding away with the segments. This is a local pin
+         inside one horizontal scroller - not the full-panel sticky sidebar
+         that caused the earlier overlap bug. */
+      position: sticky;
+      left: 0;
+      width: fit-content;
     }
+
+    /* ---- timeline zoom ---------------------------------------------- */
+
+    /* One scroller per day holds both lanes and the ruler, so they always
+       pan together and stay aligned. At 1x the inner box is exactly 100%
+       wide and no scrollbar appears at all. */
+    .zoom-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      min-width: 0;
+    }
+
+    .zoom-inner { min-width: 100%; }
+
+    .zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: none;
+    }
+
+    .zoom-readout {
+      font-size: 11px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      min-width: 32px;
+      text-align: center;
+    }
+
+    /* Stacked lanes are shorter than the single full-height lane, so an
+       expanded overlap view stays readable instead of pushing the rest of
+       the page down. */
+    .track.compact { height: 14px; }
+    .track + .track { margin-top: 2px; }
 
     .track {
       position: relative;
@@ -739,6 +791,66 @@
     }
 
     tr:last-child td { border-bottom: none; }
+
+    /* ---- sortable + resizable columns -------------------------------- */
+
+    th[data-sort-key] { cursor: pointer; user-select: none; }
+    th[data-sort-key]:hover { background: #eef2f7; }
+
+    .th-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sort-arrow {
+      font-size: 9px;
+      line-height: 1;
+      color: var(--muted);
+      visibility: hidden;
+    }
+
+    th.sorted-asc .sort-arrow,
+    th.sorted-desc .sort-arrow {
+      visibility: visible;
+      color: var(--accent);
+    }
+
+    /* The grab strip sits on the column's right edge. `th` is already
+       position: sticky, which is a positioned box, so it is the containing
+       block for this absolute child without needing position: relative. */
+    .col-resizer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 9px;
+      height: 100%;
+      cursor: col-resize;
+      user-select: none;
+      /* Pointer events (not mouse events) drive the drag so this works
+         under touch as well; without this the browser pans instead. */
+      touch-action: none;
+    }
+
+    .col-resizer::after {
+      content: '';
+      position: absolute;
+      right: 3px;
+      top: 18%;
+      height: 64%;
+      width: 1px;
+      background: var(--line);
+    }
+
+    .col-resizer:hover::after { background: var(--accent); width: 2px; }
+
+    body.col-resizing { cursor: col-resize; user-select: none; }
+
+    /* Explicit widths only mean anything under a fixed table layout, so the
+       table switches to one the moment the first column is dragged. */
+    table.resized { table-layout: fixed; }
+    table.resized th, table.resized td { overflow: hidden; text-overflow: ellipsis; }
+    table.resized td.wrap { text-overflow: clip; }
 
     td.wrap {
       white-space: normal;
@@ -977,7 +1089,19 @@
               <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
               <h2>Timeline</h2>
             </span>
-            <div class="hint" id="timelineNote"></div>
+            <div class="head-tools">
+              <div class="hint" id="timelineNote"></div>
+              <span class="check">
+                <input type="checkbox" id="expandOverlaps">
+                <label for="expandOverlaps" title="Stack overlapping sessions onto separate lines so none hide each other">Expand overlaps</label>
+              </span>
+              <div class="zoom-controls">
+                <button type="button" class="mini" id="zoomOutBtn" title="Zoom out">&minus;</button>
+                <span class="zoom-readout" id="zoomReadout">1.0x</span>
+                <button type="button" class="mini" id="zoomInBtn" title="Zoom in (or ctrl + scroll over the timeline)">+</button>
+                <button type="button" class="mini" id="zoomResetBtn" title="Fit the whole day">Fit</button>
+              </div>
+            </div>
           </div>
           <div class="section-body">
             <div id="timeline"></div>
@@ -1059,7 +1183,10 @@
               <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
               <h2>Sessions</h2>
             </span>
-            <div class="hint" id="sessionNote"></div>
+            <div class="head-tools">
+              <div class="hint" id="sessionNote"></div>
+              <button type="button" class="mini" id="resetColumnsBtn" title="Clear any column widths you have dragged">Reset columns</button>
+            </div>
           </div>
           <div class="section-body">
             <div class="batch-assign">
@@ -1073,12 +1200,20 @@
               or not it's scrolled into view. <strong>Selected</strong> means checked rows only -
               click a row's checkbox, shift-click another to select the range between them.
             </p>
-            <div class="table-wrap"><div class="scroll-y"><table>
+            <div class="table-wrap"><div class="scroll-y"><table id="sessionsTable">
               <thead>
-                <tr>
-                  <th class="select-col"><input type="checkbox" id="selectAllSessions" title="Select all"></th>
-                  <th>Start</th><th>Length</th><th>Type</th><th>App</th>
-                  <th>File</th><th>Project</th><th>Window title</th>
+                <tr id="sessionHead">
+                  <th class="select-col">
+                    <input type="checkbox" id="selectAllSessions" title="Select all">
+                    <span class="col-resizer"></span>
+                  </th>
+                  <th data-sort-key="start"><span class="th-inner">Start<span class="sort-arrow"></span></span><span class="col-resizer"></span></th>
+                  <th data-sort-key="seconds"><span class="th-inner">Length<span class="sort-arrow"></span></span><span class="col-resizer"></span></th>
+                  <th data-sort-key="type"><span class="th-inner">Type<span class="sort-arrow"></span></span><span class="col-resizer"></span></th>
+                  <th data-sort-key="app"><span class="th-inner">App<span class="sort-arrow"></span></span><span class="col-resizer"></span></th>
+                  <th data-sort-key="file"><span class="th-inner">File<span class="sort-arrow"></span></span><span class="col-resizer"></span></th>
+                  <th data-sort-key="project"><span class="th-inner">Project<span class="sort-arrow"></span></span><span class="col-resizer"></span></th>
+                  <th data-sort-key="title"><span class="th-inner">Window title<span class="sort-arrow"></span></span><span class="col-resizer"></span></th>
                 </tr>
               </thead>
               <tbody id="sessionBody"></tbody>
@@ -1112,8 +1247,20 @@
       knownProjects: new Set(),      // every project name ever seen, for the dropdowns - never auto-pruned
       projectsDirty: false,          // true once assignments differ from the last loaded/exported file
       selectedSessionKeys: new Set(), // entryKey(entry) values checked in the Sessions table right now
-      lastSessionCheckboxIndex: null  // anchor row for shift-click range selection
+      lastSessionCheckboxIndex: null, // anchor row for shift-click range selection
+      timelineZoom: 1,                // 1 = whole day fits; higher scrolls horizontally
+      pendingTimelineScroll: new Map(), // dayKey -> scrollLeft to apply after the next render
+      expandOverlaps: false,          // stack overlapping sessions onto separate lanes
+      sessionSort: { key: 'start', dir: 'asc' },
+      sessionColWidths: null          // null until a column is dragged; then px per column index
     };
+
+    const ZOOM_MIN = 1;
+    const ZOOM_MAX = 64;
+    const ZOOM_STEP = 1.6;
+    /** More lanes than this is unreadable, and a log needing them is broken
+     *  anyway; the surplus packs into the last lane and the note says so. */
+    const MAX_LANES = 16;
 
     const SERIES = [
       'var(--series-1)', 'var(--series-2)', 'var(--series-3)',
@@ -1133,7 +1280,9 @@
       'batchAssignBtn', 'assignSelectedBtn', 'selectedCount', 'selectAllSessions',
       'statusPills', 'tiles', 'timeline', 'timelineNote', 'legend', 'awayBody',
       'awayNote', 'appBars', 'fileBars', 'projectBars', 'sessionBody', 'sessionNote',
-      'tooltip', 'dateBackBtn', 'dateForwardBtn'
+      'tooltip', 'dateBackBtn', 'dateForwardBtn', 'zoomInBtn', 'zoomOutBtn',
+      'zoomResetBtn', 'zoomReadout', 'expandOverlaps', 'resetColumnsBtn',
+      'sessionsTable', 'sessionHead'
     ]) {
       els[id] = document.getElementById(id);
     }
@@ -1782,7 +1931,92 @@
       return gaps;
     }
 
+    /**
+     * Greedy interval partitioning: walk the slices in start order and drop
+     * each into the first lane whose last segment already ended, opening a
+     * new lane only when none has. That is the minimum number of lanes in
+     * which no two segments overlap - so an expanded timeline shows every
+     * session instead of letting a later one paint over an earlier one.
+     */
+    function packLanes(slices) {
+      const sorted = [...slices].sort((a, b) => a.from - b.from);
+      const lanes = [];
+      const lastEnd = [];
+      for (const slice of sorted) {
+        let placed = false;
+        for (let i = 0; i < lanes.length; i++) {
+          if (lastEnd[i] <= slice.from) {
+            lanes[i].push(slice);
+            lastEnd[i] = slice.to;
+            placed = true;
+            break;
+          }
+        }
+        if (placed) continue;
+        if (lanes.length >= MAX_LANES) {
+          // Past the cap, overlap in the last lane rather than growing forever.
+          lanes[lanes.length - 1].push(slice);
+          if (slice.to > lastEnd[lanes.length - 1]) lastEnd[lanes.length - 1] = slice.to;
+        } else {
+          lanes.push([slice]);
+          lastEnd.push(slice.to);
+        }
+      }
+      return lanes.length ? lanes : [[]];
+    }
+
+    /**
+     * Tick spacing follows how much of the day is actually on screen, not how
+     * long the day is: zoomed in far enough, hour marks are uselessly sparse.
+     */
+    function tickIntervalMinutes(hoursVisible) {
+      if (hoursVisible > 14) return 120;
+      if (hoursVisible > 7) return 60;
+      if (hoursVisible > 3.5) return 30;
+      if (hoursVisible > 1.5) return 15;
+      if (hoursVisible > 0.75) return 10;
+      if (hoursVisible > 0.3) return 5;
+      return 1;
+    }
+
+    function clampZoom(value) {
+      return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value));
+    }
+
+    function updateZoomControls() {
+      els.zoomReadout.textContent = `${state.timelineZoom.toFixed(1)}x`;
+      els.zoomOutBtn.disabled = state.timelineZoom <= ZOOM_MIN + 1e-6;
+      els.zoomInBtn.disabled = state.timelineZoom >= ZOOM_MAX - 1e-6;
+      els.zoomResetBtn.disabled = state.timelineZoom <= ZOOM_MIN + 1e-6;
+    }
+
+    /**
+     * Re-renders at the new zoom while keeping a chosen point of the day
+     * under the same spot on screen - the cursor for a ctrl+wheel zoom, the
+     * middle of the viewport for the buttons. Without that, zooming in jumps
+     * to whatever happens to be at the current scroll offset.
+     */
+    function setTimelineZoom(nextZoom, anchor) {
+      const zoom = clampZoom(nextZoom);
+      const ratio = zoom / state.timelineZoom;
+      if (Math.abs(ratio - 1) < 1e-9) return;
+
+      state.pendingTimelineScroll = new Map();
+      els.timeline.querySelectorAll('.zoom-scroll').forEach(scroller => {
+        const focal = anchor && anchor.scroller === scroller
+          ? anchor.x
+          : scroller.clientWidth / 2;
+        const next = (scroller.scrollLeft + focal) * ratio - focal;
+        state.pendingTimelineScroll.set(scroller.dataset.day, Math.max(0, next));
+      });
+
+      state.timelineZoom = zoom;
+      refresh();
+    }
+
     function renderTimeline(visible, filters) {
+      updateZoomControls();
+
       if (!visible.length) {
         els.timeline.innerHTML = '<div class="empty">No sessions to plot.</div>';
         els.timelineNote.textContent = '';
@@ -1806,13 +2040,38 @@
         }
       }
 
+      // innerHTML replaces the scrollers wholesale, so remember where each day
+      // was panned to and put it back - otherwise every filter keystroke
+      // snaps a zoomed timeline back to the start of the day.
+      const previousScroll = new Map();
+      els.timeline.querySelectorAll('.zoom-scroll').forEach(scroller => {
+        previousScroll.set(scroller.dataset.day, scroller.scrollLeft);
+      });
+
       const gaps = coverageGaps();
       const days = [...byDay.keys()].sort();
-      const html = days.map(key => renderDay(key, byDay.get(key), gaps)).join('');
-      els.timeline.innerHTML = html;
-      els.timelineNote.textContent = days.length === 1
-        ? 'One day, clipped to the hours with activity.'
-        : `${days.length} days, each clipped to the hours with activity.`;
+      const rendered = days.map(key => renderDay(key, byDay.get(key), gaps));
+      els.timeline.innerHTML = rendered.map(day => day.html).join('');
+
+      els.timeline.querySelectorAll('.zoom-scroll').forEach(scroller => {
+        const day = scroller.dataset.day;
+        const wanted = state.pendingTimelineScroll.has(day)
+          ? state.pendingTimelineScroll.get(day)
+          : previousScroll.get(day);
+        if (wanted != null) scroller.scrollLeft = wanted;
+      });
+      state.pendingTimelineScroll = new Map();
+
+      const maxLanes = rendered.reduce((max, day) => Math.max(max, day.lanes), 1);
+      const notes = [
+        days.length === 1
+          ? 'One day, clipped to the hours with activity.'
+          : `${days.length} days, each clipped to the hours with activity.`
+      ];
+      if (state.timelineZoom > 1) notes.push(`zoomed ${state.timelineZoom.toFixed(1)}x - scroll to pan`);
+      if (state.expandOverlaps && maxLanes > 1) notes.push(`${maxLanes} lanes, no overlaps hidden`);
+      els.timelineNote.textContent = notes.join(' · ');
+
       renderLegend(visible);
     }
 
@@ -1833,9 +2092,16 @@
       const focus = slices.filter(slice => slice.entry.type === 'active');
       const away = slices.filter(slice => slice.entry.away);
 
+      // A few-second session is a sliver of a percent of the day, so segments
+      // get a floor to stay visible at all. The floor is divided by the zoom
+      // because positions are percentages of an inner box that grows with it:
+      // a constant percentage would stay equally blunt no matter how far in
+      // you zoomed, and zooming would never separate dense short sessions.
+      const minWidth = 0.12 / state.timelineZoom;
+
       const segment = (slice) => {
         const left = position(slice.from);
-        const width = Math.max(0.12, position(slice.to) - left);
+        const width = Math.max(minWidth, position(slice.to) - left);
         const entry = slice.entry;
         const label = entry.away
           ? (entry.type === 'locked' ? 'Locked' : 'Idle')
@@ -1862,28 +2128,58 @@
         }).join('');
 
       const hourCount = (windowSpan / 3600000);
-      const step = hourCount > 14 ? 2 : 1;
+      // Ticks are spaced against the on-screen slice of the day, and stepped
+      // from windowStart (an exact local hour) rather than from an epoch
+      // multiple - a zone offset like +05:30 does not land on epoch hours.
+      const stepMs = tickIntervalMinutes(hourCount / state.timelineZoom) * 60000;
       const ticks = [];
-      for (let hour = fromHour; hour <= fromHour + hourCount; hour += step) {
-        const left = position(dayStart.getTime() + hour * 3600000);
+      for (let time = windowStart; time <= windowEnd + 1; time += stepMs) {
+        const left = position(time);
         if (left < -0.5 || left > 100.5) continue;
-        ticks.push(`<span class="tick" style="left:${left.toFixed(3)}%">${String(hour % 24).padStart(2, '0')}:00</span>`);
+        const at = new Date(time);
+        const label = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
+        // Nudge the end labels inward so neither is half-clipped by the ruler.
+        const shift = left < 2 ? '0' : (left > 98 ? '-100%' : '-50%');
+        ticks.push(`<span class="tick" style="left:${left.toFixed(3)}%;transform:translateX(${shift})">${label}</span>`);
       }
 
       const daySums = totals(slices.map(slice => slice.entry));
 
-      return `
+      const focusLanes = state.expandOverlaps ? packLanes(focus) : [focus];
+      const awayLanes = state.expandOverlaps ? packLanes(away) : [away];
+      const laneCount = Math.max(focusLanes.length, awayLanes.length);
+      const compact = laneCount > 1 ? ' compact' : '';
+
+      // The uncovered-monitor hatching describes the whole day, not one lane,
+      // so it is drawn once on the first focus lane.
+      const focusHtml = focusLanes.map((lane, index) =>
+        `<div class="track focus-lane${compact}">${index === 0 ? gapBlocks : ''}${lane.map(segment).join('')}</div>`
+      ).join('');
+      const awayHtml = awayLanes.map(lane =>
+        `<div class="track away-lane">${lane.map(segment).join('')}</div>`
+      ).join('');
+
+      const zoomWidth = (state.timelineZoom * 100).toFixed(4);
+
+      return {
+        lanes: laneCount,
+        html: `
         <div class="day">
           <div class="day-head">
             <span class="day-title">${escapeHtml(formatDayLabel(key))}</span>
             <span class="day-meta">${formatDuration(daySums.active)} active &middot; ${formatDuration(daySums.away)} away</span>
           </div>
-          <div class="lane-label">In focus</div>
-          <div class="track focus-lane">${gapBlocks}${focus.map(segment).join('')}</div>
-          <div class="lane-label">Away</div>
-          <div class="track away-lane">${away.map(segment).join('')}</div>
-          <div class="ruler">${ticks.join('')}</div>
-        </div>`;
+          <div class="zoom-scroll" data-day="${escapeHtml(key)}">
+            <div class="zoom-inner" style="width:${zoomWidth}%">
+              <div class="lane-label">In focus</div>
+              ${focusHtml}
+              <div class="lane-label">Away</div>
+              ${awayHtml}
+              <div class="ruler">${ticks.join('')}</div>
+            </div>
+          </div>
+        </div>`
+      };
     }
 
     function renderLegend(visible) {
@@ -2011,7 +2307,9 @@
         return;
       }
 
-      const rows = [...visible].sort((a, b) => a.start - b.start);
+      // Sort first, cap second, so "first 500" always means the first 500 of
+      // whatever order the header says - not the first 500 by time, reshuffled.
+      const rows = sortSessions(visible);
       const capped = rows.slice(0, 500);
       els.sessionNote.textContent = capped.length < rows.length
         ? `Showing the first 500 of ${rows.length} sessions — export for the rest`
@@ -2038,7 +2336,54 @@
         </tr>`;
       }).join('');
 
+      updateSortIndicators();
       renderSelectionStatus();
+    }
+
+    /** The value a given column sorts on. Text columns compare with
+     *  localeCompare so accented names land where a reader expects. */
+    function sessionSortValue(entry, key) {
+      switch (key) {
+        case 'start': return entry.start.getTime();
+        case 'seconds': return entry.seconds;
+        case 'type': return entry.type;
+        case 'app': return (entry.app || '').toLowerCase();
+        case 'file': return (entry.file || '').toLowerCase();
+        case 'project': return getProject(entry).toLowerCase();
+        case 'title': return (entry.title || '').toLowerCase();
+        default: return entry.start.getTime();
+      }
+    }
+
+    function sortSessions(entries) {
+      const { key, dir } = state.sessionSort;
+      const sign = dir === 'desc' ? -1 : 1;
+      return [...entries].sort((a, b) => {
+        const left = sessionSortValue(a, key);
+        const right = sessionSortValue(b, key);
+        let result;
+        if (typeof left === 'number' && typeof right === 'number') {
+          result = left - right;
+        } else {
+          result = String(left).localeCompare(String(right));
+        }
+        // Start time is the tiebreak everywhere else, so equal values in any
+        // column stay in a stable, meaningful order rather than an arbitrary one.
+        if (result === 0 && key !== 'start') result = a.start - b.start;
+        return result * sign;
+      });
+    }
+
+    function updateSortIndicators() {
+      els.sessionHead.querySelectorAll('th[data-sort-key]').forEach(th => {
+        const active = th.dataset.sortKey === state.sessionSort.key;
+        const ascending = state.sessionSort.dir === 'asc';
+        th.classList.toggle('sorted-asc', active && ascending);
+        th.classList.toggle('sorted-desc', active && !ascending);
+        th.setAttribute('aria-sort', active ? (ascending ? 'ascending' : 'descending') : 'none');
+        const arrow = th.querySelector('.sort-arrow');
+        if (arrow) arrow.textContent = active ? (ascending ? '▲' : '▼') : '▲';
+      });
     }
 
     function renderSelectionStatus() {
@@ -2459,6 +2804,124 @@
       els.batchProjectNew.value = '';
       refresh();
     });
+
+    // ---- timeline zoom + overlap expansion ---------------------------
+
+    els.zoomInBtn.addEventListener('click', () => setTimelineZoom(state.timelineZoom * ZOOM_STEP));
+    els.zoomOutBtn.addEventListener('click', () => setTimelineZoom(state.timelineZoom / ZOOM_STEP));
+    els.zoomResetBtn.addEventListener('click', () => {
+      // Fitting the day means there is nothing left to pan to.
+      state.pendingTimelineScroll = new Map();
+      els.timeline.querySelectorAll('.zoom-scroll').forEach(scroller => {
+        state.pendingTimelineScroll.set(scroller.dataset.day, 0);
+      });
+      state.timelineZoom = ZOOM_MIN;
+      refresh();
+    });
+
+    // ctrl/cmd + wheel is the conventional zoom gesture, and taking it over
+    // here stops the browser's own page zoom. A plain wheel is left alone so
+    // the page still scrolls normally over the timeline.
+    els.timeline.addEventListener('wheel', event => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      const scroller = event.target.closest('.zoom-scroll');
+      if (!scroller) return;
+      event.preventDefault();
+      const rect = scroller.getBoundingClientRect();
+      const factor = event.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP;
+      setTimelineZoom(state.timelineZoom * factor, { scroller, x: event.clientX - rect.left });
+    }, { passive: false });
+
+    els.expandOverlaps.addEventListener('change', () => {
+      state.expandOverlaps = els.expandOverlaps.checked;
+      refresh();
+    });
+
+    // ---- sessions: sortable headers ----------------------------------
+
+    els.sessionHead.addEventListener('click', event => {
+      // The drag strip lives inside the header cell; a resize must not also
+      // re-sort the table out from under the column being dragged.
+      if (event.target.closest('.col-resizer')) return;
+      const th = event.target.closest('th[data-sort-key]');
+      if (!th) return;
+      const key = th.dataset.sortKey;
+      if (state.sessionSort.key === key) {
+        state.sessionSort.dir = state.sessionSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        // Time and duration read most usefully newest/longest first; names
+        // read most usefully A-Z.
+        state.sessionSort = { key, dir: (key === 'start' || key === 'seconds') ? 'desc' : 'asc' };
+      }
+      refresh();
+    });
+
+    // ---- sessions: resizable columns ---------------------------------
+
+    /**
+     * Freezes today's rendered widths onto every column and switches the
+     * table to a fixed layout. Explicit widths are only honoured under a
+     * fixed layout, and fixing only the dragged column would let the auto
+     * layout redistribute all the others underneath it.
+     */
+    function lockColumnWidths() {
+      if (state.sessionColWidths) return;
+      const headers = [...els.sessionHead.querySelectorAll('th')];
+      state.sessionColWidths = headers.map(th => Math.round(th.getBoundingClientRect().width));
+      headers.forEach((th, index) => { th.style.width = `${state.sessionColWidths[index]}px`; });
+      els.sessionsTable.classList.add('resized');
+      applyTableWidth();
+    }
+
+    function applyTableWidth() {
+      if (!state.sessionColWidths) return;
+      const total = state.sessionColWidths.reduce((sum, width) => sum + width, 0);
+      els.sessionsTable.style.width = `${total}px`;
+    }
+
+    function resetColumnWidths() {
+      state.sessionColWidths = null;
+      els.sessionHead.querySelectorAll('th').forEach(th => { th.style.width = ''; });
+      els.sessionsTable.classList.remove('resized');
+      els.sessionsTable.style.width = '';
+    }
+
+    els.resetColumnsBtn.addEventListener('click', resetColumnWidths);
+
+    let columnDrag = null;
+
+    els.sessionHead.addEventListener('pointerdown', event => {
+      const handle = event.target.closest('.col-resizer');
+      if (!handle) return;
+      event.preventDefault();
+      const th = handle.closest('th');
+      lockColumnWidths();
+      columnDrag = {
+        index: [...els.sessionHead.querySelectorAll('th')].indexOf(th),
+        th,
+        startX: event.clientX,
+        startWidth: th.getBoundingClientRect().width
+      };
+      // Capture keeps the drag alive even when the pointer leaves the strip.
+      handle.setPointerCapture(event.pointerId);
+      document.body.classList.add('col-resizing');
+    });
+
+    els.sessionHead.addEventListener('pointermove', event => {
+      if (!columnDrag) return;
+      const next = Math.max(44, Math.round(columnDrag.startWidth + (event.clientX - columnDrag.startX)));
+      columnDrag.th.style.width = `${next}px`;
+      state.sessionColWidths[columnDrag.index] = next;
+      applyTableWidth();
+    });
+
+    for (const type of ['pointerup', 'pointercancel']) {
+      els.sessionHead.addEventListener(type, () => {
+        if (!columnDrag) return;
+        columnDrag = null;
+        document.body.classList.remove('col-resizing');
+      });
+    }
 
     // Collapse toggles live in the static card-head markup, never inside
     // anything refresh() replaces via innerHTML, so a one-time listener per
