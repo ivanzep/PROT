@@ -424,6 +424,11 @@
       flex: 1 1 0;
     }
 
+    .filter-note {
+      margin-top: 5px;
+      font-size: 11px;
+    }
+
     .pills {
       display: flex;
       flex-wrap: wrap;
@@ -1001,6 +1006,7 @@
             </div>
           </div>
           <div class="checklist" id="appChecklist"></div>
+          <div class="hint filter-note" id="appFilterNote" hidden></div>
         </div>
         <div class="field">
           <div class="filter-head">
@@ -1011,6 +1017,7 @@
             </div>
           </div>
           <div class="checklist" id="fileChecklist"></div>
+          <div class="hint filter-note" id="fileFilterNote" hidden></div>
         </div>
         <div class="field row">
           <div>
@@ -1282,7 +1289,7 @@
       'awayNote', 'appBars', 'fileBars', 'projectBars', 'sessionBody', 'sessionNote',
       'tooltip', 'dateBackBtn', 'dateForwardBtn', 'zoomInBtn', 'zoomOutBtn',
       'zoomResetBtn', 'zoomReadout', 'expandOverlaps', 'resetColumnsBtn',
-      'sessionsTable', 'sessionHead'
+      'sessionsTable', 'sessionHead', 'appFilterNote', 'fileFilterNote'
     ]) {
       els[id] = document.getElementById(id);
     }
@@ -1676,6 +1683,13 @@
     // Filtering
     // ------------------------------------------------------------------
 
+    /** The Min length floor, read straight from the input. Shared by the
+     *  session filter and by the app/file checklists, so the two can never
+     *  disagree about what counts as too short. */
+    function getMinSeconds() {
+      return Math.max(0, Number(els.minSeconds.value) || 0);
+    }
+
     function getFilters() {
       return {
         dateFrom: els.dateFrom.value || null,
@@ -1683,7 +1697,7 @@
         active: els.showActive.checked,
         idle: els.showIdle.checked,
         locked: els.showLocked.checked,
-        minSeconds: Math.max(0, Number(els.minSeconds.value) || 0),
+        minSeconds: getMinSeconds(),
         awaySeconds: Math.max(1, Number(els.awayMinutes.value) || 5) * 60,
         search: els.searchBox.value.trim().toLowerCase()
       };
@@ -1709,32 +1723,76 @@
       });
     }
 
-    /** Distinct apps/files, built from every loaded row (not the filtered set) so
-     *  the checklists don't shrink or reshuffle just because another filter narrowed
-     *  what's currently visible. */
+    /**
+     * Distinct apps/files for the two checklists, built from every loaded row
+     * that clears the Min length floor - and from no other filter.
+     *
+     * The length floor is the one filter that says what is worth seeing at
+     * all, so an app or file that only ever appears in sub-threshold blips is
+     * noise and drops off its list entirely. Every other filter is
+     * deliberately ignored here: narrowing a date range or a search must not
+     * reshuffle these lists, and reading the app/file selections themselves
+     * would be self-referential - unchecking an entry would make it vanish,
+     * leaving no way to check it back on.
+     *
+     * `hiddenByLength` counts the keys that exist in the log but have no
+     * session long enough to qualify, so the UI can say why they are gone
+     * rather than letting them disappear silently.
+     */
     function distinctApps() {
+      const minSeconds = getMinSeconds();
       const map = new Map();
+      const belowFloor = new Set();
       for (const entry of state.entries) {
         if (entry.type === 'monitor') continue;
+        if (entry.seconds < minSeconds) { belowFloor.add(entry.app); continue; }
         if (!map.has(entry.app)) map.set(entry.app, { key: entry.app, label: appLabel(entry), seconds: 0 });
         map.get(entry.app).seconds += entry.seconds;
       }
-      return [...map.values()].sort((a, b) => b.seconds - a.seconds);
+      for (const key of map.keys()) belowFloor.delete(key);
+      return {
+        items: [...map.values()].sort((a, b) => b.seconds - a.seconds),
+        hiddenByLength: belowFloor.size
+      };
     }
 
     function distinctFiles() {
+      const minSeconds = getMinSeconds();
       const map = new Map();
+      const belowFloor = new Set();
       for (const entry of state.entries) {
         if (!entry.file) continue;
+        if (entry.seconds < minSeconds) { belowFloor.add(entry.file); continue; }
         if (!map.has(entry.file)) map.set(entry.file, { key: entry.file, label: entry.file, seconds: 0 });
         map.get(entry.file).seconds += entry.seconds;
       }
-      return [...map.values()].sort((a, b) => b.seconds - a.seconds);
+      for (const key of map.keys()) belowFloor.delete(key);
+      return {
+        items: [...map.values()].sort((a, b) => b.seconds - a.seconds),
+        hiddenByLength: belowFloor.size
+      };
     }
 
-    function renderChecklist(container, items, hiddenSet, colorFn) {
+    /** Says why a checklist just got shorter, so entries never vanish silently. */
+    function renderFilterNote(noteEl, hiddenByLength, noun) {
+      if (!hiddenByLength) {
+        noteEl.textContent = '';
+        noteEl.hidden = true;
+        return;
+      }
+      const plural = hiddenByLength === 1 ? '' : 's';
+      noteEl.textContent =
+        `${hiddenByLength} ${noun}${plural} hidden - no session of ${getMinSeconds()}s or more`;
+      noteEl.hidden = false;
+    }
+
+    function renderChecklist(container, items, hiddenSet, colorFn, emptyMessage) {
+      // Raising Min length re-renders these lists while the user is still on
+      // the spinner; keeping the scroll offset stops the list jumping to the
+      // top on every click.
+      const previousScroll = container.scrollTop;
       if (!items.length) {
-        container.innerHTML = '<div class="hint" style="padding:4px 2px">Nothing loaded yet.</div>';
+        container.innerHTML = `<div class="hint" style="padding:4px 2px">${escapeHtml(emptyMessage || 'Nothing loaded yet.')}</div>`;
         return;
       }
       container.innerHTML = items.map(item => {
@@ -1746,6 +1804,7 @@
           ${swatch}<span class="checklist-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
         </label>`;
       }).join('');
+      container.scrollTop = previousScroll;
     }
 
     function rebuildFilterOptions() {
@@ -1766,8 +1825,19 @@
         }
       }
 
-      renderChecklist(els.appChecklist, distinctApps(), state.hiddenApps, key => state.appColors.get(key) || OTHER_COLOR);
-      renderChecklist(els.fileChecklist, distinctFiles(), state.hiddenFiles, null);
+      const apps = distinctApps();
+      const files = distinctFiles();
+      // An empty list because the floor swallowed everything reads very
+      // differently from an empty list because nothing is loaded.
+      const emptied = (hiddenByLength, fallback) =>
+        hiddenByLength ? `Every entry is under ${getMinSeconds()}s.` : fallback;
+      renderChecklist(els.appChecklist, apps.items, state.hiddenApps,
+        key => state.appColors.get(key) || OTHER_COLOR,
+        emptied(apps.hiddenByLength, 'Nothing loaded yet.'));
+      renderChecklist(els.fileChecklist, files.items, state.hiddenFiles, null,
+        emptied(files.hiddenByLength, 'No file names read from window titles yet.'));
+      renderFilterNote(els.appFilterNote, apps.hiddenByLength, 'app');
+      renderFilterNote(els.fileFilterNote, files.hiddenByLength, 'file');
     }
 
     // ------------------------------------------------------------------
@@ -2618,9 +2688,19 @@
       refresh();
     });
 
-    for (const id of ['showActive', 'showIdle', 'showLocked', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours']) {
+    for (const id of ['showActive', 'showIdle', 'showLocked', 'awayMinutes', 'searchBox', 'decimalHours']) {
       els[id].addEventListener('input', refresh);
       els[id].addEventListener('change', refresh);
+    }
+
+    // Min length is the one filter that changes which apps and files are
+    // listed at all, so it has to rebuild the checklists rather than just
+    // re-read them like the filters above.
+    for (const type of ['input', 'change']) {
+      els.minSeconds.addEventListener(type, () => {
+        rebuildFilterOptions();
+        refresh();
+      });
     }
 
     for (const id of ['dateFrom', 'dateTo']) {
@@ -2658,7 +2738,7 @@
       refresh();
     });
     els.appsNoneBtn.addEventListener('click', () => {
-      for (const item of distinctApps()) state.hiddenApps.add(item.key);
+      for (const item of distinctApps().items) state.hiddenApps.add(item.key);
       rebuildFilterOptions();
       refresh();
     });
@@ -2668,7 +2748,7 @@
       refresh();
     });
     els.filesNoneBtn.addEventListener('click', () => {
-      for (const item of distinctFiles()) state.hiddenFiles.add(item.key);
+      for (const item of distinctFiles().items) state.hiddenFiles.add(item.key);
       rebuildFilterOptions();
       refresh();
     });
