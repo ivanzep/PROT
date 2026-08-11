@@ -1,0 +1,2478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>win-monitor log viewer</title>
+  <style>
+    /* ==================================================================
+       Overflow discipline
+       ------------------------------------------------------------------
+       This rewrite exists because the first viewer let the sidebar paint
+       underneath the results column once a real log was loaded. The cause
+       was layout, not painting: the sidebar was a `display: grid` with no
+       explicit column template, so its implicit `auto` column sized to
+       max-content. Long app names in the Apps/Files checklists (a real log
+       has titles like "Graphic UI for managing Affinity App Scripts")
+       pushed max-content to ~575px inside a 380px track, and the overflow
+       ran under the opaque results panel. Sample data has short app names,
+       so it always looked fine - which is why the bug read as a rendering
+       glitch rather than a sizing one.
+
+       Three rules keep it from coming back, applied everywhere:
+         1. Every grid track is minmax(0, ...) - never a bare `auto` or
+            `1fr` that can be floored by its content's min/max-content.
+         2. Every grid/flex child that holds text carries min-width: 0,
+            which overrides the `auto` minimum that blocks shrinking.
+         3. .panel clips with overflow: hidden as a last-resort backstop,
+            so even an unforeseen wide child can never paint over a
+            neighbouring column again.
+       ================================================================== */
+
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f8;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #d9dee7;
+      --accent: #1f6feb;
+      --accent-dark: #185abc;
+      --danger: #b42318;
+      --warn: #b54708;
+      --ok: #067647;
+      --soft: #eef4ff;
+      --radius: 8px;
+
+      /* Categorical slots for apps, in fixed order. Validated for adjacent-pair
+         CVD separation on a white surface; three of them sit under 3:1 contrast,
+         so every color is always accompanied by a written label or table row. */
+      --series-1: #2a78d6;
+      --series-2: #eb6834;
+      --series-3: #1baf7a;
+      --series-4: #eda100;
+      --series-5: #e87ba4;
+      --series-6: #008300;
+      --series-other: #898781;
+
+      /* Away states are status colors, never series colors, and always ship
+         with a label. */
+      --away-idle: #fab219;
+      --away-locked: #ec835a;
+
+      --grid: #e1e0d9;
+      --axis: #c3c2b7;
+
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      /* A horizontal scrollbar on <body> is always a layout bug in this
+         page - nothing here is meant to be wider than the viewport. */
+      overflow-x: hidden;
+    }
+
+    /* Rule 3, part one: form controls and media never exceed their box. */
+    input, select, textarea, img, svg { max-width: 100%; }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .topbar {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 18px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar > div:first-child { min-width: 0; }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 18px 22px 40px;
+      display: grid;
+      /* Rule 1: the sidebar track may shrink below 380px rather than force
+         the grid wider than the page. */
+      grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      /* Rule 3: nothing inside a card can paint outside it. */
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* A plain block stack. Deliberately NOT a grid: a grid here is what
+       produced the max-content blowout this rewrite fixes, and a vertical
+       stack of full-width sections needs no grid to begin with. */
+    .controls { min-width: 0; }
+
+    .results {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    section {
+      padding: 16px;
+      min-width: 0;
+    }
+
+    section + section { border-top: 1px solid var(--line); }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 14px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: #344054;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .card-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      min-width: 0;
+    }
+
+    .card-head h2 { margin: 0; }
+
+    .card-head-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .collapse-toggle {
+      border: none;
+      background: transparent;
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
+      flex: none;
+      transition: transform .15s ease;
+    }
+
+    .collapse-toggle:hover { background: #f2f4f7; color: var(--ink); }
+
+    section.collapsible.collapsed .collapse-toggle { transform: rotate(-90deg); }
+    section.collapsible.collapsed .card-head { margin-bottom: 0; }
+    /* Collapsing is display:none on the wrapper only - refresh() keeps
+       re-rendering the content underneath, so nothing goes stale while hidden. */
+    section.collapsible.collapsed .section-body { display: none; }
+
+    .section-body { min-width: 0; }
+
+    .hint, p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      min-width: 0;
+      /* Rule 2's text counterpart: a long path or filename wraps mid-token
+         instead of widening its container. */
+      overflow-wrap: anywhere;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 650;
+      color: #344054;
+    }
+
+    input, select, textarea, button { font: inherit; }
+
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      min-width: 0;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus,
+    select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(31, 111, 235, .12);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.4;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      /* Without this a textarea reports its `cols` default as a min-content
+         width, which is another way a sidebar column gets forced wider. */
+      min-width: 0;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .field + .field { margin-top: 12px; }
+    .field { min-width: 0; }
+
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 9px 12px;
+      cursor: pointer;
+      max-width: 100%;
+    }
+
+    button:hover { background: #f2f4f7; }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.primary:hover { background: var(--accent-dark); }
+
+    button:disabled { opacity: .5; cursor: default; }
+    button:disabled:hover { background: #fff; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .dropzone {
+      border: 1.5px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 18px 14px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      background: #fbfcfe;
+      cursor: pointer;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .dropzone.hot {
+      border-color: var(--accent);
+      background: var(--soft);
+      color: var(--accent-dark);
+    }
+
+    .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .check {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      min-width: 0;
+    }
+
+    .check label {
+      margin: 0;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--ink);
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .check input { margin: 0; flex: none; }
+
+    .filter-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      min-width: 0;
+    }
+
+    .filter-head label { margin-bottom: 0; }
+
+    .mini-btns { display: flex; gap: 6px; flex: none; }
+
+    button.mini {
+      padding: 3px 8px;
+      font-size: 11px;
+      border-radius: 5px;
+      flex: none;
+    }
+
+    .subtle-label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .date-range {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .date-range > div { flex: 1 1 0; min-width: 0; }
+
+    .checklist {
+      max-height: 160px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px;
+      display: grid;
+      /* Rule 1 again - this is the exact track that used to blow the whole
+         sidebar out to max-content once real app names were loaded. */
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 12.5px;
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .checklist-item:hover { background: #f2f4f7; }
+
+    .checklist-item input { margin: 0; flex: none; }
+
+    .checklist-item .checklist-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+      flex: 1 1 0;
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: #344054;
+      background: #fff;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .pill.warn { border-color: #f5c99b; background: #fff8f0; color: var(--warn); }
+    .pill.ok { border-color: #a7e0c4; background: #f0fbf6; color: var(--ok); }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      flex: none;
+    }
+
+    /* ---- figures ---------------------------------------------------- */
+
+    .tiles {
+      display: grid;
+      /* min(150px, 100%) instead of a bare 150px: at a narrow width the
+         floor itself would otherwise be wider than the container. */
+      grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .tile {
+      background: var(--panel);
+      padding: 14px 16px;
+      min-width: 0;
+    }
+
+    .tile .tile-label {
+      font-size: 12px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .tile .tile-value {
+      margin-top: 4px;
+      font-size: 22px;
+      font-weight: 620;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .tile .tile-note {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .tile.hero { grid-column: span 2; }
+
+    .tile.hero .tile-value {
+      font-size: 48px;
+      font-weight: 640;
+      letter-spacing: -.02em;
+    }
+
+    /* ---- timeline --------------------------------------------------- */
+
+    .day + .day { margin-top: 18px; }
+    .day { min-width: 0; }
+
+    .day-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      min-width: 0;
+    }
+
+    .day-title { font-size: 13px; font-weight: 650; min-width: 0; }
+
+    .day-meta { font-size: 12px; color: var(--muted); }
+
+    .lane-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin: 6px 0 3px;
+    }
+
+    .track {
+      position: relative;
+      width: 100%;
+      background: #f2f4f7;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .track.focus-lane { height: 24px; }
+    .track.away-lane { height: 12px; }
+
+    .seg {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      border-radius: 2px;
+      /* The 2px surface gap that separates touching segments. */
+      box-shadow: 2px 0 0 0 var(--panel), -2px 0 0 0 var(--panel);
+      cursor: default;
+    }
+
+    .seg.locked {
+      background-image: repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, .55) 0 3px,
+        rgba(255, 255, 255, 0) 3px 6px
+      );
+    }
+
+    .uncovered {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background-image: repeating-linear-gradient(
+        45deg,
+        #e6e8ec 0 4px,
+        #f2f4f7 4px 8px
+      );
+    }
+
+    .ruler {
+      position: relative;
+      height: 18px;
+      margin-top: 4px;
+      border-top: 1px solid var(--grid);
+      overflow: hidden;
+    }
+
+    .tick {
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #344054;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    #tooltip {
+      position: fixed;
+      z-index: 20;
+      display: none;
+      max-width: min(340px, calc(100vw - 16px));
+      background: #101828;
+      color: #fff;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.45;
+      pointer-events: none;
+      box-shadow: 0 8px 20px rgba(16, 24, 40, .2);
+      overflow-wrap: anywhere;
+    }
+
+    #tooltip .tt-title { font-weight: 640; }
+    #tooltip .tt-line { color: #d0d5dd; }
+
+    /* ---- projects --------------------------------------------------- */
+
+    .batch-assign {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      min-width: 0;
+    }
+
+    .batch-assign select, .batch-assign input[type="text"] {
+      width: auto;
+      flex: 1 1 130px;
+      min-width: 0;
+    }
+
+    .batch-assign button { flex: none; }
+
+    th.select-col, td.select-col {
+      width: 1%;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    select.project-select {
+      width: 100%;
+      min-width: 0;
+      max-width: 170px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 6px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 12.5px;
+    }
+
+    select.project-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(31, 111, 235, .12);
+    }
+
+    /* ---- bars ------------------------------------------------------- */
+
+    .bars { display: grid; gap: 10px; min-width: 0; }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(0, 150px) minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      min-width: 0;
+    }
+
+    .bar-name {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .bar-name > span:not(.swatch) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .bar-track { height: 100%; min-width: 0; }
+
+    .bar-fill {
+      height: 16px;
+      border-radius: 0 4px 4px 0;
+      min-width: 2px;
+      max-width: 100%;
+    }
+
+    .bar-value {
+      font-variant-numeric: tabular-nums;
+      color: #344054;
+      white-space: nowrap;
+    }
+
+    /* ---- tables ----------------------------------------------------- */
+
+    /* Wide tables scroll inside their own box; they never widen the card. */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      font-size: 11px;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      color: #475467;
+      z-index: 1;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    td.wrap {
+      white-space: normal;
+      max-width: 460px;
+      overflow-wrap: anywhere;
+    }
+
+    td.num { font-variant-numeric: tabular-nums; }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #344054;
+    }
+
+    .tag.idle { border-color: #f2d08a; background: #fffaf0; color: var(--warn); }
+    .tag.locked { border-color: #f3c0a8; background: #fff6f1; color: #9a3412; }
+    .tag.monitor { border-color: #cdd5e0; background: #f8fafc; color: var(--muted); }
+
+    .scroll-y { max-height: 520px; overflow-y: auto; min-width: 0; }
+
+    .empty {
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11.5px;
+      background: #f2f4f7;
+      border-radius: 4px;
+      padding: 1px 5px;
+      /* A path like %LOCALAPPDATA%\win-monitor is one unbreakable token to
+         the line breaker unless told otherwise. */
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      min-width: 0;
+    }
+
+    @media (max-width: 1080px) {
+      main { grid-template-columns: minmax(0, 1fr); }
+      .two-col { grid-template-columns: minmax(0, 1fr); }
+      .tile.hero { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>win-monitor log viewer</h1>
+        <div class="subtitle">Reads the local activity log and shows where focus went &mdash; and when the machine was left alone.</div>
+      </div>
+      <div class="btn-row">
+        <button id="sampleBtn">Load sample</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside class="panel controls">
+      <section>
+        <h2>Log files</h2>
+        <div class="dropzone" id="dropzone">
+          Drop <code>activity-*.jsonl</code> or <code>.csv</code> here,<br>or click to choose files
+        </div>
+        <input type="file" id="fileInput" multiple accept=".jsonl,.json,.csv,.txt,.log" hidden>
+        <div class="btn-row" style="margin-top:10px">
+          <button id="loadLatestBtn">Load latest log</button>
+        </div>
+        <input type="file" id="folderInput" webkitdirectory directory multiple hidden>
+        <p class="hint" style="margin-bottom:0">
+          Written by <code>win-monitor.ps1</code>, one file per day, in
+          <code>%LOCALAPPDATA%\win-monitor</code> unless you pointed it elsewhere.
+          <strong>Load latest log</strong> asks you to pick that folder once
+          (a browser can't read it on its own), then loads only the newest
+          <code>activity-*.jsonl</code> file in it - skip hunting for today's
+          file by hand. Chromium-based browsers only.
+        </p>
+      </section>
+
+      <section>
+        <h2>Or paste it</h2>
+        <textarea id="pasteBox" placeholder='{"start":"2026-08-06T09:04:31+02:00","end":"...","seconds":1601,"type":"active","app":"Code","file":"index.html",...}'></textarea>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="primary" id="importBtn">Import pasted log</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Filters</h2>
+        <div class="field">
+          <div class="filter-head">
+            <label>Date range</label>
+            <button type="button" class="mini" id="dateResetBtn">Full range</button>
+          </div>
+          <div class="date-range">
+            <button type="button" class="mini" id="dateBackBtn" title="Shift the range back by its own length">&larr;</button>
+            <div>
+              <label for="dateFrom" class="subtle-label">From</label>
+              <input type="date" id="dateFrom">
+            </div>
+            <div>
+              <label for="dateTo" class="subtle-label">To</label>
+              <input type="date" id="dateTo">
+            </div>
+            <button type="button" class="mini" id="dateForwardBtn" title="Shift the range forward by its own length">&rarr;</button>
+          </div>
+          <p class="hint" style="margin:4px 0 0">
+            &larr;/&rarr; move the whole range by its own length - a day at a
+            time for a single day, a week at a time for a week, etc.
+          </p>
+        </div>
+        <div class="field">
+          <label>Show</label>
+          <div class="checks">
+            <span class="check"><input type="checkbox" id="showActive" checked><label for="showActive">Focus</label></span>
+            <span class="check"><input type="checkbox" id="showIdle" checked><label for="showIdle">Idle</label></span>
+            <span class="check"><input type="checkbox" id="showLocked" checked><label for="showLocked">Locked</label></span>
+          </div>
+        </div>
+        <div class="field">
+          <div class="filter-head">
+            <label>Apps</label>
+            <div class="mini-btns">
+              <button type="button" class="mini" id="appsAllBtn">All</button>
+              <button type="button" class="mini" id="appsNoneBtn">None</button>
+            </div>
+          </div>
+          <div class="checklist" id="appChecklist"></div>
+        </div>
+        <div class="field">
+          <div class="filter-head">
+            <label>Files</label>
+            <div class="mini-btns">
+              <button type="button" class="mini" id="filesAllBtn">All</button>
+              <button type="button" class="mini" id="filesNoneBtn">None</button>
+            </div>
+          </div>
+          <div class="checklist" id="fileChecklist"></div>
+        </div>
+        <div class="field row">
+          <div>
+            <label for="minSeconds">Min length (s)</label>
+            <input type="number" id="minSeconds" min="0" step="5" value="0">
+          </div>
+          <div>
+            <label for="awayMinutes">Away over (min)</label>
+            <input type="number" id="awayMinutes" min="1" step="1" value="5">
+          </div>
+        </div>
+        <div class="field">
+          <label for="searchBox">Search app, file, or title</label>
+          <input type="text" id="searchBox" placeholder="revit, .docx, invoice&hellip;">
+        </div>
+      </section>
+
+      <section>
+        <h2>Display</h2>
+        <div class="check">
+          <input type="checkbox" id="decimalHours" checked>
+          <label for="decimalHours">Decimal hours (e.g. 1.50h instead of 1h 30m)</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Projects</h2>
+        <div class="pills" id="projectStatusPills"></div>
+        <div class="btn-row" style="margin-top:10px">
+          <button id="importProjectsBtn">Import projects JSON</button>
+          <button id="exportProjectsBtn">Export projects JSON</button>
+        </div>
+        <input type="file" id="projectsFileInput" accept=".json" hidden>
+        <p class="hint" style="margin-bottom:0">
+          Assign a project per session in the Sessions table, or batch-assign
+          to everything the filters currently show. Assignments live only in
+          an exported file, not the browser - export after assigning, and use
+          <strong>Import projects JSON</strong> (or drop the file onto the Log
+          files box above, with or without log files alongside it) to reload
+          it on this or any other machine.
+        </p>
+      </section>
+
+      <section>
+        <h2>Export</h2>
+        <div class="btn-row">
+          <button id="exportSessionsBtn">Filtered sessions CSV</button>
+          <button id="exportAwayBtn">Away periods CSV</button>
+        </div>
+        <p class="hint" style="margin-bottom:0">
+          Exports exactly what the filters above are showing, project column included.
+        </p>
+      </section>
+    </aside>
+
+    <div class="results">
+      <div class="panel">
+        <section class="collapsible">
+          <div class="card-head">
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Summary</h2>
+            </span>
+            <div class="pills" id="statusPills"></div>
+          </div>
+          <div class="section-body">
+            <div class="tiles" id="tiles"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel">
+        <section class="collapsible">
+          <div class="card-head">
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Timeline</h2>
+            </span>
+            <div class="hint" id="timelineNote"></div>
+          </div>
+          <div class="section-body">
+            <div id="timeline"></div>
+            <div class="legend" id="legend"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel">
+        <section class="collapsible">
+          <div class="card-head">
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Away periods</h2>
+            </span>
+            <div class="hint" id="awayNote"></div>
+          </div>
+          <div class="section-body">
+            <div class="table-wrap"><div class="scroll-y"><table>
+              <thead>
+                <tr>
+                  <th>Started</th><th>Ended</th><th>Length</th><th>Reason</th>
+                  <th>Window left open</th><th>File</th>
+                </tr>
+              </thead>
+              <tbody id="awayBody"></tbody>
+            </table></div></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <section class="collapsible">
+            <div class="card-head">
+              <span class="card-head-title">
+                <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+                <h2>Time by app</h2>
+              </span>
+            </div>
+            <div class="section-body">
+              <div class="bars" id="appBars"></div>
+            </div>
+          </section>
+        </div>
+        <div class="panel">
+          <section class="collapsible">
+            <div class="card-head">
+              <span class="card-head-title">
+                <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+                <h2>Time by file</h2>
+              </span>
+            </div>
+            <div class="section-body">
+              <div class="bars" id="fileBars"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="panel">
+        <section class="collapsible">
+          <div class="card-head">
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Time by project</h2>
+            </span>
+          </div>
+          <div class="section-body">
+            <div class="bars" id="projectBars"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="panel">
+        <section class="collapsible">
+          <div class="card-head">
+            <span class="card-head-title">
+              <button type="button" class="collapse-toggle" aria-expanded="true" title="Collapse section">&#9662;</button>
+              <h2>Sessions</h2>
+            </span>
+            <div class="hint" id="sessionNote"></div>
+          </div>
+          <div class="section-body">
+            <div class="batch-assign">
+              <select id="batchProjectSelect"><option value="">Choose existing project&hellip;</option></select>
+              <input type="text" id="batchProjectNew" placeholder="or type a new project name">
+              <button id="batchAssignBtn">Assign to filtered sessions</button>
+              <button id="assignSelectedBtn" disabled>Assign to selected (<span id="selectedCount">0</span>)</button>
+            </div>
+            <p class="hint" style="margin:0 0 12px">
+              <strong>Filtered sessions</strong> means everything the filters above show, whether
+              or not it's scrolled into view. <strong>Selected</strong> means checked rows only -
+              click a row's checkbox, shift-click another to select the range between them.
+            </p>
+            <div class="table-wrap"><div class="scroll-y"><table>
+              <thead>
+                <tr>
+                  <th class="select-col"><input type="checkbox" id="selectAllSessions" title="Select all"></th>
+                  <th>Start</th><th>Length</th><th>Type</th><th>App</th>
+                  <th>File</th><th>Project</th><th>Window title</th>
+                </tr>
+              </thead>
+              <tbody id="sessionBody"></tbody>
+            </table></div></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="tooltip"></div>
+
+  <script>
+    'use strict';
+
+    // ------------------------------------------------------------------
+    // State
+    // ------------------------------------------------------------------
+
+    const state = {
+      entries: [],      // every parsed row, including monitor start/stop markers
+      sources: [],      // file names / paste labels, for the status pills
+      appColors: new Map(), // app -> css color, assigned once per dataset load
+      parseErrors: 0,
+      hiddenApps: new Set(),  // entry.app values unchecked in the Apps filter
+      hiddenFiles: new Set(), // entry.file values unchecked in the Files filter
+      dateRangeTouched: false, // false = date inputs auto-track the full loaded range
+      dataMinDay: null,
+      dataMaxDay: null,
+      projectAssignments: new Map(), // entryKey(entry) -> project name, loaded/saved as a sidecar file
+      knownProjects: new Set(),      // every project name ever seen, for the dropdowns - never auto-pruned
+      projectsDirty: false,          // true once assignments differ from the last loaded/exported file
+      selectedSessionKeys: new Set(), // entryKey(entry) values checked in the Sessions table right now
+      lastSessionCheckboxIndex: null  // anchor row for shift-click range selection
+    };
+
+    const SERIES = [
+      'var(--series-1)', 'var(--series-2)', 'var(--series-3)',
+      'var(--series-4)', 'var(--series-5)', 'var(--series-6)'
+    ];
+    const OTHER_COLOR = 'var(--series-other)';
+    const AWAY_COLORS = { idle: 'var(--away-idle)', locked: 'var(--away-locked)' };
+
+    const els = {};
+    for (const id of [
+      'dropzone', 'fileInput', 'loadLatestBtn', 'folderInput', 'pasteBox', 'importBtn', 'sampleBtn', 'clearBtn',
+      'dateFrom', 'dateTo', 'dateResetBtn', 'showActive', 'showIdle', 'showLocked',
+      'appChecklist', 'appsAllBtn', 'appsNoneBtn', 'fileChecklist', 'filesAllBtn',
+      'filesNoneBtn', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours',
+      'exportSessionsBtn', 'exportAwayBtn', 'importProjectsBtn', 'projectsFileInput',
+      'exportProjectsBtn', 'projectStatusPills', 'batchProjectSelect', 'batchProjectNew',
+      'batchAssignBtn', 'assignSelectedBtn', 'selectedCount', 'selectAllSessions',
+      'statusPills', 'tiles', 'timeline', 'timelineNote', 'legend', 'awayBody',
+      'awayNote', 'appBars', 'fileBars', 'projectBars', 'sessionBody', 'sessionNote',
+      'tooltip', 'dateBackBtn', 'dateForwardBtn'
+    ]) {
+      els[id] = document.getElementById(id);
+    }
+
+    // ------------------------------------------------------------------
+    // Small helpers
+    // ------------------------------------------------------------------
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Decimal-hours mode rounds to 2 places, which turns every duration under
+     * 36 seconds into an identical "0.00h" - and a real log is full of
+     * few-second app switches, so whole screens of the Sessions table used to
+     * read the same. Anything that short falls back to seconds instead.
+     */
+    function formatDuration(seconds) {
+      const total = Math.max(0, seconds);
+      if (els.decimalHours && els.decimalHours.checked) {
+        if (total > 0 && total < 36) return `${Math.round(total)}s`;
+        return `${(total / 3600).toFixed(2)}h`;
+      }
+      const rounded = Math.round(total);
+      const hours = Math.floor(rounded / 3600);
+      const minutes = Math.floor((rounded % 3600) / 60);
+      const secs = rounded % 60;
+      if (hours) return minutes ? `${hours}h ${minutes}m` : `${hours}h`;
+      if (minutes) return secs && minutes < 10 ? `${minutes}m ${secs}s` : `${minutes}m`;
+      return `${secs}s`;
+    }
+
+    function formatClock(date) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
+    function formatClockSeconds(date) {
+      return date.toLocaleTimeString([], {
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      });
+    }
+
+    function dayKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDayLabel(key) {
+      const [year, month, day] = key.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString([], {
+        weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'
+      });
+    }
+
+    function startOfDay(key) {
+      const [year, month, day] = key.split('-').map(Number);
+      return new Date(year, month - 1, day, 0, 0, 0, 0);
+    }
+
+    /**
+     * Calendar-date addition via setDate(), not raw millisecond arithmetic -
+     * a DST transition can shift "+ N * 86400000ms" onto the wrong side of
+     * local midnight, silently landing on the wrong day; setDate() operates
+     * on the date component itself so it can't drift that way.
+     */
+    function addDays(key, days) {
+      const date = startOfDay(key);
+      date.setDate(date.getDate() + days);
+      return dayKey(date);
+    }
+
+    /** Shifts both ends of the date range by the range's own length - a day
+     *  at a time for a single selected day, a week at a time for a week, etc. */
+    function shiftDateRange(direction) {
+      if (!els.dateFrom.value || !els.dateTo.value) return;
+      const spanDays = Math.round(
+        (startOfDay(els.dateTo.value) - startOfDay(els.dateFrom.value)) / 86400000) + 1;
+      const delta = direction * spanDays;
+      els.dateFrom.value = addDays(els.dateFrom.value, delta);
+      els.dateTo.value = addDays(els.dateTo.value, delta);
+      state.dateRangeTouched = true;
+      refresh();
+    }
+
+    function updateDateNavButtons() {
+      const hasData = !!(state.dataMinDay && state.dataMaxDay);
+      els.dateBackBtn.disabled = !hasData || !els.dateFrom.value || els.dateFrom.value <= state.dataMinDay;
+      els.dateForwardBtn.disabled = !hasData || !els.dateTo.value || els.dateTo.value >= state.dataMaxDay;
+    }
+
+    // ------------------------------------------------------------------
+    // Parsing
+    // ------------------------------------------------------------------
+
+    function parseCsvLine(line) {
+      const values = [];
+      let value = '';
+      let quoted = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (quoted) {
+          if (char === '"') {
+            if (line[i + 1] === '"') { value += '"'; i++; }
+            else quoted = false;
+          } else value += char;
+        } else if (char === '"') {
+          quoted = true;
+        } else if (char === ',') {
+          values.push(value);
+          value = '';
+        } else {
+          value += char;
+        }
+      }
+      values.push(value);
+      return values;
+    }
+
+    function toDate(value) {
+      if (!value) return null;
+      const date = new Date(String(value).trim());
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function normalizeEntry(raw) {
+      const start = toDate(raw.start);
+      if (!start) return null;
+
+      let seconds = Number(raw.seconds);
+      let end = toDate(raw.end);
+      if (!Number.isFinite(seconds) || seconds < 0) {
+        seconds = end ? Math.max(0, (end - start) / 1000) : 0;
+      }
+      if (!end) end = new Date(start.getTime() + seconds * 1000);
+
+      const rawType = String(raw.type || 'active').toLowerCase();
+      const locked = raw.locked === true || String(raw.locked).toLowerCase() === 'true';
+      let type = rawType;
+      if (type === 'locked' || (type === 'idle' && locked)) type = 'locked';
+      else if (type !== 'idle' && type !== 'monitor') type = 'active';
+
+      return {
+        start,
+        end,
+        seconds,
+        type,
+        away: type === 'idle' || type === 'locked',
+        app: String(raw.app || '').trim(),
+        appName: String(raw.appName || '').trim(),
+        file: String(raw.file || '').trim(),
+        path: String(raw.path || '').trim(),
+        title: String(raw.title || '').trim(),
+        processId: raw.processId == null ? '' : String(raw.processId).trim()
+      };
+    }
+
+    /**
+     * Accepts the two shapes win-monitor writes (JSONL and CSV) plus a plain
+     * JSON array, so a hand-assembled log still opens.
+     */
+    function parseLogText(text) {
+      const entries = [];
+      let errors = 0;
+      const trimmed = text.trim();
+      if (!trimmed) return { entries, errors };
+
+      if (trimmed.startsWith('[')) {
+        try {
+          for (const raw of JSON.parse(trimmed)) {
+            const entry = normalizeEntry(raw);
+            if (entry) entries.push(entry); else errors++;
+          }
+          return { entries, errors };
+        } catch (err) {
+          errors++;
+        }
+      }
+
+      const lines = trimmed.split(/\r?\n/).filter(line => line.trim());
+      const isCsv = lines[0] && lines[0].toLowerCase().startsWith('start,');
+
+      if (isCsv) {
+        const header = parseCsvLine(lines[0]).map(name => name.trim());
+        for (let i = 1; i < lines.length; i++) {
+          const cells = parseCsvLine(lines[i]);
+          const raw = {};
+          header.forEach((name, index) => { raw[name] = cells[index]; });
+          const entry = normalizeEntry(raw);
+          if (entry) entries.push(entry); else errors++;
+        }
+        return { entries, errors };
+      }
+
+      for (const line of lines) {
+        try {
+          const entry = normalizeEntry(JSON.parse(line));
+          if (entry) entries.push(entry); else errors++;
+        } catch (err) {
+          errors++;
+        }
+      }
+      return { entries, errors };
+    }
+
+    function entryKey(entry) {
+      return `${entry.start.getTime()}|${entry.type}|${entry.app}|${entry.title}|${entry.seconds}`;
+    }
+
+    function addEntries(newEntries, sourceLabel, errors) {
+      // The same day's file can be dropped twice; identical rows collapse.
+      const seen = new Set(state.entries.map(entryKey));
+      for (const entry of newEntries) {
+        const key = entryKey(entry);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        state.entries.push(entry);
+      }
+      state.entries.sort((a, b) => a.start - b.start);
+      if (sourceLabel && !state.sources.includes(sourceLabel)) state.sources.push(sourceLabel);
+      state.parseErrors += errors;
+      assignAppColors();
+      rebuildFilterOptions();
+      refresh();
+    }
+
+    async function loadFiles(fileList) {
+      const files = Array.from(fileList || []);
+      for (const file of files) {
+        const text = await file.text();
+        if (loadIfProjectsFile(text)) continue;
+        const parsed = parseLogText(text);
+        addEntries(parsed.entries, file.name, parsed.errors);
+      }
+    }
+
+    /**
+     * Picks the newest activity-YYYY-MM-DD.jsonl from a folder's file list
+     * ("Load latest log", backed by a <input webkitdirectory> picker - a
+     * browser can't read an arbitrary folder without one). The date is
+     * parsed from the filename, not file.lastModified: win-monitor.ps1 names
+     * the file for the day the entries in it belong to, which is the
+     * meaningful "latest" here and is immune to a copy/sync tool touching
+     * the file's modified time.
+     */
+    function findLatestActivityFile(fileList) {
+      const pattern = /^activity-\d{4}-\d{2}-\d{2}\.jsonl$/i;
+      let latest = null;
+      for (const file of fileList) {
+        if (!pattern.test(file.name)) continue;
+        // The filename's date component sorts lexically the same as
+        // chronologically, so plain string comparison is enough.
+        if (!latest || file.name > latest.name) latest = file;
+      }
+      return latest;
+    }
+
+    // ------------------------------------------------------------------
+    // Projects - a sidecar file, not the browser, is the source of truth.
+    // Assignments key off entryKey(entry) (the same identity already used to
+    // dedupe log rows), so reloading the same logs plus the same projects
+    // file always re-matches correctly; there is no other ID to keep in sync.
+    // ------------------------------------------------------------------
+
+    function looksLikeProjectsFile(text) {
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (err) {
+        return false;
+      }
+      return !!(parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        && parsed.assignments && typeof parsed.assignments === 'object');
+    }
+
+    /** Returns true (and applies the file) if `text` is a projects file; false otherwise. */
+    function loadIfProjectsFile(text) {
+      if (!looksLikeProjectsFile(text)) return false;
+      const parsed = JSON.parse(text);
+      for (const [key, project] of Object.entries(parsed.assignments || {})) {
+        if (typeof project !== 'string' || !project.trim()) continue;
+        state.projectAssignments.set(key, project.trim());
+        state.knownProjects.add(project.trim());
+      }
+      state.projectsDirty = false; // freshly loaded content matches the file on disk
+      refresh();
+      return true;
+    }
+
+    function getProject(entry) {
+      return state.projectAssignments.get(entryKey(entry)) || '';
+    }
+
+    function setProjectByKey(key, project) {
+      const trimmed = project.trim();
+      if (trimmed) {
+        state.projectAssignments.set(key, trimmed);
+        state.knownProjects.add(trimmed);
+      } else {
+        state.projectAssignments.delete(key);
+      }
+      state.projectsDirty = true;
+    }
+
+    function exportProjects() {
+      const assignments = {};
+      for (const [key, project] of state.projectAssignments) assignments[key] = project;
+      const payload = { version: 1, assignments };
+      downloadText('win-monitor-projects.json', JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
+      state.projectsDirty = false;
+      refresh();
+    }
+
+    /** Shared <option> list for both the per-row selects and the batch-assign select. */
+    function buildProjectOptionsHtml(selectedValue, opts) {
+      opts = opts || {};
+      const projects = [...state.knownProjects].sort((a, b) => a.localeCompare(b));
+      const options = [];
+      if (opts.blankLabel) {
+        const blankSelected = !selectedValue ? ' selected' : '';
+        options.push(`<option value=""${blankSelected}>${opts.blankLabel}</option>`);
+      }
+      for (const project of projects) {
+        const selected = project === selectedValue ? ' selected' : '';
+        options.push(`<option value="${escapeHtml(project)}"${selected}>${escapeHtml(project)}</option>`);
+      }
+      if (opts.includeNewOption) options.push('<option value="__new__">+ New project&hellip;</option>');
+      return options.join('');
+    }
+
+    function renderProjectStatus() {
+      const pills = [];
+      const assigned = state.projectAssignments.size;
+      const projects = state.knownProjects.size;
+      pills.push(`<span class="pill">${assigned} session${assigned === 1 ? '' : 's'} assigned &middot; ${projects} project${projects === 1 ? '' : 's'}</span>`);
+      if (state.projectsDirty) {
+        pills.push('<span class="pill warn">Unsaved &mdash; export to keep</span>');
+      } else if (assigned > 0) {
+        pills.push('<span class="pill ok">Matches exported file</span>');
+      }
+      els.projectStatusPills.innerHTML = pills.join('');
+
+      const previousSelection = els.batchProjectSelect.value;
+      els.batchProjectSelect.innerHTML = buildProjectOptionsHtml('', { blankLabel: 'Choose existing project&hellip;' });
+      if ([...els.batchProjectSelect.options].some(opt => opt.value === previousSelection)) {
+        els.batchProjectSelect.value = previousSelection;
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Color assignment
+    // ------------------------------------------------------------------
+
+    /**
+     * Color follows the app, not its current rank: the map is built once per
+     * dataset from total focus time across everything loaded, so changing a
+     * filter never repaints the apps that survive it.
+     */
+    function assignAppColors() {
+      const totals = new Map();
+      for (const entry of state.entries) {
+        if (entry.type !== 'active' || !entry.app) continue;
+        totals.set(entry.app, (totals.get(entry.app) || 0) + entry.seconds);
+      }
+      const ranked = [...totals.entries()].sort((a, b) => b[1] - a[1]).map(pair => pair[0]);
+      state.appColors = new Map();
+      ranked.forEach((app, index) => {
+        state.appColors.set(app, index < SERIES.length ? SERIES[index] : OTHER_COLOR);
+      });
+    }
+
+    function colorFor(entry) {
+      if (entry.type === 'idle') return AWAY_COLORS.idle;
+      if (entry.type === 'locked') return AWAY_COLORS.locked;
+      return state.appColors.get(entry.app) || OTHER_COLOR;
+    }
+
+    function appLabel(entry) {
+      return entry.appName || entry.app || 'Unknown app';
+    }
+
+    // ------------------------------------------------------------------
+    // Filtering
+    // ------------------------------------------------------------------
+
+    function getFilters() {
+      return {
+        dateFrom: els.dateFrom.value || null,
+        dateTo: els.dateTo.value || null,
+        active: els.showActive.checked,
+        idle: els.showIdle.checked,
+        locked: els.showLocked.checked,
+        minSeconds: Math.max(0, Number(els.minSeconds.value) || 0),
+        awaySeconds: Math.max(1, Number(els.awayMinutes.value) || 5) * 60,
+        search: els.searchBox.value.trim().toLowerCase()
+      };
+    }
+
+    function applyFilters(filters) {
+      return state.entries.filter(entry => {
+        if (entry.type === 'monitor') return false;
+        if (entry.type === 'active' && !filters.active) return false;
+        if (entry.type === 'idle' && !filters.idle) return false;
+        if (entry.type === 'locked' && !filters.locked) return false;
+        const key = dayKey(entry.start);
+        if (filters.dateFrom && key < filters.dateFrom) return false;
+        if (filters.dateTo && key > filters.dateTo) return false;
+        if (state.hiddenApps.has(entry.app)) return false;
+        if (entry.file && state.hiddenFiles.has(entry.file)) return false;
+        if (entry.seconds < filters.minSeconds) return false;
+        if (filters.search) {
+          const haystack = `${entry.app} ${entry.appName} ${entry.file} ${entry.path} ${entry.title}`.toLowerCase();
+          if (!haystack.includes(filters.search)) return false;
+        }
+        return true;
+      });
+    }
+
+    /** Distinct apps/files, built from every loaded row (not the filtered set) so
+     *  the checklists don't shrink or reshuffle just because another filter narrowed
+     *  what's currently visible. */
+    function distinctApps() {
+      const map = new Map();
+      for (const entry of state.entries) {
+        if (entry.type === 'monitor') continue;
+        if (!map.has(entry.app)) map.set(entry.app, { key: entry.app, label: appLabel(entry), seconds: 0 });
+        map.get(entry.app).seconds += entry.seconds;
+      }
+      return [...map.values()].sort((a, b) => b.seconds - a.seconds);
+    }
+
+    function distinctFiles() {
+      const map = new Map();
+      for (const entry of state.entries) {
+        if (!entry.file) continue;
+        if (!map.has(entry.file)) map.set(entry.file, { key: entry.file, label: entry.file, seconds: 0 });
+        map.get(entry.file).seconds += entry.seconds;
+      }
+      return [...map.values()].sort((a, b) => b.seconds - a.seconds);
+    }
+
+    function renderChecklist(container, items, hiddenSet, colorFn) {
+      if (!items.length) {
+        container.innerHTML = '<div class="hint" style="padding:4px 2px">Nothing loaded yet.</div>';
+        return;
+      }
+      container.innerHTML = items.map(item => {
+        const checked = hiddenSet.has(item.key) ? '' : 'checked';
+        const swatch = colorFn ? `<span class="swatch" style="background:${colorFn(item.key)}"></span>` : '';
+        const label = item.label || 'Unknown app';
+        return `<label class="checklist-item">
+          <input type="checkbox" data-key="${escapeHtml(item.key)}" ${checked}>
+          ${swatch}<span class="checklist-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
+        </label>`;
+      }).join('');
+    }
+
+    function rebuildFilterOptions() {
+      const days = [...new Set(
+        state.entries.filter(entry => entry.type !== 'monitor').map(entry => dayKey(entry.start))
+      )].sort();
+      state.dataMinDay = days[0] || null;
+      state.dataMaxDay = days[days.length - 1] || null;
+
+      if (state.dataMinDay && state.dataMaxDay) {
+        els.dateFrom.min = state.dataMinDay;
+        els.dateFrom.max = state.dataMaxDay;
+        els.dateTo.min = state.dataMinDay;
+        els.dateTo.max = state.dataMaxDay;
+        if (!state.dateRangeTouched) {
+          els.dateFrom.value = state.dataMinDay;
+          els.dateTo.value = state.dataMaxDay;
+        }
+      }
+
+      renderChecklist(els.appChecklist, distinctApps(), state.hiddenApps, key => state.appColors.get(key) || OTHER_COLOR);
+      renderChecklist(els.fileChecklist, distinctFiles(), state.hiddenFiles, null);
+    }
+
+    // ------------------------------------------------------------------
+    // Rendering
+    // ------------------------------------------------------------------
+
+    function refresh() {
+      const filters = getFilters();
+      const visible = applyFilters(filters);
+      renderPills(visible, filters);
+      renderTiles(visible, filters);
+      renderTimeline(visible, filters);
+      renderAway(visible, filters);
+      renderBars(visible);
+      renderProjectStatus();
+      renderSessions(visible);
+      updateDateNavButtons();
+    }
+
+    function totals(entries) {
+      let active = 0, idle = 0, locked = 0;
+      for (const entry of entries) {
+        if (entry.type === 'active') active += entry.seconds;
+        else if (entry.type === 'idle') idle += entry.seconds;
+        else if (entry.type === 'locked') locked += entry.seconds;
+      }
+      return { active, idle, locked, away: idle + locked };
+    }
+
+    /**
+     * Counts sessions whose time range overlaps an earlier one - a classic
+     * sweep-line pass (sort by start, track the running max end seen so
+     * far). A well-formed log from a single logger instance never has these:
+     * Step-Session always closes the prior session before opening the next.
+     * Overlaps mean two win-monitor.ps1 processes logged to the same folder
+     * at once (win-monitor.ps1 now refuses to do that via a single-instance
+     * lock, but older logs collected before that fix can still have it), and
+     * they make sums like Active Time double-count the overlapping stretch -
+     * the underlying reason a total can read over 100% of the tracked span.
+     */
+    function countOverlappingSessions(entries) {
+      const sorted = entries
+        .filter(entry => entry.type !== 'monitor')
+        .slice()
+        .sort((a, b) => a.start - b.start);
+      let overlaps = 0;
+      let maxEnd = null;
+      for (const entry of sorted) {
+        if (maxEnd !== null && entry.start < maxEnd) overlaps++;
+        if (maxEnd === null || entry.end > maxEnd) maxEnd = entry.end;
+      }
+      return overlaps;
+    }
+
+    function renderPills(visible, filters) {
+      const pills = [];
+      if (!state.entries.length) {
+        pills.push('<span class="pill">No log loaded</span>');
+      } else {
+        const days = new Set(state.entries.map(entry => dayKey(entry.start))).size;
+        pills.push(`<span class="pill">${state.entries.length} rows &middot; ${days} day${days === 1 ? '' : 's'}</span>`);
+        if (state.sources.length) {
+          pills.push(`<span class="pill">${escapeHtml(state.sources.join(', '))}</span>`);
+        }
+        const monitorGaps = coverageGaps();
+        if (monitorGaps.length) {
+          pills.push(`<span class="pill warn">${monitorGaps.length} gap${monitorGaps.length === 1 ? '' : 's'} with the monitor off</span>`);
+        } else {
+          pills.push('<span class="pill ok">Monitor coverage continuous</span>');
+        }
+        const overlapCount = countOverlappingSessions(state.entries);
+        if (overlapCount > 0) {
+          pills.push(`<span class="pill warn" title="Two or more sessions claim overlapping time ranges - usually means more than one win-monitor.ps1 process was logging to this folder at once. Totals like Active Time can double-count the overlap and read over 100%.">${overlapCount} overlapping session${overlapCount === 1 ? '' : 's'}</span>`);
+        }
+        if (state.parseErrors) {
+          pills.push(`<span class="pill warn">${state.parseErrors} unreadable line${state.parseErrors === 1 ? '' : 's'}</span>`);
+        }
+        if (visible.length !== state.entries.length) {
+          pills.push(`<span class="pill">${visible.length} shown by filters</span>`);
+        }
+      }
+      els.statusPills.innerHTML = pills.join('');
+    }
+
+    function renderTiles(visible, filters) {
+      if (!visible.length) {
+        els.tiles.innerHTML = '<div class="tile"><div class="tile-label">Nothing to show</div>'
+          + '<div class="tile-note">Load a log, or loosen the filters.</div></div>';
+        return;
+      }
+
+      const sums = totals(visible);
+      const awayEntries = visible.filter(entry => entry.away);
+      const longAway = awayEntries.filter(entry => entry.seconds >= filters.awaySeconds);
+      const longest = awayEntries.reduce((best, entry) => (!best || entry.seconds > best.seconds ? entry : best), null);
+      const apps = new Set(visible.filter(entry => entry.type === 'active' && entry.app).map(entry => entry.app));
+      const files = new Set(visible.filter(entry => entry.file).map(entry => entry.file));
+      const switches = visible.filter(entry => entry.type === 'active').length;
+      const first = visible[0].start;
+      const last = visible.reduce((max, entry) => (entry.end > max ? entry.end : max), visible[0].end);
+      const span = (last - first) / 1000;
+      const awayShare = span > 0 ? Math.round((sums.away / span) * 100) : 0;
+      const activeShare = span > 0 ? Math.round((sums.active / span) * 100) : 0;
+
+      const tiles = [
+        {
+          hero: true,
+          label: 'Active Time',
+          value: formatDuration(sums.active),
+          note: activeShare > 100
+            ? `${switches} focus sessions &middot; ${activeShare}% of the tracked span - over 100% means overlapping sessions are double-counted (see the pill above)`
+            : `${switches} focus session${switches === 1 ? '' : 's'} &middot; ${activeShare}% of the tracked span`
+        },
+        {
+          label: 'Time away from the machine',
+          value: formatDuration(sums.away),
+          note: `${awayShare}% of the tracked span &middot; ${longAway.length} period${longAway.length === 1 ? '' : 's'} over ${formatDuration(filters.awaySeconds)}`
+        },
+        {
+          label: 'Longest single absence',
+          value: longest ? formatDuration(longest.seconds) : '&mdash;',
+          note: longest
+            ? `from ${escapeHtml(formatClock(longest.start))}, ${escapeHtml(appLabel(longest))} left open`
+            : 'No idle or locked periods'
+        },
+        {
+          label: 'Tracked span',
+          value: formatDuration(span),
+          note: `${escapeHtml(formatClock(first))} &rarr; ${escapeHtml(formatClock(last))}`
+        },
+        {
+          label: 'Apps &middot; files',
+          value: `${apps.size} &middot; ${files.size}`,
+          note: 'Distinct apps focused and files seen in titles'
+        }
+      ];
+
+      els.tiles.innerHTML = tiles.map(tile => `
+        <div class="tile${tile.hero ? ' hero' : ''}">
+          <div class="tile-label">${tile.label}</div>
+          <div class="tile-value">${tile.value}</div>
+          <div class="tile-note">${tile.note}</div>
+        </div>`).join('');
+    }
+
+    /**
+     * Spans where no monitor was running: between a `stop` marker and the next
+     * `start`. Anything in such a gap simply was not observed, which is worth
+     * showing rather than letting the timeline imply idleness.
+     */
+    function coverageGaps() {
+      const markers = state.entries.filter(entry => entry.type === 'monitor');
+      const gaps = [];
+      for (let i = 0; i < markers.length - 1; i++) {
+        const current = markers[i];
+        const next = markers[i + 1];
+        if (current.app === 'stop' && next.app === 'start' && next.start - current.end > 60000) {
+          gaps.push({ start: current.end, end: next.start });
+        }
+      }
+      return gaps;
+    }
+
+    function renderTimeline(visible, filters) {
+      if (!visible.length) {
+        els.timeline.innerHTML = '<div class="empty">No sessions to plot.</div>';
+        els.timelineNote.textContent = '';
+        els.legend.innerHTML = '';
+        return;
+      }
+
+      const byDay = new Map();
+      for (const entry of visible) {
+        // A session that runs over midnight belongs to both days, clipped.
+        let cursor = new Date(entry.start);
+        while (cursor < entry.end) {
+          const key = dayKey(cursor);
+          const dayStart = startOfDay(key);
+          const dayEnd = new Date(dayStart.getTime() + 86400000);
+          const from = entry.start > dayStart ? entry.start : dayStart;
+          const to = entry.end < dayEnd ? entry.end : dayEnd;
+          if (!byDay.has(key)) byDay.set(key, []);
+          byDay.get(key).push({ entry, from, to });
+          cursor = dayEnd;
+        }
+      }
+
+      const gaps = coverageGaps();
+      const days = [...byDay.keys()].sort();
+      const html = days.map(key => renderDay(key, byDay.get(key), gaps)).join('');
+      els.timeline.innerHTML = html;
+      els.timelineNote.textContent = days.length === 1
+        ? 'One day, clipped to the hours with activity.'
+        : `${days.length} days, each clipped to the hours with activity.`;
+      renderLegend(visible);
+    }
+
+    function renderDay(key, slices, gaps) {
+      const dayStart = startOfDay(key);
+      const earliest = slices.reduce((min, slice) => Math.min(min, slice.from), Infinity);
+      const latest = slices.reduce((max, slice) => Math.max(max, slice.to), -Infinity);
+
+      // Snap to whole hours so the ruler reads cleanly.
+      const fromHour = Math.floor((earliest - dayStart) / 3600000);
+      const toHour = Math.min(24, Math.ceil((latest - dayStart) / 3600000));
+      const windowStart = dayStart.getTime() + fromHour * 3600000;
+      const windowEnd = dayStart.getTime() + Math.max(toHour, fromHour + 1) * 3600000;
+      const windowSpan = windowEnd - windowStart;
+
+      const position = (time) => ((time - windowStart) / windowSpan) * 100;
+
+      const focus = slices.filter(slice => slice.entry.type === 'active');
+      const away = slices.filter(slice => slice.entry.away);
+
+      const segment = (slice) => {
+        const left = position(slice.from);
+        const width = Math.max(0.12, position(slice.to) - left);
+        const entry = slice.entry;
+        const label = entry.away
+          ? (entry.type === 'locked' ? 'Locked' : 'Idle')
+          : appLabel(entry);
+        const detail = [
+          entry.file ? `File: ${entry.file}` : '',
+          entry.title,
+          `${formatClockSeconds(slice.from)} - ${formatClockSeconds(slice.to)}`
+        ].filter(Boolean).join('\n');
+        return `<div class="seg${entry.type === 'locked' ? ' locked' : ''}"
+          style="left:${left.toFixed(3)}%;width:${width.toFixed(3)}%;background:${colorFor(entry)}"
+          data-title="${escapeHtml(label)} &middot; ${escapeHtml(formatDuration(entry.seconds))}"
+          data-detail="${escapeHtml(detail)}"></div>`;
+      };
+
+      const gapBlocks = gaps
+        .filter(gap => gap.end > windowStart && gap.start < windowEnd)
+        .map(gap => {
+          const left = Math.max(0, position(gap.start));
+          const right = Math.min(100, position(gap.end));
+          return `<div class="uncovered" style="left:${left.toFixed(3)}%;width:${(right - left).toFixed(3)}%"
+            data-title="Monitor not running"
+            data-detail="${escapeHtml(`${formatClockSeconds(gap.start)} - ${formatClockSeconds(gap.end)}`)}"></div>`;
+        }).join('');
+
+      const hourCount = (windowSpan / 3600000);
+      const step = hourCount > 14 ? 2 : 1;
+      const ticks = [];
+      for (let hour = fromHour; hour <= fromHour + hourCount; hour += step) {
+        const left = position(dayStart.getTime() + hour * 3600000);
+        if (left < -0.5 || left > 100.5) continue;
+        ticks.push(`<span class="tick" style="left:${left.toFixed(3)}%">${String(hour % 24).padStart(2, '0')}:00</span>`);
+      }
+
+      const daySums = totals(slices.map(slice => slice.entry));
+
+      return `
+        <div class="day">
+          <div class="day-head">
+            <span class="day-title">${escapeHtml(formatDayLabel(key))}</span>
+            <span class="day-meta">${formatDuration(daySums.active)} active &middot; ${formatDuration(daySums.away)} away</span>
+          </div>
+          <div class="lane-label">In focus</div>
+          <div class="track focus-lane">${gapBlocks}${focus.map(segment).join('')}</div>
+          <div class="lane-label">Away</div>
+          <div class="track away-lane">${away.map(segment).join('')}</div>
+          <div class="ruler">${ticks.join('')}</div>
+        </div>`;
+    }
+
+    function renderLegend(visible) {
+      const totalsByApp = new Map();
+      for (const entry of visible) {
+        if (entry.type !== 'active') continue;
+        const key = entry.app || 'Unknown';
+        totalsByApp.set(key, (totalsByApp.get(key) || 0) + entry.seconds);
+      }
+      const ranked = [...totalsByApp.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+      const items = ranked.map(([app, seconds]) => `
+        <span class="legend-item">
+          <span class="swatch" style="background:${state.appColors.get(app) || OTHER_COLOR}"></span>
+          ${escapeHtml(app)} &middot; ${formatDuration(seconds)}
+        </span>`);
+
+      items.push(`<span class="legend-item"><span class="swatch" style="background:${AWAY_COLORS.idle}"></span>Idle &mdash; no input</span>`);
+      items.push(`<span class="legend-item"><span class="swatch locked" style="background:${AWAY_COLORS.locked}"></span>Locked workstation</span>`);
+      els.legend.innerHTML = items.join('');
+    }
+
+    function renderAway(visible, filters) {
+      const away = visible
+        .filter(entry => entry.away && entry.seconds >= filters.awaySeconds)
+        .sort((a, b) => b.seconds - a.seconds);
+
+      if (!away.length) {
+        els.awayBody.innerHTML = '<tr><td colspan="6" class="empty">No absence longer than '
+          + escapeHtml(formatDuration(filters.awaySeconds)) + '.</td></tr>';
+        els.awayNote.textContent = '';
+        return;
+      }
+
+      const total = away.reduce((sum, entry) => sum + entry.seconds, 0);
+      els.awayNote.textContent =
+        `${away.length} period${away.length === 1 ? '' : 's'} over ${formatDuration(filters.awaySeconds)}, ${formatDuration(total)} in total`;
+
+      els.awayBody.innerHTML = away.map(entry => `
+        <tr>
+          <td class="num">${escapeHtml(formatClockSeconds(entry.start))}<div class="hint">${escapeHtml(dayKey(entry.start))}</div></td>
+          <td class="num">${escapeHtml(formatClockSeconds(entry.end))}</td>
+          <td class="num"><strong>${escapeHtml(formatDuration(entry.seconds))}</strong></td>
+          <td><span class="tag ${entry.type}">${entry.type === 'locked' ? 'Locked' : 'No input'}</span></td>
+          <td class="wrap">${escapeHtml(appLabel(entry))}<div class="hint">${escapeHtml(entry.title)}</div></td>
+          <td class="wrap mono">${escapeHtml(entry.file || '—')}</td>
+        </tr>`).join('');
+    }
+
+    function renderBars(visible) {
+      const appTotals = new Map();
+      const fileTotals = new Map();
+      const projectTotals = new Map();
+      for (const entry of visible) {
+        if (entry.type !== 'active') continue;
+        const app = entry.app || 'Unknown';
+        appTotals.set(app, (appTotals.get(app) || 0) + entry.seconds);
+        if (entry.file) {
+          const key = entry.file;
+          const current = fileTotals.get(key) || { seconds: 0, app: entry.app, path: entry.path };
+          current.seconds += entry.seconds;
+          if (!current.path && entry.path) current.path = entry.path;
+          fileTotals.set(key, current);
+        }
+        // Unassigned sessions are bucketed, never dropped, so the project
+        // totals always add up to the same number as Active Time.
+        const project = getProject(entry) || 'Unassigned';
+        projectTotals.set(project, (projectTotals.get(project) || 0) + entry.seconds);
+      }
+
+      els.appBars.innerHTML = barRows(
+        [...appTotals.entries()].map(([name, seconds]) => ({
+          name, seconds, color: state.appColors.get(name) || OTHER_COLOR
+        })),
+        'No focus time in view.'
+      );
+
+      els.fileBars.innerHTML = barRows(
+        [...fileTotals.entries()].map(([name, info]) => ({
+          name,
+          seconds: info.seconds,
+          color: state.appColors.get(info.app) || OTHER_COLOR,
+          note: info.path
+        })),
+        'No file names were readable from the window titles in view.'
+      );
+
+      els.projectBars.innerHTML = barRows(
+        [...projectTotals.entries()].map(([name, seconds]) => ({
+          name, seconds, color: name === 'Unassigned' ? OTHER_COLOR : 'var(--accent)'
+        })),
+        'No sessions in view have a project assigned yet.'
+      );
+    }
+
+    function barRows(rows, emptyMessage) {
+      if (!rows.length) return `<div class="empty">${escapeHtml(emptyMessage)}</div>`;
+      const sorted = rows.sort((a, b) => b.seconds - a.seconds).slice(0, 12);
+      const max = sorted[0].seconds || 1;
+      return sorted.map(row => `
+        <div class="bar-row">
+          <div class="bar-name">
+            <span class="swatch" style="background:${row.color}"></span>
+            <span title="${escapeHtml(row.note || row.name)}">${escapeHtml(row.name)}</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${Math.max(1, (row.seconds / max) * 100).toFixed(2)}%;background:${row.color}"></div>
+          </div>
+          <div class="bar-value">${escapeHtml(formatDuration(row.seconds))}</div>
+        </div>`).join('');
+    }
+
+    function renderSessions(visible) {
+      // A row rendered here is the only thing that counts as "selectable" -
+      // prune any selection left over from before a filter change hid it, so
+      // the header checkbox and "N selected" count never silently include
+      // rows the user can no longer see.
+      state.lastSessionCheckboxIndex = null;
+
+      if (!visible.length) {
+        els.sessionBody.innerHTML = '<tr><td colspan="8" class="empty">Nothing matches the current filters.</td></tr>';
+        els.sessionNote.textContent = '';
+        state.selectedSessionKeys.clear();
+        renderSelectionStatus();
+        return;
+      }
+
+      const rows = [...visible].sort((a, b) => a.start - b.start);
+      const capped = rows.slice(0, 500);
+      els.sessionNote.textContent = capped.length < rows.length
+        ? `Showing the first 500 of ${rows.length} sessions — export for the rest`
+        : `${rows.length} session${rows.length === 1 ? '' : 's'}`;
+
+      const renderedKeys = new Set(capped.map(entryKey));
+      for (const key of state.selectedSessionKeys) {
+        if (!renderedKeys.has(key)) state.selectedSessionKeys.delete(key);
+      }
+
+      els.sessionBody.innerHTML = capped.map((entry, index) => {
+        const key = entryKey(entry);
+        const checked = state.selectedSessionKeys.has(key) ? ' checked' : '';
+        return `
+        <tr>
+          <td class="select-col"><input type="checkbox" class="session-select" data-key="${escapeHtml(key)}" data-index="${index}"${checked}></td>
+          <td class="num">${escapeHtml(formatClockSeconds(entry.start))}<div class="hint">${escapeHtml(dayKey(entry.start))}</div></td>
+          <td class="num">${escapeHtml(formatDuration(entry.seconds))}</td>
+          <td><span class="tag ${entry.type}">${entry.type === 'active' ? 'Focus' : (entry.type === 'locked' ? 'Locked' : 'Idle')}</span></td>
+          <td><span class="bar-name"><span class="swatch" style="background:${colorFor(entry)}"></span><span>${escapeHtml(entry.app || '—')}</span></span></td>
+          <td class="mono">${escapeHtml(entry.file || '—')}</td>
+          <td><select class="project-select" data-key="${escapeHtml(key)}">${buildProjectOptionsHtml(getProject(entry), { blankLabel: '&mdash;', includeNewOption: true })}</select></td>
+          <td class="wrap">${escapeHtml(entry.title || '—')}</td>
+        </tr>`;
+      }).join('');
+
+      renderSelectionStatus();
+    }
+
+    function renderSelectionStatus() {
+      const rowCheckboxes = [...els.sessionBody.querySelectorAll('input.session-select')];
+      const total = rowCheckboxes.length;
+      const checkedCount = state.selectedSessionKeys.size;
+      els.selectAllSessions.checked = total > 0 && checkedCount === total;
+      els.selectAllSessions.indeterminate = checkedCount > 0 && checkedCount < total;
+      els.selectedCount.textContent = checkedCount;
+      els.assignSelectedBtn.disabled = checkedCount === 0;
+    }
+
+    // ------------------------------------------------------------------
+    // Tooltip
+    // ------------------------------------------------------------------
+
+    document.addEventListener('mouseover', event => {
+      const target = event.target.closest('[data-title]');
+      if (!target || !els.timeline.contains(target)) return;
+      const detail = target.getAttribute('data-detail') || '';
+      els.tooltip.innerHTML = `<div class="tt-title">${target.getAttribute('data-title')}</div>`
+        + detail.split('\n').map(line => `<div class="tt-line">${escapeHtml(line)}</div>`).join('');
+      els.tooltip.style.display = 'block';
+    });
+
+    document.addEventListener('mousemove', event => {
+      if (els.tooltip.style.display !== 'block') return;
+      const offset = 14;
+      const rect = els.tooltip.getBoundingClientRect();
+      let left = event.clientX + offset;
+      let top = event.clientY + offset;
+      if (left + rect.width > window.innerWidth - 8) left = event.clientX - rect.width - offset;
+      if (top + rect.height > window.innerHeight - 8) top = event.clientY - rect.height - offset;
+      els.tooltip.style.left = `${Math.max(8, left)}px`;
+      els.tooltip.style.top = `${Math.max(8, top)}px`;
+    });
+
+    document.addEventListener('mouseout', event => {
+      const target = event.target.closest('[data-title]');
+      if (target) els.tooltip.style.display = 'none';
+    });
+
+    // ------------------------------------------------------------------
+    // Export
+    // ------------------------------------------------------------------
+
+    function csvField(value) {
+      const text = String(value == null ? '' : value);
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function toIso(date) {
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+        + `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+
+    function downloadText(filename, text, mimeType) {
+      const blob = new Blob([text], { type: mimeType || 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportRows(rows, filename) {
+      if (!rows.length) return;
+      const header = ['start', 'end', 'seconds', 'type', 'app', 'appName', 'file', 'path', 'title', 'project'];
+      const lines = [header.join(',')];
+      for (const entry of rows) {
+        lines.push([
+          toIso(entry.start), toIso(entry.end), Math.round(entry.seconds), entry.type,
+          entry.app, entry.appName, entry.file, entry.path, entry.title, getProject(entry)
+        ].map(csvField).join(','));
+      }
+      downloadText(filename, lines.join('\r\n'));
+    }
+
+    // ------------------------------------------------------------------
+    // Sample data
+    // ------------------------------------------------------------------
+
+    /**
+     * Two workdays with the shape the tool is meant to expose: a long absence
+     * with a document left open, a locked lunch break, and a stretch where the
+     * monitor itself was not running.
+     *
+     * Each row is [seconds, type, app, appName, file, title]; the loader walks a
+     * clock over them and writes real JSONL into the paste box, so the sample
+     * doubles as documentation of the log format.
+     */
+    const SAMPLE_DAYS = [
+      {
+        date: '2026-08-06',
+        start: '08:41:00',
+        rows: [
+          [0, 'monitor', 'start', '', '', 'win-monitor start (idle threshold 300s)'],
+          [742, 'active', 'OUTLOOK', 'Microsoft Outlook', '', 'Inbox - zep@studio.example - Outlook'],
+          [568, 'active', 'chrome', 'Google Chrome', '', 'Sprint board - Jira - Google Chrome'],
+          [1601, 'active', 'Code', 'Visual Studio Code', 'index.html', 'index.html - win-monitor - Visual Studio Code'],
+          [1140, 'idle', 'Code', 'Visual Studio Code', 'index.html', 'index.html - win-monitor - Visual Studio Code'],
+          [2210, 'active', 'Code', 'Visual Studio Code', 'index.html', 'index.html - win-monitor - Visual Studio Code'],
+          [905, 'active', 'Revit', 'Autodesk Revit', 'Harbour-Tower.rvt', 'Autodesk Revit 2026 - Harbour-Tower.rvt - Floor Plan: Level 04'],
+          [3480, 'locked', 'Revit', 'Autodesk Revit', 'Harbour-Tower.rvt', 'Autodesk Revit 2026 - Harbour-Tower.rvt - Floor Plan: Level 04'],
+          [1975, 'active', 'Revit', 'Autodesk Revit', 'Harbour-Tower.rvt', 'Autodesk Revit 2026 - Harbour-Tower.rvt - Section: Longitudinal'],
+          [612, 'active', 'WINWORD', 'Microsoft Word', 'Design-Report-rev-C.docx', 'Design-Report-rev-C.docx - Word'],
+          [431, 'active', 'EXCEL', 'Microsoft Excel', 'Cost-Plan-2026.xlsx', 'Cost-Plan-2026.xlsx - Excel'],
+          [1830, 'idle', 'EXCEL', 'Microsoft Excel', 'Cost-Plan-2026.xlsx', 'Cost-Plan-2026.xlsx - Excel'],
+          [1244, 'active', 'WINWORD', 'Microsoft Word', 'Design-Report-rev-C.docx', 'Design-Report-rev-C.docx - Word'],
+          [388, 'active', 'explorer', 'Windows Explorer', 'Harbour Tower', 'Harbour Tower'],
+          [736, 'active', 'OUTLOOK', 'Microsoft Outlook', '', 'RE: Level 04 slab edge - Message (HTML)'],
+          [0, 'monitor', 'stop', '', '', 'win-monitor stop (idle threshold 300s)']
+        ]
+      },
+      {
+        date: '2026-08-07',
+        start: '09:12:00',
+        rows: [
+          [0, 'monitor', 'start', '', '', 'win-monitor start (idle threshold 300s)'],
+          [498, 'active', 'OUTLOOK', 'Microsoft Outlook', '', 'Inbox - zep@studio.example - Outlook'],
+          [2740, 'active', 'Revit', 'Autodesk Revit', 'Harbour-Tower.rvt', 'Autodesk Revit 2026 - Harbour-Tower.rvt - 3D View: Coordination'],
+          [645, 'idle', 'Revit', 'Autodesk Revit', 'Harbour-Tower.rvt', 'Autodesk Revit 2026 - Harbour-Tower.rvt - 3D View: Coordination'],
+          [1508, 'active', 'chrome', 'Google Chrome', 'Structural-Markup.pdf', 'Structural-Markup.pdf - Google Chrome'],
+          [922, 'active', 'Code', 'Visual Studio Code', 'data.json', 'data.json - win-monitor - Visual Studio Code'],
+          [5400, 'locked', 'Code', 'Visual Studio Code', 'data.json', 'data.json - win-monitor - Visual Studio Code'],
+          [1355, 'active', 'Code', 'Visual Studio Code', 'win-monitor.ps1', 'win-monitor.ps1 - win-monitor - Visual Studio Code'],
+          [820, 'active', 'EXCEL', 'Microsoft Excel', 'Cost-Plan-2026.xlsx', 'Cost-Plan-2026.xlsx - Excel'],
+          [2050, 'idle', 'EXCEL', 'Microsoft Excel', 'Cost-Plan-2026.xlsx', 'Cost-Plan-2026.xlsx - Excel'],
+          [478, 'active', 'Teams', 'Microsoft Teams', '', 'Coordination call | Microsoft Teams'],
+          [0, 'monitor', 'stop', '', '', 'win-monitor stop (idle threshold 300s)']
+        ]
+      }
+    ];
+
+    function buildSampleJsonl() {
+      const lines = [];
+      for (const day of SAMPLE_DAYS) {
+        let clock = new Date(`${day.date}T${day.start}`);
+        for (const [seconds, type, app, appName, file, title] of day.rows) {
+          const end = new Date(clock.getTime() + seconds * 1000);
+          lines.push(JSON.stringify({
+            start: toIso(clock),
+            end: toIso(end),
+            seconds,
+            type,
+            app,
+            appName,
+            file,
+            path: '',
+            title,
+            processId: 0,
+            locked: type === 'locked'
+          }));
+          clock = end;
+        }
+      }
+      return lines.join('\n');
+    }
+
+    function loadSample() {
+      const text = buildSampleJsonl();
+      els.pasteBox.value = text;
+      const parsed = parseLogText(text);
+      addEntries(parsed.entries, 'sample data', parsed.errors);
+    }
+
+    // ------------------------------------------------------------------
+    // Wiring
+    // ------------------------------------------------------------------
+
+    els.dropzone.addEventListener('click', () => els.fileInput.click());
+    els.fileInput.addEventListener('change', event => {
+      loadFiles(event.target.files);
+      event.target.value = '';
+    });
+
+    els.loadLatestBtn.addEventListener('click', () => els.folderInput.click());
+    els.folderInput.addEventListener('change', async event => {
+      const files = Array.from(event.target.files || []);
+      event.target.value = '';
+      const latest = findLatestActivityFile(files);
+      if (!latest) {
+        window.alert('No activity-YYYY-MM-DD.jsonl files found in that folder.');
+        return;
+      }
+      await loadFiles([latest]);
+    });
+
+    for (const type of ['dragenter', 'dragover']) {
+      els.dropzone.addEventListener(type, event => {
+        event.preventDefault();
+        els.dropzone.classList.add('hot');
+      });
+    }
+    for (const type of ['dragleave', 'drop']) {
+      els.dropzone.addEventListener(type, event => {
+        event.preventDefault();
+        els.dropzone.classList.remove('hot');
+      });
+    }
+    els.dropzone.addEventListener('drop', event => {
+      if (event.dataTransfer && event.dataTransfer.files) loadFiles(event.dataTransfer.files);
+    });
+
+    els.importBtn.addEventListener('click', () => {
+      if (loadIfProjectsFile(els.pasteBox.value)) return;
+      const parsed = parseLogText(els.pasteBox.value);
+      if (!parsed.entries.length && !parsed.errors) return;
+      addEntries(parsed.entries, 'pasted log', parsed.errors);
+    });
+
+    els.sampleBtn.addEventListener('click', loadSample);
+
+    els.clearBtn.addEventListener('click', () => {
+      state.entries = [];
+      state.sources = [];
+      state.appColors = new Map();
+      state.parseErrors = 0;
+      state.hiddenApps.clear();
+      state.hiddenFiles.clear();
+      state.dateRangeTouched = false;
+      state.dataMinDay = null;
+      state.dataMaxDay = null;
+      els.pasteBox.value = '';
+      els.dateFrom.value = '';
+      els.dateTo.value = '';
+      rebuildFilterOptions();
+      refresh();
+    });
+
+    for (const id of ['showActive', 'showIdle', 'showLocked', 'minSeconds', 'awayMinutes', 'searchBox', 'decimalHours']) {
+      els[id].addEventListener('input', refresh);
+      els[id].addEventListener('change', refresh);
+    }
+
+    for (const id of ['dateFrom', 'dateTo']) {
+      els[id].addEventListener('change', () => {
+        state.dateRangeTouched = true;
+        refresh();
+      });
+    }
+
+    els.dateResetBtn.addEventListener('click', () => {
+      state.dateRangeTouched = false;
+      els.dateFrom.value = state.dataMinDay || '';
+      els.dateTo.value = state.dataMaxDay || '';
+      refresh();
+    });
+
+    els.dateBackBtn.addEventListener('click', () => shiftDateRange(-1));
+    els.dateForwardBtn.addEventListener('click', () => shiftDateRange(1));
+
+    function toggleChecklistKey(checklistEl, hiddenSet) {
+      checklistEl.addEventListener('change', event => {
+        const box = event.target.closest('input[type="checkbox"]');
+        if (!box) return;
+        const key = box.dataset.key;
+        if (box.checked) hiddenSet.delete(key); else hiddenSet.add(key);
+        refresh();
+      });
+    }
+    toggleChecklistKey(els.appChecklist, state.hiddenApps);
+    toggleChecklistKey(els.fileChecklist, state.hiddenFiles);
+
+    els.appsAllBtn.addEventListener('click', () => {
+      state.hiddenApps.clear();
+      rebuildFilterOptions();
+      refresh();
+    });
+    els.appsNoneBtn.addEventListener('click', () => {
+      for (const item of distinctApps()) state.hiddenApps.add(item.key);
+      rebuildFilterOptions();
+      refresh();
+    });
+    els.filesAllBtn.addEventListener('click', () => {
+      state.hiddenFiles.clear();
+      rebuildFilterOptions();
+      refresh();
+    });
+    els.filesNoneBtn.addEventListener('click', () => {
+      for (const item of distinctFiles()) state.hiddenFiles.add(item.key);
+      rebuildFilterOptions();
+      refresh();
+    });
+
+    els.exportSessionsBtn.addEventListener('click', () => {
+      exportRows(applyFilters(getFilters()), 'win-monitor-sessions.csv');
+    });
+
+    els.exportAwayBtn.addEventListener('click', () => {
+      const filters = getFilters();
+      const away = applyFilters(filters).filter(entry => entry.away && entry.seconds >= filters.awaySeconds);
+      exportRows(away, 'win-monitor-away.csv');
+    });
+
+    els.exportProjectsBtn.addEventListener('click', exportProjects);
+
+    els.importProjectsBtn.addEventListener('click', () => els.projectsFileInput.click());
+    els.projectsFileInput.addEventListener('change', async event => {
+      const file = event.target.files[0];
+      event.target.value = '';
+      if (!file) return;
+      const text = await file.text();
+      if (!loadIfProjectsFile(text)) {
+        window.alert(`"${file.name}" doesn't look like a projects file exported from this viewer.`);
+      }
+    });
+
+    els.sessionBody.addEventListener('change', event => {
+      const select = event.target.closest('select.project-select');
+      if (!select) return;
+      const key = select.dataset.key;
+      let value = select.value;
+      if (value === '__new__') {
+        const typed = window.prompt('New project name:');
+        if (!typed || !typed.trim()) { refresh(); return; } // cancelled - re-render reverts the dropdown
+        value = typed.trim();
+      }
+      setProjectByKey(key, value);
+      refresh();
+    });
+
+    els.batchAssignBtn.addEventListener('click', () => {
+      const targets = applyFilters(getFilters());
+      if (!targets.length) return;
+
+      const typed = els.batchProjectNew.value.trim();
+      const project = typed || els.batchProjectSelect.value;
+      if (!project) {
+        window.alert('Choose an existing project or type a new one first.');
+        return;
+      }
+
+      const changingCount = targets.filter(entry => {
+        const current = getProject(entry);
+        return current && current !== project;
+      }).length;
+      if (changingCount > 0) {
+        const proceed = window.confirm(
+          `This reassigns ${changingCount} session(s) currently set to a different project to "${project}". Continue?`);
+        if (!proceed) return;
+      }
+
+      for (const entry of targets) setProjectByKey(entryKey(entry), project);
+      els.batchProjectNew.value = '';
+      refresh();
+    });
+
+    // Plain click toggles just that row. Shift-click extends the selection
+    // (always to checked, never a toggle) across every row between the last
+    // clicked checkbox and this one, inclusive - the standard file-manager
+    // range-select gesture. A checkbox is already an independent per-row
+    // toggle by construction, which is what ctrl-click means in row-click
+    // selection schemes, so no separate ctrl handling is needed here.
+    els.sessionBody.addEventListener('click', event => {
+      const checkbox = event.target.closest('input.session-select');
+      if (!checkbox) return;
+      const key = checkbox.dataset.key;
+      const index = Number(checkbox.dataset.index);
+
+      if (event.shiftKey && state.lastSessionCheckboxIndex !== null) {
+        const [from, to] = [state.lastSessionCheckboxIndex, index].sort((a, b) => a - b);
+        const rowCheckboxes = [...els.sessionBody.querySelectorAll('input.session-select')];
+        for (let i = from; i <= to; i++) {
+          const rowCheckbox = rowCheckboxes[i];
+          if (!rowCheckbox) continue;
+          rowCheckbox.checked = true;
+          state.selectedSessionKeys.add(rowCheckbox.dataset.key);
+        }
+      } else if (checkbox.checked) {
+        state.selectedSessionKeys.add(key);
+      } else {
+        state.selectedSessionKeys.delete(key);
+      }
+
+      state.lastSessionCheckboxIndex = index;
+      renderSelectionStatus();
+    });
+
+    els.selectAllSessions.addEventListener('change', () => {
+      const checked = els.selectAllSessions.checked;
+      els.sessionBody.querySelectorAll('input.session-select').forEach(checkbox => {
+        checkbox.checked = checked;
+        if (checked) state.selectedSessionKeys.add(checkbox.dataset.key);
+        else state.selectedSessionKeys.delete(checkbox.dataset.key);
+      });
+      state.lastSessionCheckboxIndex = null;
+      renderSelectionStatus();
+    });
+
+    els.assignSelectedBtn.addEventListener('click', () => {
+      if (!state.selectedSessionKeys.size) return;
+
+      const typed = els.batchProjectNew.value.trim();
+      const project = typed || els.batchProjectSelect.value;
+      if (!project) {
+        window.alert('Choose an existing project or type a new one first.');
+        return;
+      }
+
+      const keys = [...state.selectedSessionKeys];
+      const changingCount = keys.filter(key => {
+        const current = state.projectAssignments.get(key);
+        return current && current !== project;
+      }).length;
+      if (changingCount > 0) {
+        const proceed = window.confirm(
+          `This reassigns ${changingCount} session(s) currently set to a different project to "${project}". Continue?`);
+        if (!proceed) return;
+      }
+
+      for (const key of keys) setProjectByKey(key, project);
+      state.selectedSessionKeys.clear();
+      els.batchProjectNew.value = '';
+      refresh();
+    });
+
+    // Collapse toggles live in the static card-head markup, never inside
+    // anything refresh() replaces via innerHTML, so a one-time listener per
+    // button (no delegation) is enough - they're never re-created.
+    document.querySelectorAll('.collapse-toggle').forEach(button => {
+      button.addEventListener('click', () => {
+        const section = button.closest('section.collapsible');
+        const collapsed = section.classList.toggle('collapsed');
+        button.setAttribute('aria-expanded', String(!collapsed));
+        button.title = collapsed ? 'Expand section' : 'Collapse section';
+      });
+    });
+
+    refresh();
+  </script>
+</body>
+</html>
