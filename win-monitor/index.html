@@ -98,8 +98,6 @@
       display: grid;
       gap: 0;
       align-content: start;
-      position: sticky;
-      top: 18px;
     }
 
     .results {
@@ -694,7 +692,6 @@
 
     @media (max-width: 1080px) {
       main { grid-template-columns: minmax(0, 1fr); }
-      .controls { position: static; }
       .two-col { grid-template-columns: minmax(0, 1fr); }
       .tile.hero { grid-column: span 1; }
     }
