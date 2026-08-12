@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — August 12, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">4</span>
+      <h2>Urgent</h2>
+    </div>
+
+    <div class="card urgent" data-date="2026-08-12" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: SANFORD 145 - ELEVATION MARKERS</span>
+        <span class="meta">Aug 11&ndash;12, 2026 &middot; Jesse Owens (Ardolino Coastal Engineering) &rarr; Ivan/Logan/Lindsay; Lindsay reply &rarr; Jesse</span>
+      </div>
+      <div class="summary">Ivan asked Jesse for a grading exhibit with RED/BLUE corner markers by Aug 12 to satisfy a city height-verification request; Jesse replied he can't work on it until two outstanding invoices are paid, and won't spend more time until the studio is caught up. Lindsay jumped in same-day saying she has no problem paying and asked Jesse to resend the invoices to the thread (and cc admin@thebrownstudio.com going forward, noting Linzie is no longer with the company) &mdash; but the exhibit itself, needed for the city deadline, still hasn't been delivered.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff30f2b3b9e7b7" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Jesse,
+
+Thanks for flagging &mdash; Lindsay's already replied that she has no problem paying and asked you to resend the two outstanding invoices to this thread (cc admin@thebrownstudio.com going forward; Linzie is no longer with us).
+
+Once that's squared away, could you get us the grading exhibit with both the RED and BLUE markers? We're up against the city's deadline on this and would really appreciate getting it as soon as you're able.
+
+Thanks,
+Ivan</div>
+    </div>
+
+    <div class="card urgent" data-date="2026-08-10" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: La Costa Coordination Quesitons</span>
+        <span class="meta">Aug 6 &amp; 10, 2026 &middot; Nick Sebald (Patterson Engineering) &rarr; Michael, cc Ivan/Eric/Hunter</span>
+      </div>
+      <div class="summary">Patterson Engineering sent coordination markups on Aug 6 and followed up Aug 10 asking to submit by EOD Aug 11: whether storefront glazing is selected (with manufacturer specs), the MEP set to confirm mechanical unit weights, and confirmation on whether the Comment 40 retaining walls are part of the current submittal &mdash; the EOD Aug 11 target has now passed with no visible response from Michael.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd81eeb1bef4bc" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Nick,
+
+Following up since the EOD Aug 11 target has passed &mdash; checking in on the three coordination items: storefront glazing selection/manufacturer specs (Comment 14), the MEP set for mechanical unit weights (Comment 15), and confirmation on whether the retaining walls are part of the current submittal (Comment 40).
+
+Michael &mdash; can we get Nick what he needs today so this doesn't hold up the review?
+
+Thanks,
+Ivan</div>
+    </div>
+
+    <div class="card urgent" data-date="2026-07-10" data-labels="IMPORTANT|- REPLY|PROJECTS/LA COSTA">
+      <div class="card-top">
+        <span class="subject">Re: LA COSTA - RENDERINGS RFP</span>
+        <span class="meta">Jun 16 &amp; Jul 10, 2026 &middot; from TiffanyD@n2qstudio.com (to Ivan, cc Nikki)</span>
+      </div>
+      <div class="summary">N2Q Studio sent rendering-perspective options to choose from on Jun 16, then followed up concerned on Jul 10 after three weeks of silence, asking Ivan to confirm which views to proceed with (plus color/material/landscaping preferences) or let them know if the project is on hold &mdash; still unanswered a full month later, now risking the vendor relationship and their production schedule.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+        <span class="label-tag">- REPLY</span>
+        <span class="label-tag">PROJECTS/LA COSTA</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19d87d0a0b4e381a" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Tiffany,
+
+Apologies for the continued delay &mdash; this hasn't fallen off our radar, we've just been buried on the Sanford 145 permit push. I'll get you our picks on the perspective options, along with color/material/landscaping direction, by the end of this week.
+
+Thanks for your patience, and sorry again for the long silence.
+
+Best,
+Ivan</div>
+    </div>
+
+    <div class="card urgent" data-date="2026-06-16" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Alex Rodriguez on behalf of Commercial Bank of CA has requested files</span>
+        <span class="meta">Jun 16, 2026 &middot; Alex Rodriguez (Commercial Bank of CA) &rarr; Lindsay, cc Ivan/Linzie; Lindsay reply cc Ivan</span>
+      </div>
+      <div class="summary">CBC's deputy chief credit officer flagged concerns that the La Costa Hotel loan's ~$1M-per-room pricing doesn't pencil and asked to talk before proceeding; Lindsay replied the same day with an STR hotel-comps report backing the projections and said she'd call to discuss &mdash; the thread has now sat unread for nearly two months with no visible confirmation the call happened or that the bank's concerns were resolved.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e42435f07cfdcc" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal &mdash; Ivan was cc'd only, Lindsay owns the reply)</div>Self-reminder from the CBC loan thread (Jun 16) &mdash; CBC's deputy chief credit officer raised concerns that the ~$1M/room pricing on the La Costa Hotel loan doesn't pencil and wanted to talk before proceeding. Lindsay sent over the STR hotel-comps report the same day and said she'd call to discuss. Worth checking with Lindsay whether that call happened and where the loan stands &mdash; this has now been open for almost 2 months with no resolution visible in the thread.</div>
+    </div>
+  </div>
+
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">7</span>
+      <h2>Action Needed</h2>
+    </div>
+
+    <div class="card action" data-date="2026-08-12" data-labels="">
+      <div class="card-top">
+        <span class="subject">Sanford - Approved Grading Construction Change</span>
+        <span class="meta">Aug 12, 2026 &middot; Laurel Buckley (Hallmark Communities) &rarr; Ivan, cc Cody/Whisenant</span>
+      </div>
+      <div class="summary">Laurel is asking Ivan to send the approved, signed grading plan construction change that Jesse (the civil engineer) said he already sent out &mdash; a quick document request blocking Hallmark's records.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff6839bb3355cd" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Laurel,
+
+I'll track down the signed, approved grading plan construction change from Jesse and get it over to you today.
+
+Thanks,
+Ivan</div>
+    </div>
+
+    <div class="card action" data-date="2026-08-12" data-labels="">
+      <div class="card-top">
+        <span class="subject">Re: Password C3 bank</span>
+        <span class="meta">Aug 12, 2026 &middot; Karen Bates &rarr; Ivan/Lindsay; Lindsay follow-up &rarr; Karen, cc Ivan</span>
+      </div>
+      <div class="summary">Karen asked Ivan to log into Linzie's (departed employee's) email to retrieve her C3 Bank login details; Lindsay followed up an hour and a half later asking Ivan to help with this "this AM" &mdash; still open.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff6347ad1dc893" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Karen, Lindsay,
+
+I'll look into Linzie's email for the C3 Bank login details and get back to you today. If it's not there, we may need to reset access directly with C3 Bank instead.
+
+Best,
+Ivan</div>
+    </div>
+
+    <div class="card action" data-date="2026-08-11" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Notes: "Sanford Weekly" Aug 11, 2026</span>
+        <span class="meta">Aug 11, 2026 &middot; from gemini-notes@google.com</span>
+      </div>
+      <div class="summary">Auto-generated notes from this week's Sanford Weekly call: substantial-conformance approval is critical for the mid-September permit deadline, and the neighbor encroachment will be resolved by relocating the fence and recording it on title rather than litigating. Two action items are assigned directly to Ivan &mdash; sending a grading markup to the civil engineer (appears already done via the Aug 11 email to Jesse) and creating a spot-elevation table for the city planner, which is still outstanding.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff31be45d32c2d" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal &mdash; source has no reply recipient)</div>Self-reminder from Sanford Weekly notes (Aug 11) &mdash; the grading markup PDF to the civil engineer looks done (sent to Jesse the same day), but the spot-elevation table for the city planner is still outstanding. Need to get that built ahead of the mid-September permit deadline.</div>
+    </div>
+
+    <div class="card action" data-date="2026-08-11" data-labels="">
+      <div class="card-top">
+        <span class="subject">Invoice 2254-7 from Fard Engineers, Inc.</span>
+        <span class="meta">Aug 11, 2026 &middot; from kristin@fard.com (to Linzie, cc Ivan)</span>
+      </div>
+      <div class="summary">Fard Engineers billed $3,680 (due Sep 25), addressed to Linzie Walker, who is no longer with the company &mdash; needs to be routed to whoever owns accounts payable now so it doesn't get missed.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff31677a1e33d4" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal &mdash; source has no reply recipient)</div>Self-reminder &mdash; Fard Engineers invoice 2254-7 ($3,680, due 9/25) was sent to Linzie, who's no longer with us. Forward to Karen / admin@thebrownstudio.com for payment routing per the new invoicing instructions given to other vendors this week.</div>
+    </div>
+
+    <div class="card action" data-date="2026-08-10" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Visit to San Diego - 11th and 12th Sept</span>
+        <span class="meta">Aug 10, 2026 &middot; Nitant Shah (Next Synergy Solutions) &rarr; Ivan</span>
+      </div>
+      <div class="summary">Nitant will be in San Diego Sept 11&ndash;12 and is asking to meet in person to discuss ongoing BIM/CAD outsourcing work and potential collaboration &mdash; a follow-up to a call that fell through twice earlier this year; just needs a day/time confirmed.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fecdecbedb41f1" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Nitant,
+
+Good to hear from you &mdash; happy to meet while you're in town. Let's plan on the 11th or 12th; I'll check my calendar and confirm a time and place shortly.
+
+Best,
+Ivan</div>
+    </div>
+
+    <div class="card action" data-date="2026-08-05" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: 1613 Neptune, Encinitas- Open Invoice</span>
+        <span class="meta">Aug 5, 2026 &middot; Cody Martinez (Brown Bag Builders) &rarr; Ivan</span>
+      </div>
+      <div class="summary">Cody still needs Ivan to confirm which tile company (Stone Masters vs. Global Tile &amp; Marble) was used on the interior at 1613 Neptune before he can get someone out to pull tile and access the pocket for the sliding-door-belt repair &mdash; still unanswered a week later.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19af05eb2372d0a4" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Cody,
+
+Checking our files now &mdash; I'll confirm today which company we used (Stone Masters vs. Global Tile &amp; Marble) so you can get the tile pulled for pocket access.
+
+Thanks,
+Ivan</div>
+    </div>
+
+    <div class="card action" data-date="2026-05-27" data-labels="PROJECTS/HILLTOP HOTEL/MEETING NOTES|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Notes: "Hilltop Motel" (Gemini meeting notes)</span>
+        <span class="meta">May 27, 2026 &middot; from gemini-notes@google.com</span>
+      </div>
+      <div class="summary">Auto-generated notes from the Hilltop Motel investment/partnership meeting still list several follow-ups assigned to Ivan &mdash; send the owners-portal link, distribute the deck and financial models, and send the operating agreement to Tyler &mdash; unread for more than eleven weeks now.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span>
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b89b0100b8b5" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal &mdash; source has no reply recipient)</div>Self-reminder from the Hilltop Motel meeting notes (May 27) &mdash; still outstanding as of Aug 12, now over eleven weeks unread:
+- Send owners-portal access link
+- Distribute the project deck to stakeholders
+- Share financial models with the team
+- Send the financial model / return projections to Tyler (cc Patrick)
+- Send the operating agreement to Tyler
+- Coordinate funding amount with Alberto</div>
+    </div>
+  </div>
+
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">7</span>
+      <h2>FYI</h2>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-11" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">145 Sanford Street - Certificate of Coverage for Greenfield Fence, Inc.</span>
+        <span class="meta">Aug 11, 2026 &middot; from gg@paladinriskmanagement.com (to sanfordinsurance@thebrownstudio.com)</span>
+      </div>
+      <div class="summary">Automated confirmation that Greenfield Fence, Inc. has been enrolled in the Sanford 145 Wrap Up Program with the attached Certificate of Enrollment &mdash; informational only, no action needed.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff472be2b51d56" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-11" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: LA COSTA - SDGE SERVICE FORM</span>
+        <span class="meta">Aug 11, 2026 &middot; T-DUG (Abrhil) &amp; Fard Engineers (Zack/Matt) coordinating directly, cc Ivan/Michael/Lindsay</span>
+      </div>
+      <div class="summary">A long-running vendor coordination thread on the SDGE electrical service design moved forward Aug 11: Fard sent updated electrical plans (switchboard, single-line diagram, load calcs) and a plumbing set, and confirmed a gas diagram will follow once finalized &mdash; T-DUG and Fard are handling this directly between themselves; Ivan is cc'd for visibility only.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19b90b91a478457e" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-11" data-labels="">
+      <div class="card-top">
+        <span class="subject">4545 North Lane CA Point of Contact for 8/17-8/19</span>
+        <span class="meta">Aug 11, 2026 &middot; Blanca Flores (Patterson Engineering) &rarr; team; Kraig Stahl reply with final steel shop drawings</span>
+      </div>
+      <div class="summary">Blanca will be out Aug 17&ndash;19 with Nora Castro as point of contact during that window; Kraig followed up same day with the final steel shop drawings incorporating field changes &mdash; informational, no response required from Ivan.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff1f95a023f776" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-11" data-labels="">
+      <div class="card-top">
+        <span class="subject">Sanford Weekly on August 11, 2026 @ 2:30 PM | Read Meeting Report</span>
+        <span class="meta">Aug 11, 2026 &middot; from executiveassistant@e.read.ai</span>
+      </div>
+      <div class="summary">Read.ai's auto-recap of the same Sanford Weekly call already covered by the Gemini notes above (spot elevations, permit timing, structural revisions, the neighbor setback encroachment) &mdash; duplicate coverage, no new action.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff2f52ec471420" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-08-06" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Invoice 23296 from ENGINEERING DESIGN GROUP</span>
+        <span class="meta">Aug 5&ndash;6, 2026 &middot; accounting@designgroupca.com; Cody Martinez reply (to Lindsay/Ivan, cc Steve/Karen)</span>
+      </div>
+      <div class="summary">Engineering Design Group billed $380 for Sanford Homes (Job #257189-4); Cody confirmed Brown Bag Builders received and forwarded the invoice, asking EDG to cc Karen Bates on future invoices, and EDG confirmed they'll do so &mdash; fully handled, no action needed from Ivan.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19fd419cfcb54c0f" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-06-25" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Soft Costs</span>
+        <span class="meta">Jun 25, 2026 &middot; Bryson Kam (CV Lending) &rarr; Lindsay, cc Ivan/Keith/Linzie</span>
+      </div>
+      <div class="summary">After Linzie and Lindsay pressed Conventus/CV Lending for days over the San Dieguito Water District fee, Bryson confirmed CV Lending will reimburse the full amount once submitted with the city receipt in the next draw; Lindsay thanked him and flagged it as a larger cash need than expected at closing &mdash; appears resolved, no action needed from Ivan.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ef67e7e2f6d7a2" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card fyi" data-date="2026-05-20" data-labels="PROJECTS/SANFORD 145/MEETING NOTES|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Your meeting recap &ndash; SANFORD 145 &ndash; COORDINATION</span>
+        <span class="meta">May 20, 2026 &middot; from fred@fireflies.ai (2 auto-recap emails)</span>
+      </div>
+      <div class="summary">Fireflies recap of the Sanford 145 coordination call: Title 24/VCHP compliance resolved, mechanical rooms reclassified as unconditioned attic space, and the permit package is due the following Tuesday.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span>
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e474c37f9358bf" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">4</span>
+      <h2>Low Priority</h2>
+    </div>
+
+    <div class="card low" data-date="2026-08-11" data-labels="IMPORTANT|EMAILS/monica@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">Re: PEC Engineering Support - Let's Reconnect</span>
+        <span class="meta">Jul 23 &amp; Aug 11, 2026 &middot; Catalina Ramirez (ProEngineering) &rarr; Lindsay/Monica</span>
+      </div>
+      <div class="summary">Cold-outreach follow-up from a structural/MEP engineering firm's business development manager pitching a call to explore working together &mdash; not addressed to Ivan, no action needed.</div>
+      <div class="labels-row">
+        <span class="label-tag">IMPORTANT</span>
+        <span class="label-tag">EMAILS/monica@thebrownstudio.com</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19f8c812c967c93d" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card low" data-date="2026-08-11" data-labels="">
+      <div class="card-top">
+        <span class="subject">Bryce shared: Weekly Update with you</span>
+        <span class="meta">Aug 11, 2026 &middot; from notetaker-updates@fyxer.com</span>
+      </div>
+      <div class="summary">Automated Fyxer notification that Bryce's recorded "Weekly Update" call has 1 action item assigned to Ivan, viewable only via an external link &mdash; low-detail auto-notification, worth a glance but not urgent.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff31015f61d799" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card low" data-date="2026-08-11" data-labels="">
+      <div class="card-top">
+        <span class="subject">Register for the upcoming Contractor/Installer Webinar!</span>
+        <span class="meta">Aug 11, 2026 &middot; from permits@thebrownstudio.com (CHEERS marketing)</span>
+      </div>
+      <div class="summary">Marketing email promoting a free Aug 13 CHEERS webinar on California Energy Code contractor/rater responsibilities &mdash; optional, no action needed.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19ff1c9cbba4538f" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+
+    <div class="card low" data-date="2026-05-27" data-labels="PROJECTS/HILLTOP HOTEL/MEETING NOTES|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Recap of your meeting with ORCA Surfboards</span>
+        <span class="meta">May 27, 2026 &middot; from no-reply@fathom.video</span>
+      </div>
+      <div class="summary">Fathom's auto-recap of the same Hilltop Motel meeting already covered by the Gemini notes above (acquired for $3.25M, 7-year non-recourse owner-carry loan, 75/25 profit split) &mdash; duplicate coverage, no new action.</div>
+      <div class="labels-row">
+        <span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span>
+        <span class="label-tag">IMPORTANT</span>
+      </div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/u/0/#inbox/19e6b83fd83da65f" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+
+  <footer>
+    Generated automatically from Gmail (is:unread in:inbox) on August 12, 2026 &middot; 37 unread messages across 22 threads. Drafted replies are suggestions only &mdash; review before sending.
+  </footer>
+</div>
+</body>
+</html>
