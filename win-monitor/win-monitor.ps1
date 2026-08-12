@@ -616,6 +616,17 @@ try {
             $state = 'idle'
         }
 
+        # Silent unless -Verbose is passed (a free common parameter from
+        # [CmdletBinding()]) - run `.\win-monitor.ps1 -DryRun -Verbose` to
+        # watch idleSeconds live, once a second, with nothing written to
+        # disk. This is the fastest way to tell "idle threshold not reached
+        # yet" apart from "GetLastInputInfo isn't seeing real idle time" -
+        # e.g. something on the machine (an RDP client, a mouse-jiggler-type
+        # utility, certain input drivers) periodically sending synthetic
+        # input, which resets Windows' systemwide last-input timestamp the
+        # same as real input would and this API cannot tell apart from it.
+        Write-Verbose ('idle={0:0.0}s / {1}s  locked={2}  state={3}' -f $idleSeconds, $IdleThresholdSeconds, $isLocked, $state)
+
         $inputStopped = $now.AddSeconds(-$idleSeconds)
 
         # Away polls reuse the session's own snapshot, so the foreground window

@@ -49,7 +49,20 @@ Useful parameters (pass the same way to `win-monitor.cmd`):
 .\win-monitor.ps1 -IdleThresholdSeconds 120     # away after 2 minutes instead of 5
 .\win-monitor.ps1 -DryRun                       # print sessions, write nothing
 .\win-monitor.ps1 -LogDirectory D:\Logs\wm      # log somewhere other than %LOCALAPPDATA%\win-monitor
+.\win-monitor.ps1 -DryRun -Verbose              # watch idleSeconds live, once a second, nothing written
 ```
+
+If idle time never seems to register - the log shows only `active` sessions
+no matter how long you step away - the last of those is the fastest way to
+tell "the idle threshold genuinely hasn't been reached yet" apart from
+"something on the machine keeps resetting Windows' last-input timestamp."
+`GetLastInputInfo` (the API this uses) is systemwide and can't distinguish
+real keyboard/mouse input from anything else that synthesizes it - an RDP
+client, certain mouse/keyboard software, a "keep awake" utility - so a
+periodic nudge from one of those will silently keep `idleSeconds` from ever
+reaching the threshold. Watching the `-Verbose` output for a stretch you know
+you didn't touch the machine will show whether `idleSeconds` is climbing
+normally or getting reset from something other than you.
 
 ```
 win-monitor.cmd -IdleThresholdSeconds 120
