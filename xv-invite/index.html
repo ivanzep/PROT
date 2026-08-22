@@ -77,6 +77,25 @@
   .b4 { top: 63%; right: 8%; transform: rotate(-16deg); }
   .b5 { top: 84%; left: 12%; transform: rotate(10deg) scale(0.85); }
 
+  .flower {
+    position: absolute;
+    width: 46px;
+    height: 46px;
+    opacity: 0.55;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .flower circle { fill: var(--rose-band); stroke: var(--rose); stroke-width: 0.8; }
+  .flower circle.center { fill: var(--gold-light); stroke: none; opacity: 0.9; }
+  .f1 { top: 2%;   right: 20%; transform: scale(0.85) rotate(8deg); }
+  .f2 { top: 10%;  left: 22%;  transform: scale(0.65) rotate(-10deg); opacity: 0.4; }
+  .f3 { top: 28%;  right: 2%;  transform: scale(0.8) rotate(20deg); }
+  .f4 { top: 37%;  left: 14%;  transform: scale(0.6) rotate(-4deg); opacity: 0.4; }
+  .f5 { top: 54%;  right: 16%; transform: scale(1) rotate(-14deg); }
+  .f6 { top: 70%;  left: 1%;   transform: scale(0.75) rotate(12deg); }
+  .f7 { top: 78%;  right: 24%; transform: scale(0.65) rotate(-8deg); opacity: 0.4; }
+  .f8 { top: 91%;  right: 6%;  transform: scale(0.9) rotate(6deg); }
+
   .flourish {
     position: absolute;
     width: 120px;
@@ -517,6 +536,15 @@
   <svg class="butterfly b4" viewBox="0 0 32 32"><line x1="16" y1="9" x2="16" y2="24"/><path d="M16 11 C10 4 2 6 3 13 C4 19 11 18 16 13Z"/><path d="M16 15 C11 15 6 19 7 24 C8 27 13 25 16 20Z"/><path d="M16 11 C22 4 30 6 29 13 C28 19 21 18 16 13Z"/><path d="M16 15 C21 15 26 19 25 24 C24 27 19 25 16 20Z"/></svg>
   <svg class="butterfly b5" viewBox="0 0 32 32"><line x1="16" y1="9" x2="16" y2="24"/><path d="M16 11 C10 4 2 6 3 13 C4 19 11 18 16 13Z"/><path d="M16 15 C11 15 6 19 7 24 C8 27 13 25 16 20Z"/><path d="M16 11 C22 4 30 6 29 13 C28 19 21 18 16 13Z"/><path d="M16 15 C21 15 26 19 25 24 C24 27 19 25 16 20Z"/></svg>
 
+  <svg class="flower f1" viewBox="0 0 24 24"><circle cx="17" cy="12" r="3.4"/><circle cx="13.5" cy="16.8" r="3.4"/><circle cx="8" cy="15" r="3.4"/><circle cx="8" cy="9" r="3.4"/><circle cx="13.5" cy="7.2" r="3.4"/><circle class="center" cx="12" cy="12" r="2.2"/></svg>
+  <svg class="flower f2" viewBox="0 0 24 24"><circle cx="17" cy="12" r="3.4"/><circle cx="13.5" cy="16.8" r="3.4"/><circle cx="8" cy="15" r="3.4"/><circle cx="8" cy="9" r="3.4"/><circle cx="13.5" cy="7.2" r="3.4"/><circle class="center" cx="12" cy="12" r="2.2"/></svg>
+  <svg class="flower f3" viewBox="0 0 24 24"><circle cx="17" cy="12" r="3.4"/><circle cx="13.5" cy="16.8" r="3.4"/><circle cx="8" cy="15" r="3.4"/><circle cx="8" cy="9" r="3.4"/><circle cx="13.5" cy="7.2" r="3.4"/><circle class="center" cx="12" cy="12" r="2.2"/></svg>
+  <svg class="flower f4" viewBox="0 0 24 24"><circle cx="17" cy="12" r="3.4"/><circle cx="13.5" cy="16.8" r="3.4"/><circle cx="8" cy="15" r="3.4"/><circle cx="8" cy="9" r="3.4"/><circle cx="13.5" cy="7.2" r="3.4"/><circle class="center" cx="12" cy="12" r="2.2"/></svg>
+  <svg class="flower f5" viewBox="0 0 24 24"><circle cx="17" cy="12" r="3.4"/><circle cx="13.5" cy="16.8" r="3.4"/><circle cx="8" cy="15" r="3.4"/><circle cx="8" cy="9" r="3.4"/><circle cx="13.5" cy="7.2" r="3.4"/><circle class="center" cx="12" cy="12" r="2.2"/></svg>
+  <svg class="flower f6" viewBox="0 0 24 24"><circle cx="17" cy="12" r="3.4"/><circle cx="13.5" cy="16.8" r="3.4"/><circle cx="8" cy="15" r="3.4"/><circle cx="8" cy="9" r="3.4"/><circle cx="13.5" cy="7.2" r="3.4"/><circle class="center" cx="12" cy="12" r="2.2"/></svg>
+  <svg class="flower f7" viewBox="0 0 24 24"><circle cx="17" cy="12" r="3.4"/><circle cx="13.5" cy="16.8" r="3.4"/><circle cx="8" cy="15" r="3.4"/><circle cx="8" cy="9" r="3.4"/><circle cx="13.5" cy="7.2" r="3.4"/><circle class="center" cx="12" cy="12" r="2.2"/></svg>
+  <svg class="flower f8" viewBox="0 0 24 24"><circle cx="17" cy="12" r="3.4"/><circle cx="13.5" cy="16.8" r="3.4"/><circle cx="8" cy="15" r="3.4"/><circle cx="8" cy="9" r="3.4"/><circle cx="13.5" cy="7.2" r="3.4"/><circle class="center" cx="12" cy="12" r="2.2"/></svg>
+
   <!-- HERO -->
   <section class="hero">
     <div class="hero-photo">
@@ -655,9 +683,9 @@
   // Edit these values, save, reload — nothing else in this file needs to change.
   // ---------------------------------------------------------------------
   const CONFIG = {
-    name: 'Isabella',
-    eventDate: '2026-12-12T18:00:00',      // ISO datetime used by the live countdown
-    eventDateLabel: '12 Diciembre\n2026',   // shown as the big script date (line break optional)
+    name: 'Kyara',
+    eventDate: '2026-12-19T18:00:00',      // ISO datetime used by the live countdown
+    eventDateLabel: '19 Diciembre\n2026',   // shown as the big script date (line break optional)
     quote: 'Hay momentos en la vida que son especiales por sí solos, pero compartirlos con las personas que quieres los convierte en inolvidables.',
     song: { title: 'Nombre de la canción', artist: 'Artista' },
 
@@ -672,10 +700,9 @@
       mapQuery: 'Salón de eventos, Ciudad'
     },
     itinerary: [
-      { label: 'Parroquia', time: '6:00 PM' },
-      { label: 'Salón',     time: '7:30 PM' },
-      { label: 'Cena',      time: '9:00 PM' },
-      { label: 'Fiesta',    time: '10:00 PM' }
+      { label: 'Salón', time: '7:30 PM', icon: 'map' },
+      { label: 'Cena',  time: '9:00 PM', icon: 'fork' },
+      { label: 'Fiesta', time: '10:00 PM', icon: 'music' }
     ],
 
     dressCode: 'Formal',
@@ -694,8 +721,6 @@
     fork: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2v9M4 2v5a2 2 0 0 0 4 0V2M6 11v11M18 2c-2 0-3 3-3 6s1 3 3 3v11"/></svg>`,
     music: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>`
   };
-  const ITINERARY_ICONS = [ICONS.church, ICONS.map, ICONS.fork, ICONS.music];
-
   function el(id) { return document.getElementById(id); }
 
   function render() {
@@ -715,7 +740,7 @@
     const timeline = el('timeline');
     timeline.innerHTML = CONFIG.itinerary.map((stop, i) => {
       const pos = i % 2 === 0 ? 'top' : 'bottom';
-      const icon = ITINERARY_ICONS[i % ITINERARY_ICONS.length];
+      const icon = ICONS[stop.icon];
       return `<div class="stop ${pos}">
         <span class="icon">${icon}</span>
         <span class="stop-label">${stop.label}<br><span class="stop-time">${stop.time}</span></span>
