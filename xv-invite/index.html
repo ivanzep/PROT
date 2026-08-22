@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitación XV Años</title>
+<style>
+  :root {
+    --rose: #cf8fa1;
+    --rose-dark: #a35b70;
+    --rose-line: #e6c3d0;
+    --rose-band: #f3d9e2;
+    --blush-bg: #fdf5f7;
+    --gold: #b8934f;
+    --gold-light: #d9bb85;
+    --ink: #5b3a44;
+    --ink-soft: #8a6773;
+    --font-heading: Georgia, 'Times New Roman', serif;
+    --font-script: 'Segoe Script', 'Brush Script MT', 'Lucida Handwriting', cursive;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #efd9e0;
+    font-family: var(--font-body);
+    color: var(--ink);
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    padding: 32px 12px;
+    min-height: 100vh;
+  }
+
+  .site {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    background: var(--blush-bg);
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(90, 40, 60, 0.35);
+    border-radius: 6px;
+  }
+
+  /* ---------- decorative layers ---------- */
+
+  .sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image:
+      radial-gradient(circle, var(--gold-light) 1px, transparent 1.6px),
+      radial-gradient(circle, var(--gold-light) 1px, transparent 1.6px);
+    background-size: 140px 160px, 190px 210px;
+    background-position: 10px 20px, 90px 120px;
+    z-index: 0;
+  }
+
+  .butterfly {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .butterfly path, .butterfly line { fill: none; stroke: var(--rose); stroke-width: 1.1; }
+  .b1 { top: 6%;  left: 8%;  transform: rotate(-12deg) scale(1.1); }
+  .b2 { top: 16%; right: 10%; transform: rotate(18deg) scale(0.8); opacity: 0.35; }
+  .b3 { top: 46%; left: 6%;  transform: rotate(6deg) scale(0.9); }
+  .b4 { top: 63%; right: 8%; transform: rotate(-16deg); }
+  .b5 { top: 84%; left: 12%; transform: rotate(10deg) scale(0.85); }
+
+  .flourish {
+    position: absolute;
+    width: 120px;
+    opacity: 0.4;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .flourish path, .flourish circle { fill: none; stroke: var(--rose); stroke-width: 1; }
+  .flourish circle { fill: var(--rose); stroke: none; opacity: 0.6; }
+  .fl-top { top: 0; left: -10px; transform: scaleX(-1); }
+  .fl-bottom { bottom: 0; right: -10px; }
+
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 36px 26px;
+  }
+
+  .divider {
+    position: relative;
+    z-index: 1;
+    height: 1px;
+    margin: 0 26px;
+    background: linear-gradient(to right, transparent, var(--rose-line), transparent);
+  }
+
+  h2.eyebrow {
+    margin: 0 0 4px;
+    font-family: var(--font-heading);
+    letter-spacing: 4px;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+  }
+
+  .script-heading {
+    font-family: var(--font-script);
+    color: var(--rose-dark);
+    text-align: center;
+    font-size: 30px;
+    margin: 0 0 18px;
+  }
+
+  /* ---------- hero ---------- */
+
+  .hero { padding-top: 30px; text-align: center; }
+
+  .hero-photo {
+    width: 78%;
+    max-width: 300px;
+    aspect-ratio: 3 / 4;
+    margin: 0 auto;
+    border-radius: 150px 150px 8px 8px;
+    background:
+      radial-gradient(circle at 50% 20%, rgba(255,255,255,0.35), transparent 45%),
+      linear-gradient(160deg, #e7aebd, #b8677e 55%, #7c4053);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 18px 30px -14px rgba(120, 50, 70, 0.5);
+    border: 6px solid #fff;
+  }
+
+  .hero-photo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .hero-photo .swap-hint {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.85);
+    color: var(--ink-soft);
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .hero-title {
+    margin-top: 22px;
+    font-family: var(--font-heading);
+    letter-spacing: 8px;
+    font-size: 15px;
+    color: var(--gold);
+  }
+
+  .hero-name {
+    font-family: var(--font-script);
+    font-size: 56px;
+    line-height: 1.1;
+    margin: 4px 0 22px;
+    background: linear-gradient(180deg, #dcb56f, #a9803e);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* music player */
+  .player {
+    max-width: 240px;
+    margin: 0 auto;
+  }
+  .player .song {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+  }
+  .player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+  .player-controls button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--rose-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .player-controls .play {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--rose);
+    color: #fff;
+  }
+  .player-controls svg { width: 18px; height: 18px; }
+  .player-controls .play svg { width: 16px; height: 16px; }
+  .player-controls button:not(.play) svg { width: 20px; height: 20px; }
+
+  /* ---------- quote ---------- */
+  .quote {
+    text-align: center;
+    font-family: var(--font-heading);
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ink);
+    padding-bottom: 10px;
+  }
+
+  /* ---------- date + countdown ---------- */
+  .date-section { text-align: center; padding-bottom: 0; }
+  .event-date {
+    font-family: var(--font-script);
+    color: var(--rose-dark);
+    font-size: 42px;
+    margin: 4px 0 26px;
+  }
+
+  .countdown-band {
+    background: var(--rose-band);
+    padding: 18px 10px;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+  }
+  .countdown-band .unit { text-align: center; }
+  .countdown-band .num {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--ink);
+  }
+  .countdown-band .num.accent { color: var(--rose-dark); }
+  .countdown-band .label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+  .countdown-caption {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding-top: 14px;
+  }
+
+  /* ---------- location blocks ---------- */
+  .location {
+    text-align: center;
+  }
+  .location .icon {
+    width: 34px;
+    height: 34px;
+    margin: 0 auto 10px;
+    color: var(--rose);
+  }
+  .location .place-name {
+    font-family: var(--font-script);
+    font-size: 24px;
+    color: var(--rose-dark);
+    margin: 0 0 2px;
+  }
+  .location .place-time {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    color: var(--ink);
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .map-btn {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: var(--ink);
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid var(--rose-line);
+    padding: 8px 20px;
+    border-radius: 20px;
+  }
+  .map-btn:hover { background: var(--rose-band); }
+
+  .venue-photo {
+    width: 60%;
+    max-width: 220px;
+    aspect-ratio: 3/4;
+    margin: 26px auto 0;
+    border: 4px solid #fff;
+    box-shadow: 0 12px 22px -12px rgba(120,50,70,0.45);
+    background:
+      radial-gradient(circle at 50% 20%, rgba(255,255,255,0.35), transparent 45%),
+      linear-gradient(160deg, #e7aebd, #b8677e 55%, #7c4053);
+    overflow: hidden;
+    position: relative;
+  }
+  .venue-photo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* itinerary timeline */
+  .itinerary-title {
+    font-family: var(--font-script);
+    text-align: center;
+    color: var(--rose-dark);
+    font-size: 26px;
+    margin: 34px 0 46px;
+  }
+  .timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 0 4px 34px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    top: 50%;
+    height: 1px;
+    background: var(--rose-line);
+  }
+  .timeline .stop {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .timeline .stop.top { transform: translateY(-22px); }
+  .timeline .stop.bottom { transform: translateY(22px); flex-direction: column-reverse; }
+  .timeline .stop .icon { width: 20px; height: 20px; color: var(--rose-dark); }
+  .timeline .stop .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--rose); border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--rose-line);
+  }
+  .timeline .stop .stop-label {
+    font-size: 10px;
+    text-align: center;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .timeline .stop .stop-time { color: var(--rose-dark); font-weight: 600; }
+
+  /* ---------- dress code ---------- */
+  .dresscode { text-align: center; }
+  .dresscode-icons {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin: 10px 0 8px;
+  }
+  .dresscode-icons svg { width: 46px; height: 46px; color: var(--rose-dark); }
+  .dresscode-label {
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--ink);
+  }
+
+  /* ---------- gift ---------- */
+  .gift { text-align: center; }
+  .gift .icon { width: 34px; height: 34px; margin: 0 auto 12px; color: var(--rose); }
+  .gift p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink);
+    max-width: 300px;
+    margin: 0 auto 20px;
+  }
+  .gift-band {
+    background: var(--rose-band);
+    color: var(--ink);
+    text-decoration: none;
+    display: block;
+    padding: 14px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+  .gift-band:hover { background: var(--rose-line); }
+
+  /* ---------- rsvp ---------- */
+  .rsvp { text-align: center; }
+  .rsvp .script-heading { margin-bottom: 16px; }
+  .rsvp .icon { width: 34px; height: 34px; margin: 0 auto 12px; color: var(--rose); }
+  .rsvp p { font-size: 13px; color: var(--ink); margin: 0 0 16px; }
+
+  .rsvp-btn {
+    background: #fff;
+    border: 1px solid var(--rose-line);
+    color: var(--ink);
+    font-size: 13px;
+    padding: 10px 26px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  .rsvp-btn:hover { background: var(--rose-band); }
+  .rsvp-btn.confirmed {
+    background: var(--rose);
+    border-color: var(--rose);
+    color: #fff;
+    cursor: default;
+  }
+  .rsvp-confirm-msg {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--rose-dark);
+    min-height: 16px;
+  }
+
+  .guest-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f1c9d6, var(--rose-band) 70%);
+    color: var(--ink);
+    font-family: var(--font-heading);
+    font-size: 34px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 26px auto 12px;
+  }
+  .guest-note { font-size: 12px; color: var(--ink-soft); }
+
+  /* ---------- gallery / photo upload ---------- */
+  .gallery { text-align: center; }
+  .gallery .icon { width: 30px; height: 30px; margin: 0 auto 10px; color: var(--rose); }
+  .gallery-upload {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--rose-dark);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-bottom: 22px;
+  }
+
+  .qr-fake {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 10px;
+    background: #fff;
+    border: 1px solid var(--rose-line);
+    padding: 6px;
+  }
+  .qr-fake .grid {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+  }
+  .qr-fake .grid span { background: var(--ink); }
+  .qr-fake .grid span.off { background: transparent; }
+  .qr-caption { font-size: 10px; color: var(--ink-soft); letter-spacing: 0.5px; }
+
+  .gallery-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 18px;
+  }
+  .gallery-thumbs img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 10px -4px rgba(90,40,60,0.4);
+  }
+
+  /* ---------- footer ---------- */
+  footer {
+    text-align: center;
+    padding: 40px 26px 54px;
+  }
+  footer .script-heading { font-size: 34px; margin-bottom: 0; }
+
+  @media (max-width: 380px) {
+    .hero-name { font-size: 46px; }
+    .event-date { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="site">
+
+  <!-- decorative background: adjust/remove freely, purely visual -->
+  <div class="sparkles"></div>
+  <svg class="flourish fl-top" viewBox="0 0 120 60"><path d="M0 40 C 30 10, 60 50, 120 15"/><circle cx="20" cy="30" r="2"/><circle cx="55" cy="38" r="1.6"/><circle cx="90" cy="20" r="2"/></svg>
+  <svg class="flourish fl-bottom" viewBox="0 0 120 60"><path d="M0 40 C 30 10, 60 50, 120 15"/><circle cx="20" cy="30" r="2"/><circle cx="55" cy="38" r="1.6"/><circle cx="90" cy="20" r="2"/></svg>
+  <svg class="butterfly b1" viewBox="0 0 32 32"><line x1="16" y1="9" x2="16" y2="24"/><path d="M16 11 C10 4 2 6 3 13 C4 19 11 18 16 13Z"/><path d="M16 15 C11 15 6 19 7 24 C8 27 13 25 16 20Z"/><path d="M16 11 C22 4 30 6 29 13 C28 19 21 18 16 13Z"/><path d="M16 15 C21 15 26 19 25 24 C24 27 19 25 16 20Z"/></svg>
+  <svg class="butterfly b2" viewBox="0 0 32 32"><line x1="16" y1="9" x2="16" y2="24"/><path d="M16 11 C10 4 2 6 3 13 C4 19 11 18 16 13Z"/><path d="M16 15 C11 15 6 19 7 24 C8 27 13 25 16 20Z"/><path d="M16 11 C22 4 30 6 29 13 C28 19 21 18 16 13Z"/><path d="M16 15 C21 15 26 19 25 24 C24 27 19 25 16 20Z"/></svg>
+  <svg class="butterfly b3" viewBox="0 0 32 32"><line x1="16" y1="9" x2="16" y2="24"/><path d="M16 11 C10 4 2 6 3 13 C4 19 11 18 16 13Z"/><path d="M16 15 C11 15 6 19 7 24 C8 27 13 25 16 20Z"/><path d="M16 11 C22 4 30 6 29 13 C28 19 21 18 16 13Z"/><path d="M16 15 C21 15 26 19 25 24 C24 27 19 25 16 20Z"/></svg>
+  <svg class="butterfly b4" viewBox="0 0 32 32"><line x1="16" y1="9" x2="16" y2="24"/><path d="M16 11 C10 4 2 6 3 13 C4 19 11 18 16 13Z"/><path d="M16 15 C11 15 6 19 7 24 C8 27 13 25 16 20Z"/><path d="M16 11 C22 4 30 6 29 13 C28 19 21 18 16 13Z"/><path d="M16 15 C21 15 26 19 25 24 C24 27 19 25 16 20Z"/></svg>
+  <svg class="butterfly b5" viewBox="0 0 32 32"><line x1="16" y1="9" x2="16" y2="24"/><path d="M16 11 C10 4 2 6 3 13 C4 19 11 18 16 13Z"/><path d="M16 15 C11 15 6 19 7 24 C8 27 13 25 16 20Z"/><path d="M16 11 C22 4 30 6 29 13 C28 19 21 18 16 13Z"/><path d="M16 15 C21 15 26 19 25 24 C24 27 19 25 16 20Z"/></svg>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-photo">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <circle cx="50" cy="30" r="16" fill="rgba(255,255,255,0.25)"/>
+        <path d="M20 100 C20 70 35 60 50 60 C65 60 80 70 80 100 Z" fill="rgba(255,255,255,0.2)"/>
+      </svg>
+      <span class="swap-hint">reemplaza con la foto real</span>
+    </div>
+    <div class="hero-title">XV AÑOS</div>
+    <div class="hero-name" id="heroName"></div>
+
+    <div class="player">
+      <div class="song" id="songLabel"></div>
+      <div class="player-controls">
+        <button aria-label="Me gusta" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7.5-4.7-10-9.3C.5 8 2.3 4.5 6 4.5c2.1 0 3.6 1.2 4.5 2.8C11.4 5.7 12.9 4.5 15 4.5c3.7 0 5.5 3.5 4 7.2C19.5 16.3 12 21 12 21z"/></svg>
+        </button>
+        <button aria-label="Anterior" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM20 6L9 12l11 6z"/></svg>
+        </button>
+        <button class="play" id="playBtn" aria-label="Reproducir" type="button">
+          <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <button aria-label="Siguiente" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2v12h2zM4 6l11 6-11 6z"/></svg>
+        </button>
+        <button aria-label="Agregar" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="quote" id="quoteText"></section>
+
+  <!-- DATE + COUNTDOWN -->
+  <section class="date-section">
+    <p style="max-width:300px;margin:0 auto;font-size:13px;line-height:1.7;color:var(--ink-soft);"></p>
+    <div class="event-date" id="eventDateLabel"></div>
+  </section>
+  <div class="countdown-band">
+    <div class="unit"><div class="num" id="cdDays">00</div><div class="label">Días</div></div>
+    <div class="unit"><div class="num" id="cdHours">00</div><div class="label">Horas</div></div>
+    <div class="unit"><div class="num" id="cdMinutes">00</div><div class="label">Minutos</div></div>
+    <div class="unit"><div class="num accent" id="cdSeconds">00</div><div class="label">Segundos</div></div>
+  </div>
+  <div class="countdown-caption">Faltan para el gran día</div>
+
+  <div class="divider"></div>
+
+  <!-- CHURCH -->
+  <section class="location">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v4M9 6h6M6 22V12l6-4 6 4v10M6 22h12M10 22v-6h4v6"/></svg>
+    <div class="place-name" id="churchName"></div>
+    <div class="place-time" id="churchTime"></div>
+    <a class="map-btn" id="churchMap" href="#" target="_blank" rel="noopener">Ver ubicación</a>
+  </section>
+
+  <!-- VENUE -->
+  <section class="location">
+    <div class="place-name" id="venueName"></div>
+    <div class="place-time" id="venueTime"></div>
+    <a class="map-btn" id="venueMap" href="#" target="_blank" rel="noopener">Ver ubicación</a>
+
+    <div class="venue-photo">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <circle cx="50" cy="30" r="16" fill="rgba(255,255,255,0.25)"/>
+        <path d="M20 100 C20 70 35 60 50 60 C65 60 80 70 80 100 Z" fill="rgba(255,255,255,0.2)"/>
+      </svg>
+    </div>
+
+    <div class="itinerary-title">Itinerario</div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- DRESS CODE -->
+  <section class="dresscode">
+    <div class="script-heading">Dress code</div>
+    <div class="dresscode-icons">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M8 3 3 6l2 3 1-1v13h12V8l1 1 2-3-5-3-3 2h-2z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 3h6l1 4-2 1 1 13H9L10 8 8 7z"/></svg>
+    </div>
+    <div class="dresscode-label" id="dressCodeLabel"></div>
+  </section>
+
+  <!-- GIFT -->
+  <section class="gift">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 8h16v4H4zM6 8v12h12V8M10 8V6a2 2 0 1 1 2 2M14 8V6a2 2 0 1 0-2 2"/></svg>
+    <p id="giftNote"></p>
+    <a class="gift-band" id="giftLink" href="#" target="_blank" rel="noopener"></a>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- RSVP -->
+  <section class="rsvp">
+    <div class="script-heading">Confirma asistencia</div>
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c0-3.3 2.7-6 6-6M17 8l2 2 4-4"/></svg>
+    <p>Por favor confirma tu asistencia</p>
+    <button class="rsvp-btn" id="rsvpBtn" type="button">Sí, asistiré</button>
+    <div class="rsvp-confirm-msg" id="rsvpMsg"></div>
+
+    <div class="guest-circle" id="guestCount"></div>
+    <div class="guest-note" id="guestNote"></div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M21 15l-5-5-9 9"/></svg>
+    <div>Agrega tus fotos del evento aquí</div>
+    <label class="gallery-upload">
+      subir fotos (vista previa local)
+      <input type="file" id="galleryInput" accept="image/*" multiple hidden>
+    </label>
+
+    <div class="qr-fake" id="qrFake"><div class="grid" id="qrGrid"></div></div>
+    <div class="qr-caption">Código de ejemplo — reemplaza con tu QR real</div>
+
+    <div class="gallery-thumbs" id="galleryThumbs"></div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="script-heading">Te Esperamos</div>
+  </footer>
+
+</div>
+
+<script>
+  // ---------------------------------------------------------------------
+  // Everything a couple/family would want to personalize lives here.
+  // Edit these values, save, reload — nothing else in this file needs to change.
+  // ---------------------------------------------------------------------
+  const CONFIG = {
+    name: 'Isabella',
+    eventDate: '2026-12-12T18:00:00',      // ISO datetime used by the live countdown
+    eventDateLabel: '12 Diciembre\n2026',   // shown as the big script date (line break optional)
+    quote: 'Hay momentos en la vida que son especiales por sí solos, pero compartirlos con las personas que quieres los convierte en inolvidables.',
+    song: { title: 'Nombre de la canción', artist: 'Artista' },
+
+    church: {
+      name: 'Nombre de Parroquia',
+      time: '6:00 PM',
+      mapQuery: 'Parroquia, Ciudad'
+    },
+    venue: {
+      name: 'Nombre de Salón',
+      time: '7:30 PM',
+      mapQuery: 'Salón de eventos, Ciudad'
+    },
+    itinerary: [
+      { label: 'Parroquia', time: '6:00 PM' },
+      { label: 'Salón',     time: '7:30 PM' },
+      { label: 'Cena',      time: '9:00 PM' },
+      { label: 'Fiesta',    time: '10:00 PM' }
+    ],
+
+    dressCode: 'Formal',
+
+    giftNote: 'Si deseas regalarme un detalle o un sobre será bien recibido, muchas gracias.',
+    giftLabel: 'Mesa de regalos Amazon',
+    giftUrl: '#',
+
+    guestCount: 2,
+    guestCountWord: 'dos'
+  };
+
+  const ICONS = {
+    church: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v4M9 6h6M6 22V12l6-4 6 4v10M6 22h12M10 22v-6h4v6"/></svg>`,
+    map: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s-7-6.4-7-11a7 7 0 1 1 14 0c0 4.6-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>`,
+    fork: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2v9M4 2v5a2 2 0 0 0 4 0V2M6 11v11M18 2c-2 0-3 3-3 6s1 3 3 3v11"/></svg>`,
+    music: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>`
+  };
+  const ITINERARY_ICONS = [ICONS.church, ICONS.map, ICONS.fork, ICONS.music];
+
+  function el(id) { return document.getElementById(id); }
+
+  function render() {
+    el('heroName').textContent = CONFIG.name;
+    el('songLabel').textContent = `${CONFIG.song.title} — ${CONFIG.song.artist}`;
+    el('quoteText').textContent = `“${CONFIG.quote}”`;
+    el('eventDateLabel').innerHTML = CONFIG.eventDateLabel.replace('\n', '<br>');
+
+    el('churchName').textContent = CONFIG.church.name;
+    el('churchTime').textContent = CONFIG.church.time;
+    el('churchMap').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.church.mapQuery);
+
+    el('venueName').textContent = CONFIG.venue.name;
+    el('venueTime').textContent = CONFIG.venue.time;
+    el('venueMap').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.venue.mapQuery);
+
+    const timeline = el('timeline');
+    timeline.innerHTML = CONFIG.itinerary.map((stop, i) => {
+      const pos = i % 2 === 0 ? 'top' : 'bottom';
+      const icon = ITINERARY_ICONS[i % ITINERARY_ICONS.length];
+      return `<div class="stop ${pos}">
+        <span class="icon">${icon}</span>
+        <span class="stop-label">${stop.label}<br><span class="stop-time">${stop.time}</span></span>
+        <span class="dot"></span>
+      </div>`;
+    }).join('');
+
+    el('dressCodeLabel').textContent = CONFIG.dressCode.toUpperCase();
+
+    el('giftNote').textContent = CONFIG.giftNote;
+    const giftLink = el('giftLink');
+    giftLink.textContent = CONFIG.giftLabel.toUpperCase();
+    giftLink.href = CONFIG.giftUrl;
+
+    el('guestCount').textContent = CONFIG.guestCount;
+    el('guestNote').textContent = `Hemos reservado ${CONFIG.guestCountWord} lugares para tí`;
+  }
+
+  // ---- live countdown ----
+  function updateCountdown() {
+    const target = new Date(CONFIG.eventDate).getTime();
+    const now = Date.now();
+    let diff = Math.max(0, target - now);
+
+    const day = 24 * 60 * 60 * 1000;
+    const hour = 60 * 60 * 1000;
+    const minute = 60 * 1000;
+
+    const days = Math.floor(diff / day);
+    const hours = Math.floor((diff % day) / hour);
+    const minutes = Math.floor((diff % hour) / minute);
+    const seconds = Math.floor((diff % minute) / 1000);
+
+    el('cdDays').textContent = String(days).padStart(3, '0');
+    el('cdHours').textContent = String(hours).padStart(2, '0');
+    el('cdMinutes').textContent = String(minutes).padStart(2, '0');
+    el('cdSeconds').textContent = String(seconds).padStart(2, '0');
+  }
+
+  // ---- music player (visual only — no audio file wired up) ----
+  let playing = false;
+  el('playBtn').addEventListener('click', () => {
+    playing = !playing;
+    el('playIcon').innerHTML = playing
+      ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>'
+      : '<path d="M8 5v14l11-7z"/>';
+  });
+
+  // ---- RSVP ----
+  el('rsvpBtn').addEventListener('click', () => {
+    const btn = el('rsvpBtn');
+    btn.textContent = '¡Asistencia confirmada!';
+    btn.classList.add('confirmed');
+    btn.disabled = true;
+    el('rsvpMsg').textContent = `Gracias por confirmar — ¡${CONFIG.name} te espera!`;
+  });
+
+  // ---- fake QR grid (decorative placeholder, not a real scannable code) ----
+  (function drawFakeQr() {
+    const grid = el('qrGrid');
+    let cells = '';
+    // deterministic pseudo-random pattern, with solid corner "finder" blocks like a real QR
+    const finder = (r, c) => (r < 2 && c < 2) || (r < 2 && c > 4) || (r > 4 && c < 2);
+    for (let r = 0; r < 7; r++) {
+      for (let c = 0; c < 7; c++) {
+        const on = finder(r, c) || ((r * 13 + c * 7) % 5 < 2);
+        cells += `<span class="${on ? '' : 'off'}"></span>`;
+      }
+    }
+    grid.innerHTML = cells;
+  })();
+
+  // ---- local-only photo preview (nothing is uploaded anywhere) ----
+  el('galleryInput').addEventListener('change', (e) => {
+    const thumbs = el('galleryThumbs');
+    Array.from(e.target.files).forEach(file => {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      thumbs.appendChild(img);
+    });
+  });
+
+  render();
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+</script>
+</body>
+</html>
