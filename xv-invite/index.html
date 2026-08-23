@@ -661,15 +661,23 @@
 
     .site { max-width: 1180px; }
 
+    /* At full width these bands no longer span edge-to-edge like on mobile,
+       so their outer edge (previously hidden off the mobile viewport) would
+       otherwise show as a hard rectangle over the plain background — mask
+       it to a fade instead. */
     .img-decor-top {
       left: 0;
       right: auto;
       width: min(520px, 46%);
+      mask-image: linear-gradient(to right, black 70%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, black 70%, transparent 100%);
     }
     .img-decor-bottom {
       left: auto;
       right: 0;
       width: min(520px, 46%);
+      mask-image: linear-gradient(to left, black 70%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to left, black 70%, transparent 100%);
     }
 
     .hero {
