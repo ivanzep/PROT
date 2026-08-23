@@ -401,6 +401,7 @@
     text-transform: uppercase;
   }
   .countdown-caption {
+    text-align: center;
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -431,18 +432,40 @@
     letter-spacing: 1px;
     margin-bottom: 14px;
   }
-  .map-btn {
-    display: inline-block;
+  .map-thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 16 / 10;
+    margin: 0 auto;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--rose-band);
+    border: 1px solid var(--rose-line);
+    box-shadow: 0 10px 22px -14px rgba(120, 50, 70, 0.5);
+  }
+  .map-thumb iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    pointer-events: none;
+  }
+  .map-thumb-label {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    background: #fff;
+    color: var(--ink);
     font-size: 12px;
     letter-spacing: 0.5px;
-    color: var(--ink);
-    text-decoration: none;
-    background: #fff;
-    border: 1px solid var(--rose-line);
-    padding: 8px 20px;
+    padding: 7px 18px;
     border-radius: 20px;
+    box-shadow: 0 4px 10px -4px rgba(90, 40, 60, 0.4);
+    white-space: nowrap;
   }
-  .map-btn:hover { background: var(--rose-band); }
+  .map-thumb:hover .map-thumb-label { background: var(--rose-band); }
 
   .venue-photo {
     width: 60%;
@@ -471,7 +494,7 @@
     display: flex;
     justify-content: space-between;
     position: relative;
-    margin: 0 4px 34px;
+    margin: 0 4px 40px;
   }
   .timeline::before {
     content: '';
@@ -479,7 +502,7 @@
     left: 4%;
     right: 4%;
     top: 50%;
-    height: 1px;
+    height: 1.5px;
     background: var(--rose-line);
   }
   .timeline .stop {
@@ -487,25 +510,25 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 9px;
     position: relative;
     z-index: 1;
   }
-  .timeline .stop.top { transform: translateY(-22px); }
-  .timeline .stop.bottom { transform: translateY(22px); flex-direction: column-reverse; }
-  .timeline .stop .icon { width: 20px; height: 20px; color: var(--rose-dark); }
+  .timeline .stop.top { transform: translateY(-30px); }
+  .timeline .stop.bottom { transform: translateY(30px); flex-direction: column-reverse; }
+  .timeline .stop .icon { width: 30px; height: 30px; color: var(--rose-dark); }
   .timeline .stop .dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    background: var(--rose); border: 2px solid #fff;
+    width: 13px; height: 13px; border-radius: 50%;
+    background: var(--rose); border: 3px solid #fff;
     box-shadow: 0 0 0 1px var(--rose-line);
   }
   .timeline .stop .stop-label {
-    font-size: 10px;
+    font-size: 13px;
     text-align: center;
     color: var(--ink);
-    line-height: 1.4;
+    line-height: 1.5;
   }
-  .timeline .stop .stop-time { color: var(--rose-dark); font-weight: 600; }
+  .timeline .stop .stop-time { color: var(--rose-dark); font-weight: 600; font-size: 13.5px; }
 
   /* ---------- dress code ---------- */
   .dresscode { text-align: center; }
@@ -694,7 +717,8 @@
 
     .quote,
     .date-section,
-    .countdown-band {
+    .countdown-band,
+    .countdown-caption {
       max-width: 640px;
       margin-left: auto;
       margin-right: auto;
@@ -812,14 +836,20 @@
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v4M9 6h6M6 22V12l6-4 6 4v10M6 22h12M10 22v-6h4v6"/></svg>
       <div class="place-name" id="churchName"></div>
       <div class="place-time" id="churchTime"></div>
-      <a class="map-btn" id="churchMap" href="#" target="_blank" rel="noopener">Ver ubicación</a>
+      <a class="map-thumb" id="churchMap" href="#" target="_blank" rel="noopener" aria-label="Ver ubicación en Google Maps">
+        <iframe id="churchMapFrame" src="" title="Mapa de la parroquia" loading="lazy" tabindex="-1"></iframe>
+        <span class="map-thumb-label">Ver ubicación</span>
+      </a>
     </section>
 
     <!-- VENUE -->
     <section class="location">
       <div class="place-name" id="venueName"></div>
       <div class="place-time" id="venueTime"></div>
-      <a class="map-btn" id="venueMap" href="#" target="_blank" rel="noopener">Ver ubicación</a>
+      <a class="map-thumb" id="venueMap" href="#" target="_blank" rel="noopener" aria-label="Ver ubicación en Google Maps">
+        <iframe id="venueMapFrame" src="" title="Mapa del salón" loading="lazy" tabindex="-1"></iframe>
+        <span class="map-thumb-label">Ver ubicación</span>
+      </a>
 
       <div class="venue-photo">
         <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
@@ -937,6 +967,8 @@
     music: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>`
   };
   function el(id) { return document.getElementById(id); }
+  function mapSearchUrl(query) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query); }
+  function mapEmbedUrl(query) { return 'https://www.google.com/maps?q=' + encodeURIComponent(query) + '&output=embed'; }
 
   function render() {
     el('heroName').textContent = CONFIG.name;
@@ -946,11 +978,13 @@
 
     el('churchName').textContent = CONFIG.church.name;
     el('churchTime').textContent = CONFIG.church.time;
-    el('churchMap').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.church.mapQuery);
+    el('churchMap').href = mapSearchUrl(CONFIG.church.mapQuery);
+    el('churchMapFrame').src = mapEmbedUrl(CONFIG.church.mapQuery);
 
     el('venueName').textContent = CONFIG.venue.name;
     el('venueTime').textContent = CONFIG.venue.time;
-    el('venueMap').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.venue.mapQuery);
+    el('venueMap').href = mapSearchUrl(CONFIG.venue.mapQuery);
+    el('venueMapFrame').src = mapEmbedUrl(CONFIG.venue.mapQuery);
 
     const timeline = el('timeline');
     timeline.innerHTML = CONFIG.itinerary.map((stop, i) => {
