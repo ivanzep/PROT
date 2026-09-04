@@ -36,6 +36,10 @@ That has two consequences worth knowing:
 
 If a whole operation turns out to be unsupported on your build, the fix is to add the right spelling to the relevant candidate list — they're short and each one is a single arrow function.
 
+### Collections are unwrapped by probing too
+
+`doc.spreads` reports a numeric `length` but does **not** answer to `spreads[i]` — indexing it yields `undefined`. The first version of this script read collections length-first and so built an array of `undefined` entries, then died one line later with `TypeError: Cannot read properties of undefined (reading 'layers')`. `toArray` now tries `.all`/`.items`, then iteration, then indexing (`[i]`, `.get(i)`, `.item(i)`, `.at(i)`) in that order, and only believes a strategy that yields a complete set of real entries — so a half-working collection API can't leak holes into the rest of the script. Keep that ordering if you touch it.
+
 ## Layout without a text measuring API
 
 Word spacing uses each duplicate's own bounds *after* its text has been replaced, plus a 25% gap (`GAP_RATIO`), so words are spaced by what they actually render as rather than by a guessed character width. If a build doesn't expose readable bounds on the duplicates, the script falls back to spreading the words evenly across the space the original frame occupied. If neither is readable, the words end up stacked at the original position and the summary says so explicitly — that case is a fallback, not a layout mode you'd choose (`stack` exists for that).

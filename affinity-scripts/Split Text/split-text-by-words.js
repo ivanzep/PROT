@@ -186,43 +186,84 @@ function hideNode(node) {
  * Selection / document walking
  * ------------------------------------------------------------------ */
 
-// Selection shapes differ per build: an array, an array-like with
-// .length, or a collection with an .all property (as spread.layers has).
+// Collection shapes differ per build and per collection: a real array,
+// something iterable, a wrapper exposing the real list as `.all` (which
+// is how spread.layers is read), or an indexed collection.
+//
+// The order below matters. `doc.spreads` reports a numeric `length` but
+// does NOT answer to `collection[i]` - indexing it yields undefined, so
+// a length-first implementation silently produced an array of undefined
+// entries and blew up one line later on `spread.layers`. Iteration and
+// `.all` are tried before indexing for that reason, every strategy has
+// to produce at least one real entry to be believed, and the result is
+// filtered so a partially-indexable collection can't leak holes into
+// the rest of the script.
 function toArray(collection) {
   if (!collection) return [];
   if (Array.isArray(collection)) return collection;
-  const all = attempt([() => collection.all]);
-  if (Array.isArray(all)) return all;
-  const out = [];
+
+  const nested = attempt([() => collection.all, () => collection.items]);
+  if (nested && nested !== collection) {
+    const unwrapped = toArray(nested);
+    if (unwrapped.length) return unwrapped;
+  }
+
+  const iterated = [];
   try {
-    if (typeof collection.length === 'number') {
-      for (let i = 0; i < collection.length; i++) out.push(collection[i]);
-      return out;
+    for (const item of collection) iterated.push(item);
+  } catch (e) {
+    // not iterable - fall through to the indexed forms below
+  }
+  const cleanIterated = iterated.filter((item) => item !== undefined && item !== null);
+  if (cleanIterated.length) return cleanIterated;
+
+  const length = attempt([() => collection.length, () => collection.count]);
+  if (typeof length === 'number') {
+    for (const read of [
+      (i) => collection[i],
+      (i) => collection.get(i),
+      (i) => collection.item(i),
+      (i) => collection.at(i),
+    ]) {
+      const out = [];
+      for (let i = 0; i < length; i++) {
+        let item;
+        try {
+          item = read(i);
+        } catch (e) {
+          break;
+        }
+        if (item === undefined || item === null) break;
+        out.push(item);
+      }
+      if (out.length === length) return out;
     }
-  } catch (e) {
-    // fall through
   }
-  try {
-    for (const item of collection) out.push(item);
-  } catch (e) {
-    return [];
-  }
-  return out;
+
+  return [];
 }
 
 function selectedNodes(doc) {
   const selection = attempt([
     () => doc.selection,
     () => doc.selectedLayers,
+    () => doc.selectedNodes,
     () => app.selection,
   ]);
-  return toArray(selection);
+  return toArray(selection).filter((node) => node);
 }
 
+// spread.layers.all is the whole node tree of a spread, not just its top
+// level - the same walk relink-images.js uses.
 function allNodes(doc) {
   const nodes = [];
   for (const spread of toArray(doc.spreads)) {
-    for (const node of toArray(spread.layers)) nodes.push(node);
+    if (!spread) continue;
+    const layers = attempt([() => spread.layers]);
+    if (!layers) continue;
+    for (const node of toArray(layers)) {
+      if (node) nodes.push(node);
+    }
   }
   return nodes;
 }
