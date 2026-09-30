@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — September 30, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">1</span>
+      <h2>Urgent</h2>
+    </div>
+
+    <div class="card urgent" data-date="2026-09-30" data-labels="PROJECTS/SANFORD 145/RFI">
+      <div class="card-top">
+        <span class="subject">Action Required: You have 4 overdue RFIs</span>
+        <span class="meta">Sep 30, 2026 · Procore → Ivan · recurring daily reminder</span>
+      </div>
+      <div class="summary">Procore&#x27;s daily reminder again lists 4 overdue RFIs on Sanford 145, still unresolved and now a fifth consecutive digest; Hallmark is also waiting on RFI answers (A1/A2 shower enclosure, MPOE) to finish buyout.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145/RFI</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877754342536202408" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal)</div>Self-reminder: close out the 4 overdue RFIs in Procore today, prioritizing the A1/A2 shower enclosure and MPOE items Hallmark needs for buyout.</div>
+    </div>
+  </div>
+
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">4</span>
+      <h2>Action Needed</h2>
+    </div>
+
+    <div class="card action" data-date="2026-09-29" data-labels="PROJECTS/LA COSTA">
+      <div class="card-top">
+        <span class="subject">La Costa Grade Beam Option</span>
+        <span class="meta">Sep 29, 2026 · Lindsay → Ivan (cc Coyle Residential)</span>
+      </div>
+      <div class="summary">Lindsay asks Ivan to model the grade beam wall option and send dimensions and wall heights, including a north-facing elevation showing the wall at its tallest point.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/LA COSTA</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877693779875781302" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+
+I&#x27;ll model the grade beam option and send dimensions, wall heights, and a north elevation showing the tallest point of the wall by end of day tomorrow.
+
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-09-29" data-labels="PROJECTS/SANFORD 145">
+      <div class="card-top">
+        <span class="subject">Sanford Budget Update</span>
+        <span class="meta">Sep 29, 2026 · Laurel Buckley (Hallmark) → Lindsay, cc Cody, Ivan</span>
+      </div>
+      <div class="summary">Buyout and change orders total $18,917 with the project projected about $1K over budget; Hallmark needs items from our team to finish buyout (interior door ETO quote, flooring specs, window assembly dimensions for South Coast, paint colors, shower enclosure RFI, fence exhibit, MPOE direction, retaining wall veneer, closet design, signage).</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877701901005272228" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Laurel,
+
+Thanks for the update. We&#x27;ll review the outstanding items list and send the window assembly dimensions, shower enclosure RFI response, and MPOE direction first; I&#x27;ll confirm timing for the rest by Friday.
+
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-09-30" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">Action Required: You have 2 overdue submittals</span>
+        <span class="meta">Sep 30, 2026 · Procore → Ivan</span>
+      </div>
+      <div class="summary">Procore reports 2 overdue submittals assigned to Ivan.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877750720890279398" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal)</div>Self-reminder: review and respond to the 2 overdue submittals in Procore this week.</div>
+    </div>
+    <div class="card action" data-date="2026-09-30" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">Re: 145 Sanford - Quote</span>
+        <span class="meta">Sep 30, 2026 · Cody → ETO Doors (cc Ivan, Hailee)</span>
+      </div>
+      <div class="summary">Cody sent ETO Doors quote corrections (rename ID02 to ID00, add 2 slabs for units 6 and 7 laundry, reduce ID11 from 13 to 12) and is waiting on the architecture team to confirm the ID11 size (28x84 at unit A.2).</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1871915736900409731" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Cody,
+
+Confirming the ID11 change: 12 at 30x84 with unit A.2 sized down to 28x84. I&#x27;ll verify against the current plan set and reply today if anything differs.
+
+Best,
+Ivan</div>
+    </div>
+  </div>
+
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">6</span>
+      <h2>FYI</h2>
+    </div>
+
+    <div class="card fyi" data-date="2026-09-29" data-labels="PROJECTS/SANFORD 145/LENDERS &amp; ADMIN">
+      <div class="card-top">
+        <span class="subject">DRE Application</span>
+        <span class="meta">Sep 29, 2026 · Lindsay → Ivan, Cody, Bryce</span>
+      </div>
+      <div class="summary">Lindsay is asking Cody to lead DRE registration for Sanford 8 (Preliminary/Pink Report to allow pre-marketing and reservations) and flags that the entitlement expires Jan 25, 2027, with a one-year extension still available.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145/LENDERS &amp; ADMIN</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877707314265875265" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-29" data-labels="PROJECTS/SANFORD 145">
+      <div class="card-top">
+        <span class="subject">Re: Sanford Questions</span>
+        <span class="meta">Sep 29, 2026 · Laurel Buckley ↔ Abby (cc Rory, Ivan, Cody)</span>
+      </div>
+      <div class="summary">Abby proposed an alternative product and Laurel thinks it may block ADA-compliant controls, so she will check with LMI and asks whether the A1 unit should get the same option.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877698916535571819" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-29" data-labels="PROJECTS/SANFORD 145/MEETING NOTES">
+      <div class="card-top">
+        <span class="subject">Sanford Weekly on September 29, 2026 | Read Meeting Report</span>
+        <span class="meta">Sep 29, 2026 · Read.ai</span>
+      </div>
+      <div class="summary">Meeting report for the Sanford Weekly meeting is ready.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877707184602358018" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-29" data-labels="PROJECTS/SANFORD 145/MEETING NOTES">
+      <div class="card-top">
+        <span class="subject">Sanford 145: Meeting 20 - Sanford Weekly OAC Agenda</span>
+        <span class="meta">Sep 29, 2026 · Procore</span>
+      </div>
+      <div class="summary">Agenda for Sanford Weekly OAC meeting 20 was posted.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877695576140160829" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-28" data-labels="PROJECTS/LA COSTA/CA">
+      <div class="card-top">
+        <span class="subject">LA COSTA-20260923... - This budget is risky since it is base...</span>
+        <span class="meta">Sep 28, 2026 · Google Docs comment</span>
+      </div>
+      <div class="summary">New comment on the La Costa budget sheet warns that a line item is risky because of its basis.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/LA COSTA/CA</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877609459875803435" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-30" data-labels="TBS/ADMIN">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Sep 30, 2026 · Monograph</span>
+      </div>
+      <div class="summary">Daily Monograph notification digest.</div>
+      <div class="labels-row"><span class="label-tag">TBS/ADMIN</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877758028349336662" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">11</span>
+      <h2>Low Priority</h2>
+    </div>
+
+    <div class="card low" data-date="2026-09-30" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">Re: Support for Upcoming Projects</span>
+        <span class="meta">Sep 30, 2026 · Link Studios</span>
+      </div>
+      <div class="summary">Second sales follow-up from a BIM/CAD production outsourcing vendor.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1876416469226954590" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-30" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">Important: Updates to Our Terms &amp; Privacy Policy</span>
+        <span class="meta">Sep 30, 2026 · Fireflies.ai</span>
+      </div>
+      <div class="summary">Terms and privacy policy update notice.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877768586900852503" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-30" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">What Snaptrude apps can do: 5 examples we built</span>
+        <span class="meta">Sep 30, 2026 · Snaptrude</span>
+      </div>
+      <div class="summary">Product newsletter.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877766233928576918" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-30" data-labels="studio@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">Epic Games Store – Important News</span>
+        <span class="meta">Sep 30, 2026 · Epic Games</span>
+      </div>
+      <div class="summary">Promotional newsletter.</div>
+      <div class="labels-row"><span class="label-tag">studio@thebrownstudio.com</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877762649425563442" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-30" data-labels="EMAILS/tyler@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">150K assets + 20% off! Let&#x27;s party!</span>
+        <span class="meta">Sep 30, 2026 · Blendkit</span>
+      </div>
+      <div class="summary">Promotional email.</div>
+      <div class="labels-row"><span class="label-tag">EMAILS/tyler@thebrownstudio.com</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877739195901920415" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-30" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">See How Easy Clocking In Can Be!</span>
+        <span class="meta">Sep 30, 2026 · OnTheClock</span>
+      </div>
+      <div class="summary">Product marketing email.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877732317468077491" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-30" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">SDAF: Could our next Executive Director be you, or someone you know?</span>
+        <span class="meta">Sep 30, 2026 · SDAF</span>
+      </div>
+      <div class="summary">Association job-search announcement.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877717582634984068" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-29" data-labels="EMAILS/monica@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">Concierge-Level Insurance Services</span>
+        <span class="meta">Sep 29, 2026 · IOA</span>
+      </div>
+      <div class="summary">Unsolicited insurance services pitch.</div>
+      <div class="labels-row"><span class="label-tag">EMAILS/monica@thebrownstudio.com</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877704535446674264" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-29" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">Ivan, you have 2 free reports remaining this month!</span>
+        <span class="meta">Sep 29, 2026 · Read.ai</span>
+      </div>
+      <div class="summary">Usage notice.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877707160097685036" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-29" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">Move from quantities to costs with fewer manual handoffs</span>
+        <span class="meta">Sep 29, 2026 · Autodesk</span>
+      </div>
+      <div class="summary">Marketing email.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877680394657866200" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-29" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">Welcome to test projct</span>
+        <span class="meta">Sep 29, 2026 · Autodesk Forma</span>
+      </div>
+      <div class="summary">Automated welcome for a new test project.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877688965419659562" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+
+  <footer>
+    Generated automatically from Gmail (is:unread in:inbox) on September 30, 2026 &middot; 21 new unread threads not in earlier digests; older repeat threads omitted. Drafted replies are suggestions only &mdash; review before sending.
+  </footer>
+</div>
+</body>
+</html>
