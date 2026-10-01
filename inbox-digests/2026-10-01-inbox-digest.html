@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 1, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">1</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="card urgent" data-date="2026-10-01" data-labels="PROJECTS/SANFORD 145|VK/MID|VK/LABELS">
+      <div class="card-top">
+        <span class="subject">Action Required: You have 5 overdue RFIs</span>
+        <span class="meta">Oct 1, 2026 · Procore → Ivan · count up from 4 yesterday</span>
+      </div>
+      <div class="summary">Procore now lists 5 overdue Sanford 145 RFIs assigned to Ivan, including RFI 19 (Fence Exhibit, due Sep 30) and RFI 17 (MPOE, due Sep 10), with RFIs 5, 9 and 11 outstanding since June; Hallmark is waiting on several of these to finish buyout.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145</span><span class="label-tag">VK/MID</span><span class="label-tag">VK/LABELS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877844938412966778" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal)</div>Self-reminder: respond to RFI 19 (west PL fence exhibit) and RFI 17 (MPOE) today, then clear RFIs 5, 9 and 11 this week so Hallmark can close out buyout.</div>
+    </div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">6</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-01" data-labels="PROJECTS/LA COSTA|VK/MID|VK/LABELS">
+      <div class="card-top">
+        <span class="subject">Re: La Costa Grade Beam Option</span>
+        <span class="meta">Oct 1, 2026 · Lindsay → Ivan (cc Coyle Residential) · re-sent twice</span>
+      </div>
+      <div class="summary">Lindsay&#x27;s request (first sent Sep 29) to model the grade beam wall option and send dimensions and wall heights, with a north-looking elevation showing the tallest point, has been re-sent with sketches and still shows no reply.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/LA COSTA</span><span class="label-tag">VK/MID</span><span class="label-tag">VK/LABELS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877693779875781302" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+Sorry for the delay. I'm modeling the grade beam option now and will send the dimensions, wall heights, and a north elevation showing the wall at its tallest point by end of day.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-01" data-labels="PROJECTS/LA COSTA|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Notes: Meeting Sep 30, 2026 at 4:41 PM PDT</span>
+        <span class="meta">Oct 1, 2026 · Gemini Notes</span>
+      </div>
+      <div class="summary">Gemini notes from the La Costa design review assign Ivan roughly 18 follow-ups, among them lowering the roof pitch (8.5 ft low side), removing front fences and boulevard trees, extending the balcony, simplifying the restaurant facade to an A-frame, updating the developer bio for new lenders, and totaling private square footage.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/LA COSTA</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877813412138301443" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+Thanks for the session. I have my action items from the notes and will start with the roof pitch, front fence and tree removal, balcony extension, and the square footage total. I'll send the developer bio update separately since the lenders need it. I'll share a revised set of views once the model changes are in.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-09-30" data-labels="VK/HIGH|PROJECTS/LA COSTA/LENDERS &amp; ADMIN|VK/LABELS">
+      <div class="card-top">
+        <span class="subject">Fwd: La Costa Financing | Call follow up</span>
+        <span class="meta">Sep 30, 2026 · Lindsay (fwd from Chris Jaffe, WelcomeLend) → Ivan</span>
+      </div>
+      <div class="summary">WelcomeLend&#x27;s diligence list for La Costa financing asks first for a pro forma and detailed budget (rooms and restaurant separate, costs to date), the current deck/OM, sponsor financials and a list of lenders already contacted, with sponsor bio, org chart, GC info, permitting status and restaurant/operations items to follow.</div>
+      <div class="labels-row"><span class="label-tag">VK/HIGH</span><span class="label-tag">PROJECTS/LA COSTA/LENDERS &amp; ADMIN</span><span class="label-tag">VK/LABELS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877795783802473617" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+Thanks for forwarding. I can update the deck/OM and the developer bio, and pull the site, entitlement and permit status items. Please let me know who is covering the pro forma, budget and sponsor financials so we can send the priority items together.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-01" data-labels="VK/MID|VK/LABELS|NEW RENDERING GUYS">
+      <div class="card-top">
+        <span class="subject">Re: The Brown Studio / Rendify Demo Recap + Next Steps</span>
+        <span class="meta">Oct 1, 2026 · Adrian Reale (Rendify) → Ivan</span>
+      </div>
+      <div class="summary">Rendify&#x27;s Adrian wants a 15-minute call about two new ideas for the La Costa project, and his Sep 22 and Sep 28 requests to confirm the interior spaces and exterior views to render before he prepares a quote are still unanswered.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">VK/LABELS</span><span class="label-tag">NEW RENDERING GUYS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1831335118261476480" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Adrian,
+Thanks for following up. I'm available for a quick call this week; Thursday or Friday afternoon works. Ahead of it, I'll send the list of interior spaces and exterior views to include so you can size the quote.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-01" data-labels="PROJECTS/SANFORD 145|VK/MID|VK/LABELS">
+      <div class="card-top">
+        <span class="subject">Action Required: You have 3 overdue submittals</span>
+        <span class="meta">Oct 1, 2026 · Procore → Ivan</span>
+      </div>
+      <div class="summary">Three Sanford 145 submittals assigned to Ivan are overdue: 2.0 Foundations rebar drawings and 3.0 Foundations materials (both due Sep 25) and 4.0 A.1 patio wall veneer selection (due Sep 30); up from 2 yesterday.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145</span><span class="label-tag">VK/MID</span><span class="label-tag">VK/LABELS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877841320360422470" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted follow-up (internal)</div>Self-reminder: review and respond to submittals 2.0, 3.0 and 4.0 in Procore this week, starting with the foundation items.</div>
+    </div>
+    <div class="card action" data-date="2026-09-30" data-labels="TBS/OFFICE|VK/MID|VK/LABELS">
+      <div class="card-top">
+        <span class="subject">time sheet and expenses</span>
+        <span class="meta">Sep 30, 2026 · Karen Bates → all staff</span>
+      </div>
+      <div class="summary">Karen asked everyone to finish their time sheet before leaving on Sep 30 because she is on vacation Oct 2-9 and pay depends on it; she and the team are also processing July-September expenses.</div>
+      <div class="labels-row"><span class="label-tag">TBS/OFFICE</span><span class="label-tag">VK/MID</span><span class="label-tag">VK/LABELS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877774359943456867" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Karen,
+Confirming my time sheet is complete through Sep 30. I'll send any remaining July-September expense receipts before your vacation. Enjoy the time off.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">5</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-01" data-labels="PROJECTS/LA COSTA|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Re: La Costa Boutique Hotel – Updated Cultural Resources Documents for Tribal Review</span>
+        <span class="meta">Oct 1, 2026 · Michael ↔ Destiny Colocho (cc Lindsay, Cody, Ivan)</span>
+      </div>
+      <div class="summary">Destiny followed up with San Luis Rey and said the City expects to comment by Oct 8; Michael now wants a firm review deadline set if the tribe has not replied by end of day, since it is over a month since the pre-excavation agreement was first sent.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/LA COSTA</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877058332873122960" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-01" data-labels="VK/LABELS|PROJECTS/LA COSTA/PROPOSALS|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Re: 516 La Costa Ave - Infiltration Testing Proposal</span>
+        <span class="meta">Oct 1, 2026 · Lindsay ↔ Nick Tracy (Verdantas) (cc Ivan)</span>
+      </div>
+      <div class="summary">Lindsay is questioning the infiltration letter: the 10 ft test reads about 1 in/min while 50 ft is only stated as greater than 23 in/hr, and she asks whether to retest with more water so the rate can be certified.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/LA COSTA/PROPOSALS</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1874788661727884178" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-01" data-labels="VK/LABELS|TBS/ADMIN|VK/LOW">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Oct 1, 2026 · Monograph</span>
+      </div>
+      <div class="summary">Monograph&#x27;s daily notice reports 16 tasks overdue.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">TBS/ADMIN</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877848623975086863" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-01" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">[brownstudio.us5.quickconnect.to] Monthly Drive Health Report on Studio-Server - Healthy</span>
+        <span class="meta">Oct 1, 2026 · Synology</span>
+      </div>
+      <div class="summary">Monthly drive health report for Studio-Server shows healthy.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877834061964105310" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-01" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">[10-0-17-195.studio-server-2.direct.quickconnect.to] Monthly Drive Health Report on Studio-server-2 - Healthy</span>
+        <span class="meta">Oct 1, 2026 · Synology</span>
+      </div>
+      <div class="summary">Monthly drive health report for Studio-server-2 shows healthy.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877830292685092396" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">2</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-01" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">Collect and manage project information</span>
+        <span class="meta">Oct 1, 2026 · Slack</span>
+      </div>
+      <div class="summary">Slack marketing email promoting canvases for project information.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877855645387977505" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-01" data-labels="(no label)">
+      <div class="card-top">
+        <span class="subject">AIA Continuing Education Credits</span>
+        <span class="meta">Oct 1, 2026 · Warmboard</span>
+      </div>
+      <div class="summary">Warmboard promotes an AIA presentation worth 1 LU/HSW credit.</div>
+      <div class="labels-row"><span class="label-tag">(no label)</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877851507365255057" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <footer>
+    Generated automatically from Gmail (is:unread in:inbox) on October 1, 2026 &middot; 13 unread threads new or updated since the Sep 30 digest; older repeat threads omitted. Drafted replies are suggestions only &mdash; review before sending.
+  </footer>
+</div>
+</body>
+</html>
