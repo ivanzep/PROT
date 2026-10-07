@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 7, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">2</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="card urgent" data-date="2026-10-07" data-labels="VK/MID|PROJECTS/SANFORD 145/RFI">
+      <div class="card-top">
+        <span class="subject">Action Required: You have 4 overdue RFIs</span>
+        <span class="meta">Oct 7, 2026 · Procore → Ivan</span>
+      </div>
+      <div class="summary">Procore again lists 4 overdue Sanford 145 RFIs assigned to Ivan: RFI 19 (west side PL fence exhibit, due Sep 30), RFI 17 (MPOE, due Sep 10), RFI 11 (A-2 ground floor accessibility review) and RFI 9 (paint color selections), both due Jun 25; Hallmark also lists fence, MPOE and paint as blocking buyout.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">PROJECTS/SANFORD 145/RFI</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878388477431631673" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Self-reminder: respond in Procore (sender is unmonitored). Answer RFI 19 (fence exhibit) and RFI 17 (MPOE direction) today since they block Greenfield and buyout, then close RFIs 9 and 11.</div>
+    </div>
+    <div class="card urgent" data-date="2026-10-07" data-labels="VK/MID|VK/LABELS|PROJECTS/SANFORD 145/PROPOSALS">
+      <div class="card-top">
+        <span class="subject">ETO Doors Estimate - EST-481989 is awaiting your approval</span>
+        <span class="meta">Oct 7, 2026 · ETO Doors → Hailee / Ivan / Cody</span>
+      </div>
+      <div class="summary">ETO Doors estimate EST-481989 for $66,815.36 (dated 07/27/26) is awaiting signature and a retainer payment before the order is processed; Hallmark is waiting on an updated ETO interior door quote with specification to furnish to Surecraft.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/SANFORD 145/PROPOSALS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878349218998230447" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Cody and Hailee,
+The ETO Doors estimate EST-481989 ($66,815.36) is ready for approval. Please confirm the door schedule and spec match the latest plan set; if so I will accept it today and send the quote and spec to Laurel at Hallmark for Surecraft.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">6</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-07" data-labels="VK/MID|PROJECTS/SANFORD 145">
+      <div class="card-top">
+        <span class="subject">Action Required: You have 2 overdue submittals</span>
+        <span class="meta">Oct 7, 2026 · Procore → Ivan</span>
+      </div>
+      <div class="summary">Two Sanford 145 submittals remain overdue: 2.0 foundation rebar/reinforcement drawings (due Sep 25) and 4.0 A.1 unit patio wall veneer selection (due Sep 30).</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">PROJECTS/SANFORD 145</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878385086959974215" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Self-reminder: return submittal 2.0 (foundation rebar) first, then the 4.0 A.1 patio wall veneer selection, which Hallmark also lists as outstanding for the retaining walls buyout.</div>
+    </div>
+    <div class="card action" data-date="2026-10-06" data-labels="VK/MID|VK/LABELS|PROJECTS/SANFORD 145">
+      <div class="card-top">
+        <span class="subject">Sanford Budget Update 10.06.26</span>
+        <span class="meta">Oct 6, 2026 · Laurel Buckley (Hallmark) / Lindsay Brown → Ivan, Cody</span>
+      </div>
+      <div class="summary">Hallmark reports Sanford about $17K under the original budget with $19,702 in sub change orders and several TBDs; Lindsay forwarded it asking for an 11x17 or larger print, and Hallmark needs from the Brown team interior door quote, flooring/baseboard specs, paint colors, fence exhibit, MPOE direction, A1 patio veneer, closet design and unit signage.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/SANFORD 145</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878330902012570256" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+I will print the budget update on 11x17 today and leave it on your desk. I will send Laurel the outstanding items (fence exhibit, MPOE direction, veneer selection, paint colors) by end of week.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-06" data-labels="VK/HIGH|PROJECTS/SANFORD 145/RFI|VK/LABELS">
+      <div class="card-top">
+        <span class="subject">Sanford - Exterior Wood Cladding</span>
+        <span class="meta">Oct 6, 2026 · Laurel Buckley (Hallmark) → Ivan, cc Cody</span>
+      </div>
+      <div class="summary">Laurel asks whether elevations 2a (west elevation B units, limed oak) and 2c (west elevation A1 unit, golden oak) are intentionally different finish colors.</div>
+      <div class="labels-row"><span class="label-tag">VK/HIGH</span><span class="label-tag">PROJECTS/SANFORD 145/RFI</span><span class="label-tag">VK/LABELS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878319859603629138" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Laurel,
+Thanks for catching that. Let me check the elevations and finish schedule and confirm which finish applies to 2a and 2c by tomorrow, then I will issue a clarification.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-06" data-labels="SQUARESPACE|VK/MID|VK/LABELS">
+      <div class="card-top">
+        <span class="subject">We were unable to process payment for your domain</span>
+        <span class="meta">Oct 6, 2026 · Squarespace → Ivan</span>
+      </div>
+      <div class="summary">Squarespace could not charge the $15 renewal for sotasupply.com because no payment method is on file; the domain may be canceled if billing is not updated before Oct 16, 2026.</div>
+      <div class="labels-row"><span class="label-tag">SQUARESPACE</span><span class="label-tag">VK/MID</span><span class="label-tag">VK/LABELS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878337848534005131" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Self-reminder: add a valid payment method in the Squarespace Billing panel for sotasupply.com before Oct 16, 2026 (or decide to let the domain lapse).</div>
+    </div>
+    <div class="card action" data-date="2026-10-06" data-labels="VK/HIGH|PROJECTS/LA COSTA/LENDERS &amp; ADMIN|VK/LABELS">
+      <div class="card-top">
+        <span class="subject">Share request for &quot;$5M Appraisal La Costa Ave.pdf&quot;</span>
+        <span class="meta">Oct 6, 2026 · Google Drive (Kevin Wong, WelcomeLend)</span>
+      </div>
+      <div class="summary">Kevin Wong (kevin.wong@welcomelend.com, outside the organization) requested access to the La Costa $5M appraisal PDF that Ivan owns.</div>
+      <div class="labels-row"><span class="label-tag">VK/HIGH</span><span class="label-tag">PROJECTS/LA COSTA/LENDERS &amp; ADMIN</span><span class="label-tag">VK/LABELS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878340928025291656" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Kevin,
+I have received your request for the La Costa appraisal. Could you confirm your role on the loan so I can share it with the right permissions? I can send it by email once confirmed.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-07" data-labels="PROJECTS/LA COSTA|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Google Chat from Hailee Strach (La Costa site, Brakas permit window, Gascony 1580)</span>
+        <span class="meta">Oct 7, 2026 · Hailee Strach → Ivan</span>
+      </div>
+      <div class="summary">Hailee relayed the plan reviewer answer for the Brakas bathroom window (add a height note if over the height limit; moving the window needs a report, window schedule and structural detail), asks whether the schedule must cover the whole house, and asks for help with new comments on Gascony 1580.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/LA COSTA</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878373936662640848" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Hailee,
+A window schedule for just the replaced window should be enough; please confirm with the plan reviewer. I can help with the Gascony 1580 comments this afternoon.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">5</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-07" data-labels="VK/LABELS|PROJECTS/SANFORD 145/INVOICES|VK/LOW">
+      <div class="card-top">
+        <span class="subject">TDUG Inv 7454 - Sanford 145</span>
+        <span class="meta">Oct 7, 2026 · Adriana Lares (TDUG) / Bryce Raleigh / Kalie Stolberg</span>
+      </div>
+      <div class="summary">TDUG sent invoice 7454 to Karen for processing; Bryce Raleigh asked when remaining invoices are due, and Kalie replied the remaining percentage will be billed once meters are set with no further change orders expected.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/SANFORD 145/INVOICES</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878349421172274022" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-06" data-labels="VK/LABELS|PROJECTS/LA COSTA/PERMITS|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Re: RG Plan Signatures - 516 La Costa</span>
+        <span class="meta">Oct 6, 2026 · Kathleen Noel / Michael Caraglio</span>
+      </div>
+      <div class="summary">The Leucadia Wastewater District rough grading plan was signed and delivered to Ardolino Coastal Engineering; Kathleen sent the signed PDF to Michael and Lindsay forwarded the CAD base to Omega.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/LA COSTA/PERMITS</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878335697436531768" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-07" data-labels="VK/LABELS|PROJECTS/HILLTOP HOTEL/MEETING NOTES|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Recap for &quot;Impromptu Google Meet Meeting&quot;</span>
+        <span class="meta">Oct 7, 2026 · Fathom</span>
+      </div>
+      <div class="summary">Fathom recap of the Hilltop design review: the site plan needs significant updates for clarity and to proactively address planning comments.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878355594795419843" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-07" data-labels="VK/LABELS|PROJECTS/HILLTOP HOTEL/MEETING NOTES|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Notes: Meeting Oct 6, 2026 at 5:24 PM PDT</span>
+        <span class="meta">Oct 7, 2026 · Gemini Notes</span>
+      </div>
+      <div class="summary">Auto-generated Gemini notes from the Oct 6 evening meeting, overlapping with the Hilltop design review recap.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878357185252718108" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-06" data-labels="VK/LABELS|PROJECTS/SANFORD 145/MEETING NOTES|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Sanford Weekly on October 6, 2026 | Read Meeting Report</span>
+        <span class="meta">Oct 6, 2026 · Read AI</span>
+      </div>
+      <div class="summary">The team reviewed the building permit, site schedule, budget, outstanding procurement, subcontractor insurance and mechanical penetrations, with the forecast remaining within budget.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878340468587787193" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">4</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-07" data-labels="VK/LOW">
+      <div class="card-top">
+        <span class="subject">Rethinking Preconstruction: A Connected Approach to Takeoff and Estimating</span>
+        <span class="meta">Oct 7, 2026 · Autodesk</span>
+      </div>
+      <div class="summary">Autodesk webinar reminder starting in two hours.</div>
+      <div class="labels-row"><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878403555224682803" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-07" data-labels="VK/LABELS|TBS/ADMIN|VK/LOW">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Oct 7, 2026 · Monograph</span>
+      </div>
+      <div class="summary">Monograph notification digest saying 16 tasks are overdue.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">TBS/ADMIN</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878392204681547211" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-06" data-labels="VK/LABELS|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Pre-Read for Sanford Weekly on Oct 6 @ 2:30PM</span>
+        <span class="meta">Oct 6, 2026 · Read AI</span>
+      </div>
+      <div class="summary">Read AI pre-read for the Sanford Weekly meeting, now superseded by the meeting report.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878334797758397557" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-05" data-labels="VK/LABELS|PROJECTS/LA COSTA/CA|VK/LOW">
+      <div class="card-top">
+        <span class="subject">LA COSTA-BP SUB 1 BUDGET - potential to add 72-9&quot;</span>
+        <span class="meta">Oct 5, 2026 · Google Docs comment (Cody Martinez)</span>
+      </div>
+      <div class="summary">Cody added a comment on line 433 of the SUB 1 budget sheet; already covered in the Oct 6 digest.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">PROJECTS/LA COSTA/CA</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878249188412903684" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <footer>
+    Generated automatically from Gmail (is:unread in:inbox) on October 7, 2026 &middot; 18 unread threads new since the Oct 6 digest; older repeat threads omitted. Drafted replies are suggestions only &mdash; review before sending.
+  </footer>
+</div>
+</body>
+</html>
