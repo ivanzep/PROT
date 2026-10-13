@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 13, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">1</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="card urgent" data-date="2026-10-13" data-labels="VK/HIGH|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Sanford RFI</span>
+        <span class="meta">Oct 13, 2026 · Lindsay → Abby, Rory, Ivan</span>
+      </div>
+      <div class="summary">Lindsay asks the team to knock out the open Sanford RFIs before today&#x27;s 2:30 call (no detail in the email body; check Procore).</div>
+      <div class="labels-row"><span class="label-tag">VK/HIGH</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878944279171284503" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+I will work through my open Sanford RFIs now and post responses before the 2:30 call. I will flag any that need input from Hallmark or the consultants.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">7</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-13" data-labels="VK/MID|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Permit LDEV-021194-2022, 516 La Costa Ave</span>
+        <span class="meta">Oct 13, 2026 · City of Encinitas (no-reply) → Ivan, Brian (Coast Eng)</span>
+      </div>
+      <div class="summary">All city review disciplines have completed their reviews; markups are in the online portal, and the next resubmittal must include a detailed response to every department comment or it may be rejected.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878946046175748738" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Brian,
+The City has completed all reviews on LDEV-021194-2022. I will pull the markups from the portal and compile the comments today. Can you review the grading and civil items and send your responses so we can submit one complete response letter with the resubmittal?
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-13" data-labels="IMPORTANT|PROJECTS/SANFORD 145/PERMIT|VK/HIGH">
+      <div class="card-top">
+        <span class="subject">Re: SANFORD 145 - BLDR-036889-2025</span>
+        <span class="meta">Oct 13, 2026 · Ryan Bertsch (City of Encinitas) → Ivan</span>
+      </div>
+      <div class="summary">Ryan sent the Water, Sewer and Schools fee forms for the 8 units; these are needed to pay department fees and get the permits issued.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">PROJECTS/SANFORD 145/PERMIT</span><span class="label-tag">VK/HIGH</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-a:r7197848433422537824" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Ryan,
+Thank you for the Water, Sewer and Schools forms. We will complete them for all 8 units and return them shortly. Please let us know the next steps and how to pay fees so the permits can be issued.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-12" data-labels="VK/HIGH|PROJECTS/SANFORD 145/LENDERS &amp; ADMIN|- FOLLOW UP|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Sanford 8 Condominiums - CC&amp;RS - per City Request</span>
+        <span class="meta">Oct 12, 2026 · Lindsay / Steve Rodick (subdivision.net) → Ivan cc</span>
+      </div>
+      <div class="summary">Lindsay asked Ivan to send the approved grading plans and project info for La Costa after Steve Rodick said he needs at least a site or grading plan and the City resolution; the CC&amp;R entitlement deadline of Jan 25, 2027 is flagged as the key timing risk.</div>
+      <div class="labels-row"><span class="label-tag">VK/HIGH</span><span class="label-tag">PROJECTS/SANFORD 145/LENDERS &amp; ADMIN</span><span class="label-tag">- FOLLOW UP</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877703081129794147" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay and Steve,
+Attached are the approved grading plans and site plan for La Costa; I will send the City resolution separately. Steve, please let us know if you need anything else to begin the condo documents.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-12" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: La Costa Financing | Call follow up</span>
+        <span class="meta">Oct 12, 2026 · Lindsay / Kevin Wong (Welcome Lend) → Ivan cc</span>
+      </div>
+      <div class="summary">Lindsay directed Kevin to Ivan for any missing lender information, and asked Ivan earlier whether the condo attorney has responded on the 10-lot condo filing.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877795783802473617" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Kevin,
+Lindsay asked me to help with any missing items. Please send me a list of what you still need and I will get it to you promptly. I will also update you on the condo filing once I hear from the condo attorney.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-09" data-labels="PROJECTS/CLEARVIEW DECK|- REPLY|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: CLEARVIEW DECK - MEETING METERIAL</span>
+        <span class="meta">Oct 9, 2026 · John (Campfire) → Lindsay, cc Ivan</span>
+      </div>
+      <div class="summary">John wants the latest renderings and model for the deck over the fire pit area and is available Mon, Wed mid-morning or Thu mid-afternoon this week; Lindsay asked Ivan for the updated set on Oct 5.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/CLEARVIEW DECK</span><span class="label-tag">- REPLY</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-a:r8115477731474144927" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi John,
+I will send the updated renderings, reference images and current model today. Wednesday mid-morning works on our side; Lindsay, please confirm.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-09" data-labels="VK/MID|PROJECTS/GASCONY 1856|- REPLY|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: GASCONY 1586 - DRAFT SITE PLAN</span>
+        <span class="meta">Oct 9, 2026 · Lindsay / Rory → Ivan</span>
+      </div>
+      <div class="summary">Rory asks Ivan to assemble a plan and book a planning department meeting for next week; Lindsay wants the site plan digitized in full 3D and sent to Logan and Jesse for input on the fastest permit path.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">PROJECTS/GASCONY 1856</span><span class="label-tag">- REPLY</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-a:r1246034063619944975" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Rory and Lindsay,
+I will build the site plan out in 3D and share it with Logan and Jesse this week, and I will ask the planning department for their next available meeting and confirm the date.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-06" data-labels="VK/MID|PROJECTS/LA COSTA|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Fwd: GLULAMS</span>
+        <span class="meta">Oct 6, 2026 · Cody (Brown Bag Builders) → Ivan</span>
+      </div>
+      <div class="summary">Cody forwarded a framing bidder&#x27;s glulam RFI for La Costa and asked Ivan for guidance and to show him how these are handled; still unanswered.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">PROJECTS/LA COSTA</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878342542088621369" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Cody,
+Sorry for the delay. I will review the glulam RFI with the structural drawings and send a draft answer today. Happy to walk through how I handle these on a quick call.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">2</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-06" data-labels="PROJECTS/SANFORD 145|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Deck Material Sample - Sanford</span>
+        <span class="meta">Oct 6, 2026 · Rory / Laurel Buckley (Hallmark)</span>
+      </div>
+      <div class="summary">Rory finds the proposed deck coating not smooth enough; Hallmark&#x27;s sub says the finish is applied in the field to preference and is checking with the rep for alternatives.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877314711627102065" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-13" data-labels="VK/LABELS|TBS/ADMIN|VK/LOW">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Oct 13, 2026 · Monograph</span>
+      </div>
+      <div class="summary">Monograph notification reporting one new notification and 16 overdue tasks.</div>
+      <div class="labels-row"><span class="label-tag">VK/LABELS</span><span class="label-tag">TBS/ADMIN</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878935789216268020" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">1</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-13" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Su equipo puede hacer más sin contratar a nadie</span>
+        <span class="meta">Oct 13, 2026 · Rodrigo Yeo (Arkode)</span>
+      </div>
+      <div class="summary">Cold outreach offering a one-week trial of outsourced team capacity; second follow-up.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878307613916540854" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
