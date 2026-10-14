@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 14, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">2</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="card urgent" data-date="2026-10-14" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have 3 overdue RFIs</span>
+        <span class="meta">Oct 14, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore flags 3 overdue Sanford 145 RFIs assigned to Ivan: RFI 23 Fire Signage &amp; Unit ID (due Oct 13), RFI 19 Fence Exhibit West Side PL (due Sep 30) and RFI 17 MPOE (due Sep 10).</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879022672263148954" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Notification address is unmonitored; suggested note to the team instead:
+
+Hi Lindsay,
+I am working through the three overdue Sanford RFIs (17, 19 and 23) today and will post responses in Procore by end of day. I will flag any that need input from the consultants.
+Best,
+Ivan</div>
+    </div>
+    <div class="card urgent" data-date="2026-10-13" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Re: La Costa Financing | Call follow up</span>
+        <span class="meta">Oct 13, 2026 · Kevin@welcomelend.com</span>
+      </div>
+      <div class="summary">Kevin Wong (Welcome Lend) asks Ivan directly for the tentative tract map and LOI for Casetta to move La Costa financing forward.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877795783802473617" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Kevin,
+I will send the tentative tract map and the LOI for Casetta today. Let me know if the lender needs anything else.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">11</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-13" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: Re: [EXTERNAL] La Costa Hotel - Elevators</span>
+        <span class="meta">Oct 13, 2026 · Mei.Truong@otis.com</span>
+      </div>
+      <div class="summary">Otis (Mei Truong) notes that a second-floor machine room across the hall adds design considerations for a hydraulic elevator at La Costa Hotel.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1857044945539102960" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Mei,
+Thank you for the notes on the machine room location. I will review it with the team and follow up with questions or a revised location.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-12" data-labels="VK/HIGH|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Sanford 8 Condominiums - CC&amp;RS - per City Request</span>
+        <span class="meta">Oct 12, 2026 · lindsay@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Lindsay asked Ivan to send the approved grading plans and project info for La Costa for the Sanford 8-unit CC&amp;R work.</div>
+      <div class="labels-row"><span class="label-tag">VK/HIGH</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877703081129794147" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+I will send the approved grading plans and La Costa project info today.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-09" data-labels="IMPORTANT|- REPLY">
+      <div class="card-top">
+        <span class="subject">Re: CLEARVIEW DECK - MEETING METERIAL</span>
+        <span class="meta">Oct 9, 2026 · john@thisiscampfire.com</span>
+      </div>
+      <div class="summary">John (Campfire) wants the latest renderings and model for the Clearview deck and offered Monday, Wednesday mid-morning or Thursday mid-afternoon to meet.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">- REPLY</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-a:r8115477731474144927" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi John,
+I will send the updated renderings and current model today. Please let us know which of those times works best and we will confirm.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-09" data-labels="VK/MID|IMPORTANT|- REPLY">
+      <div class="card-top">
+        <span class="subject">Re: GASCONY 1586 - DRAFT SITE PLAN</span>
+        <span class="meta">Oct 9, 2026 · lindsay@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Lindsay wants the Gascony site plan digitized in full 3D and sent to Logan and Jesse for input on the fastest permit path.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">IMPORTANT</span><span class="label-tag">- REPLY</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-a:r1246034063619944975" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+I will build the site plan out in 3D and send it to Logan and Jesse this week.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-06" data-labels="VK/MID|IMPORTANT|PROJECTS/LA COSTA">
+      <div class="card-top">
+        <span class="subject">Fwd: GLULAMS</span>
+        <span class="meta">Oct 6, 2026 · cody@brownbagbuilders.com</span>
+      </div>
+      <div class="summary">Cody forwarded a framing bidder's glulam RFI for La Costa and asked for guidance and a walkthrough of how these are handled; unanswered since Oct 6.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">IMPORTANT</span><span class="label-tag">PROJECTS/LA COSTA</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878342542088621369" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Cody,
+Sorry for the delay. I will review the glulam RFI against the structural drawings and send a draft response today. Happy to walk through how I handle these on a quick call.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-05" data-labels="VK/MID|IMPORTANT|PROJECTS/LA COSTA">
+      <div class="card-top">
+        <span class="subject">RE: FARD Engineering</span>
+        <span class="meta">Oct 5, 2026 · pcoyle@coyleresidential.com</span>
+      </div>
+      <div class="summary">Patrick Coyle (Coyle Residential) reports his FARD Engineering email with attachment is not reaching the studio and asks if there is a server file-size limit.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">IMPORTANT</span><span class="label-tag">PROJECTS/LA COSTA</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878240159812298299" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Patrick,
+Sorry about the trouble. Please send the files through a shared link (Dropbox, Drive or similar) and I will pick them up right away.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-05" data-labels="IMPORTANT|VK/LOW|NEW RENDERING GUYS">
+      <div class="card-top">
+        <span class="subject">Re: The Brown Studio / Rendify Demo Recap + Next Steps</span>
+        <span class="meta">Oct 5, 2026 · adrian@rendify.co</span>
+      </div>
+      <div class="summary">Rendify recommends one Premium plus one Pro plan ($10,498 total) to cover all units and walkthroughs; awaiting a decision.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">VK/LOW</span><span class="label-tag">NEW RENDERING GUYS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1831335118261476480" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Adrian,
+Thank you for the recommendation. We are still evaluating options and will follow up with a decision shortly.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-09-24" data-labels="IMPORTANT|PROJECTS/LA COSTA">
+      <div class="card-top">
+        <span class="subject">Re: SDG&amp;E - Easement Quitclaim</span>
+        <span class="meta">Sep 24, 2026 · abrhil@t-dug.com</span>
+      </div>
+      <div class="summary">Abrhil Arvizu (T&amp;D) asks whether to go back to SDG&amp;E because the easement quitclaim is now needed sooner than the 3 weeks previously indicated.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">PROJECTS/LA COSTA</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1870280022153848707" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Abrhil,
+Thank you for checking. Please let me know the earliest SDG&amp;E needs the quitclaim and I will confirm our timing today so you can update them.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-09-10" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Please forward current config 2054 plans</span>
+        <span class="meta">Sep 10, 2026 · lindsay@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Lindsay asked Ivan to email Tory the PDF existing floor plans for the 2054 project.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1875959444011017564" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Tory,
+Attached are the existing floor plans for 2054 in PDF. Let me know if you need anything else.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-08-25" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: 4545 North Lane New steel beam welding to existing steel beam.</span>
+        <span class="meta">Aug 25, 2026 · blanca@pattersoneng.com</span>
+      </div>
+      <div class="summary">Blanca (Patterson Engineering) sent comments on the 4545 North Lane steel shop drawings, noting some information was missing from the submittal.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1873893010457659691" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Blanca,
+Thank you for the comments. We will review them and coordinate with the steel fabricator to resubmit with the missing information.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-08-25" data-labels="IMPORTANT|TBS/ADMIN">
+      <div class="card-top">
+        <span class="subject">Re: emails being billed a month</span>
+        <span class="meta">Aug 25, 2026 · karen@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Karen asks for Ivan's opinion on a proposal to forward only certain team mailboxes and make accounting a forwarding address, to cut per-mailbox billing.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">TBS/ADMIN</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1874416665738275729" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Karen,
+The proposed forwarding setup looks reasonable to me. Please confirm which addresses stay as full mailboxes and I will help with the changes.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">14</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-14" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Oct 14, 2026 · no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Monograph notification: 1 new notification and 16 overdue tasks.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879026383495074010" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-13" data-labels="PROJECTS/SANFORD 145/MEETING NOTES|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Sanford 145: Meeting 22 - Sanford Weekly OAC Agenda</span>
+        <span class="meta">Oct 13, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore posted the agenda for Sanford Weekly OAC Meeting 22.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145/MEETING NOTES</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878960523590060190" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-06" data-labels="PROJECTS/SANFORD 145|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: Deck Material Sample - Sanford</span>
+        <span class="meta">Oct 6, 2026 · lbuckley@hallmarkcommunities.com</span>
+      </div>
+      <div class="summary">Hallmark's sub says the deck surface is finished in the field to preference and is checking with the rep for a smoother alternative.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877314711627102065" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-05" data-labels="PROJECTS/LA COSTA/CA|VK/LOW">
+      <div class="card-top">
+        <span class="subject">LA COSTA-BP SUB 1... - potential to add 72-9"</span>
+        <span class="meta">Oct 5, 2026 · comments-noreply@docs.google.com</span>
+      </div>
+      <div class="summary">Cody Martinez commented on the La Costa BP Sub 1 budget about a potential add of 72-9".</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/LA COSTA/CA</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878249188412903684" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-05" data-labels="PROJECTS/SANFORD 145/RFI|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Re: Sanford - Fire Sprinkler Plans</span>
+        <span class="meta">Oct 5, 2026 · logan@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Logan thanks Laurel for including the steel beams in the Sanford fire sprinkler drawings and notes the color prints help his structural/plumbing coordination.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145/RFI</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878232420575451894" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-02" data-labels="VK/MID|PROJECTS/LA COSTA/CA">
+      <div class="card-top">
+        <span class="subject">LA COSTA-BP SUB 1... - change on duplicate budget</span>
+        <span class="meta">Oct 2, 2026 · comments-noreply@docs.google.com</span>
+      </div>
+      <div class="summary">Cody Martinez commented on the La Costa BP Sub 1 budget about a change on the duplicate budget.</div>
+      <div class="labels-row"><span class="label-tag">VK/MID</span><span class="label-tag">PROJECTS/LA COSTA/CA</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877971636533718184" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-22" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Fwd: New Voicemail from KIMBERLY YORK (858) 414-5656 to Main Auto Receptionist (Ext. 801) on Mon Sep 21, 2026 15:11</span>
+        <span class="meta">Sep 22, 2026 · kla@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Kla forwarded a Zoom voicemail from Kimberly York and asked who should handle it.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877050872633278936" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-14" data-labels="EMAILS/monica@thebrownstudio.com|PROJECTS/LEAF">
+      <div class="card-top">
+        <span class="subject">SDG&amp;E Job Note for #: 300000817404</span>
+        <span class="meta">Sep 14, 2026 · DMOSTI@sdge.com</span>
+      </div>
+      <div class="summary">SDG&amp;E job note for 159 Sanford St: reminder that inspection-authority approval is required to proceed.</div>
+      <div class="labels-row"><span class="label-tag">EMAILS/monica@thebrownstudio.com</span><span class="label-tag">PROJECTS/LEAF</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1876338576252571554" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-14" data-labels="TBS/ADMIN">
+      <div class="card-top">
+        <span class="subject">Fwd: Emergency Call Routing Notification</span>
+        <span class="meta">Sep 14, 2026 · karen@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Karen forwarded a Zoom emergency call routing notification for the admin account.</div>
+      <div class="labels-row"><span class="label-tag">TBS/ADMIN</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1876316421816994026" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-09" data-labels="">
+      <div class="card-top">
+        <span class="subject">Re: Rendering / Marketing</span>
+        <span class="meta">Sep 9, 2026 · lindsay@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Lindsay shared a rendering/marketing service link (marketika.dev) for consideration.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1875828333638776101" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-09-01" data-labels="PROJECTS/NORTH 4545/RFI">
+      <div class="card-top">
+        <span class="subject">4545 North Lane - PEI PM for CA Moving Forward</span>
+        <span class="meta">Sep 1, 2026 · blanca@pattersoneng.com</span>
+      </div>
+      <div class="summary">Blanca (Patterson Engineering) is handing 4545 North Lane project management to new PMs ahead of maternity leave.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/NORTH 4545/RFI</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1875151420978049297" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-08-24" data-labels="TBS/MEETINGS AND NOTES|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Notes: “STAFFING MEETING W/ LINDSAY &amp; RORY” Aug 24, 2026</span>
+        <span class="meta">Aug 24, 2026 · gemini-notes@google.com</span>
+      </div>
+      <div class="summary">Gemini notes from the Aug 24 staffing meeting with Lindsay and Rory.</div>
+      <div class="labels-row"><span class="label-tag">TBS/MEETINGS AND NOTES</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1874430775371827074" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-05-27" data-labels="IMPORTANT|STARRED|PROJECTS/HILLTOP HOTEL/MEETING NOTES">
+      <div class="card-top">
+        <span class="subject">Notes: “Hilltop Motel” May 27, 2026</span>
+        <span class="meta">May 27, 2026 · gemini-notes@google.com</span>
+      </div>
+      <div class="summary">Gemini notes from the May 27 Hilltop Motel meeting.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">STARRED</span><span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1866382071467915445" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-05-27" data-labels="IMPORTANT|PROJECTS/HILLTOP HOTEL/MEETING NOTES">
+      <div class="card-top">
+        <span class="subject">Recap of your meeting with ORCA Surfboards</span>
+        <span class="meta">May 27, 2026 · no-reply@fathom.video</span>
+      </div>
+      <div class="summary">Fathom recap of the Hilltop Motel investment meeting with ORCA Surfboards.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">PROJECTS/HILLTOP HOTEL/MEETING NOTES</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1866381679942018655" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">7</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-14" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Stay connected on project updates in Slack</span>
+        <span class="meta">Oct 14, 2026 · no-reply@email.slackhq.com</span>
+      </div>
+      <div class="summary">Slack marketing email about huddles and clips.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879033763385719282" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-14" data-labels="EMAILS/tyler@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">🧙Get the best free human models!</span>
+        <span class="meta">Oct 14, 2026 · info@mail.blendkit.com</span>
+      </div>
+      <div class="summary">BlenderKit promotion for free 3D fantasy models.</div>
+      <div class="labels-row"><span class="label-tag">EMAILS/tyler@thebrownstudio.com</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879007542922879337" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-14" data-labels="">
+      <div class="card-top">
+        <span class="subject">[Action Required] Your Confluence subscription will be deactivated soon</span>
+        <span class="meta">Oct 14, 2026 · noreply@po.atlassian.net</span>
+      </div>
+      <div class="summary">Atlassian warns the unused Confluence subscription will be deactivated.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878991034551219759" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-13" data-labels="">
+      <div class="card-top">
+        <span class="subject">⏪ Pre-Read for your upcoming meeting: Sanford Weekly on Tue, Oct 13 2026 @ 02:30PM PDT</span>
+        <span class="meta">Oct 13, 2026 · executiveassistant@e.read.ai</span>
+      </div>
+      <div class="summary">Read.ai pre-read for the Sanford Weekly meeting on Oct 13.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878968558705405533" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-25" data-labels="IMPORTANT|PROJECTS/BROADWAY 1938">
+      <div class="card-top">
+        <span class="subject">Re: BROADWAY 1938 - EXTERIOR RENDERINGS RFP</span>
+        <span class="meta">Sep 25, 2026 · info@webercgi.com</span>
+      </div>
+      <div class="summary">Weber CGI follows up on the Broadway 1938 exterior renderings RFP and asks about upcoming 3D work.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">PROJECTS/BROADWAY 1938</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-a:r5172065534108727568" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-09-22" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: FALL GEAR IS HERE! - Your Employee Store Pass</span>
+        <span class="meta">Sep 22, 2026 · michael@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Employee store fall gear promotion thread; Michael replied thanks.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877063721988218365" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-08-19" data-labels="">
+      <div class="card-top">
+        <span class="subject">Sanford 145: Meeting 14 - Sanford Weekly OAC Minutes</span>
+        <span class="meta">Aug 19, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore posted minutes for Sanford Weekly OAC Meeting 14 (Aug 19).</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1873992816619815627" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
