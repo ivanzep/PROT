@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 16, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">2</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="card urgent" data-date="2026-10-15" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Discussion Terms - The La Costa</span>
+        <span class="meta">Oct 15, 2026 · patrick@creativeindustrialgroup.com</span>
+      </div>
+      <div class="summary">Five Star Bank (via Slatt Capital) quoted $12,398,730 at Prime+0.50-1.00% floating, 36 months interest-only; Patrick says that is ~50% of total cost but ~65% of qualifying cost (~$18.9M), and Lindsay asked Ivan to produce an updated budget showing qualifying costs (a $2.5M-$3M equity swing).</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879150395606768178" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay and Patrick,
+The updated budget with a qualifying-costs breakdown is attached (see the qualified costs tab of the v4 proforma). I will draft the questions for Gary Goss on whether $12.4M is fixed or resized to 50% of qualifying costs, and how GC fee, builder&#x27;s risk, bonds, predevelopment costs and the 1% placement fee are treated. Please confirm and I will send today.
+Best,
+Ivan</div>
+    </div>
+    <div class="card urgent" data-date="2026-10-16" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Fwd: 335 Palisades Circle</span>
+        <span class="meta">Oct 16, 2026 · cody@brownbagbuilders.com</span>
+      </div>
+      <div class="summary">Lindsay asked Cody and Ivan to join a 9:15 a.m. call today with the attorney&#x27;s office on contractor disclosures for the Tahoe project; Ivan has the files and Lindsay wants old emails reviewed for warranty and fabrication changes. Cody confirmed he reviewed the attachment.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879158478507771484" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+I will join the 9:15 call. I have the Palisades Circle files and will pull the earlier warranty and Plant Prefab emails and forward them to you and Cody before the call.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">8</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have an overdue RFI</span>
+        <span class="meta">Oct 16, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore reports 1 overdue RFI assigned to Ivan (Hallmark Communities project).</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879203857229193647" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Notification address is unmonitored; suggested action: open Procore and respond to or close the overdue RFI today.</div>
+    </div>
+    <div class="card action" data-date="2026-10-15" data-labels="">
+      <div class="card-top">
+        <span class="subject">Studio-Server was shut down improperly</span>
+        <span class="meta">Oct 15, 2026 · ivan@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Synology alert: Studio-Server shut down improperly (possible power failure, risk of data loss) and then flapped its UPS connection; check the volume and UPS.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879159015420190965" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: log into DSM, run a data scrub / check the storage pool and confirm the UPS is configured for safe shutdown.</div>
+    </div>
+    <div class="card action" data-date="2026-10-15" data-labels="">
+      <div class="card-top">
+        <span class="subject">Studio-server-2 was shut down improperly</span>
+        <span class="meta">Oct 15, 2026 · ivan@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Synology alert: Studio-server-2 shut down improperly at the same moment, suggesting a power event affecting both servers.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879158956383259867" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: verify Studio-server-2 volume health alongside Studio-Server.</div>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="PERMITS@THEBROWNSTUDIO.COM">
+      <div class="card-top">
+        <span class="subject">City of Encinitas Building Permit Invoice: BLDR-037035-2025</span>
+        <span class="meta">Oct 16, 2026 · permits@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Encinitas CSS notice that the invoice for permit BLDR-037035-2025 is ready to be paid online.</div>
+      <div class="labels-row"><span class="label-tag">PERMITS@THEBROWNSTUDIO.COM</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879217086156440921" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: log into the CSS account and pay invoice BLDR-037035-2025 (or forward to accounting).</div>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="PERMITS@THEBROWNSTUDIO.COM">
+      <div class="card-top">
+        <span class="subject">City of Encinitas Building Permit Invoice: BLDR-037036-2025</span>
+        <span class="meta">Oct 16, 2026 · permits@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Encinitas CSS notice that the invoice for permit BLDR-037036-2025 is ready to be paid online.</div>
+      <div class="labels-row"><span class="label-tag">PERMITS@THEBROWNSTUDIO.COM</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879217024126256483" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: log into the CSS account and pay invoice BLDR-037036-2025 (or forward to accounting).</div>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="PERMITS@THEBROWNSTUDIO.COM">
+      <div class="card-top">
+        <span class="subject">City of Encinitas Building Permit Invoice: BLDR-037037-2025</span>
+        <span class="meta">Oct 16, 2026 · permits@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Encinitas CSS notice that the invoice for permit BLDR-037037-2025 is ready to be paid online.</div>
+      <div class="labels-row"><span class="label-tag">PERMITS@THEBROWNSTUDIO.COM</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879216831486044522" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: log into the CSS account and pay invoice BLDR-037037-2025 (or forward to accounting).</div>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="PERMITS@THEBROWNSTUDIO.COM">
+      <div class="card-top">
+        <span class="subject">City of Encinitas Building Permit Invoice: BLDR-037038-2025</span>
+        <span class="meta">Oct 16, 2026 · permits@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Encinitas CSS notice that the invoice for permit BLDR-037038-2025 is ready to be paid online.</div>
+      <div class="labels-row"><span class="label-tag">PERMITS@THEBROWNSTUDIO.COM</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879216830186481097" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: log into the CSS account and pay invoice BLDR-037038-2025 (or forward to accounting).</div>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="PERMITS@THEBROWNSTUDIO.COM">
+      <div class="card-top">
+        <span class="subject">City of Encinitas Building Permit Invoice: BLDR-037039-2025</span>
+        <span class="meta">Oct 16, 2026 · permits@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Encinitas CSS notice that the invoice for permit BLDR-037039-2025 is ready to be paid online.</div>
+      <div class="labels-row"><span class="label-tag">PERMITS@THEBROWNSTUDIO.COM</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879216831198363572" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: log into the CSS account and pay invoice BLDR-037039-2025 (or forward to accounting).</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">7</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-16" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Phase II Archaeological Testing for La Costa Boutique Hotel</span>
+        <span class="meta">Oct 16, 2026 · destinycolocho.rpa@gmail.com</span>
+      </div>
+      <div class="summary">Phase II fieldwork is confirmed to start Wed Oct 21 at 7am with San Luis Rey and San Pasqual monitors; Destiny will send the tribes a confirmation and calendar invite today.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879159880553856421" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-15" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: La Costa - Archaeology</span>
+        <span class="meta">Oct 15, 2026 · michael@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Michael explains the boring data is for Destiny to complete her Phase II analysis; testing continues to native soil, roughly 5-11 ft deep along the bluff edge.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879060307887259265" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-15" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: La Costa Boutique Hotel Project – Cultural Resources Documents for City Review</span>
+        <span class="meta">Oct 15, 2026 · destinycolocho.rpa@gmail.com</span>
+      </div>
+      <div class="summary">Destiny replied to Christina after their emails crossed, acknowledging the City&#x27;s additional comments on the cultural resources documents.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1877058267445785842" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-15" data-labels="">
+      <div class="card-top">
+        <span class="subject">[brownstudio.us5.quickconnect.to] Studio-Server has connected to the UPS</span>
+        <span class="meta">Oct 15, 2026 · ivan@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Synology notice that Studio-Server reconnected to the UPS, following the improper shutdown.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879159025593600302" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-15" data-labels="">
+      <div class="card-top">
+        <span class="subject">[brownstudio.us5.quickconnect.to] Studio-Server has lost the connection to the UPS</span>
+        <span class="meta">Oct 15, 2026 · ivan@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Synology notice that Studio-Server briefly lost its UPS connection.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879159030308491419" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-15" data-labels="">
+      <div class="card-top">
+        <span class="subject">[brownstudio.us5.quickconnect.to] Studio-Server has connected to the UPS</span>
+        <span class="meta">Oct 15, 2026 · ivan@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Synology notice that Studio-Server reconnected to the UPS again.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879159042108336632" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-16" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Oct 16, 2026 · no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Monograph notification: 1 new notification and 16 overdue tasks.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879207577679612828" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">2</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-16" data-labels="PERMITS@THEBROWNSTUDIO.COM">
+      <div class="card-top">
+        <span class="subject">Accredited Virtual L&amp;L Presentation</span>
+        <span class="meta">Oct 16, 2026 · permits@thebrownstudio.com</span>
+      </div>
+      <div class="summary">INTUS Windows solicits a virtual accredited Lunch &amp; Learn presentation.</div>
+      <div class="labels-row"><span class="label-tag">PERMITS@THEBROWNSTUDIO.COM</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879195989401283277" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-16" data-labels="STUDIO@THEBROWNSTUDIO.COM">
+      <div class="card-top">
+        <span class="subject">Something BIG Just Changed in My Masterclass!</span>
+        <span class="meta">Oct 16, 2026 · info@twinmotionmasterclass.com</span>
+      </div>
+      <div class="summary">Promotional email for a Twinmotion masterclass.</div>
+      <div class="labels-row"><span class="label-tag">STUDIO@THEBROWNSTUDIO.COM</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879211410076063163" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
