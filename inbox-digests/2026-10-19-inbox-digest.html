@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 19, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">1</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="card urgent" data-date="2026-10-16" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Action required: Renew your expired Squarespace domain registration</span>
+        <span class="meta">Oct 16, 2026 · no-reply@squarespace.com</span>
+      </div>
+      <div class="summary">sotasupply.com expired Oct 16; connected site, email and PayPal links stop working and it may enter redemption (extra fee) if not renewed during the grace period.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879247552241347036" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: log into Squarespace Domains and renew sotasupply.com today (or contact support) before it goes into redemption.</div>
+    </div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">7</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">We were unable to process payment for your domain</span>
+        <span class="meta">Oct 16, 2026 · no-reply@squarespace.com</span>
+      </div>
+      <div class="summary">Squarespace could not authorize the card on file for the sotasupply.com renewal; billing info needs updating (cause of the expiry above).</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879247552346513957" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: update the payment method in Squarespace, then renew the domain.</div>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="">
+      <div class="card-top">
+        <span class="subject">SANFORD 8 - Construction Plans ?</span>
+        <span class="meta">Oct 16, 2026 · rodick@subdivision.net</span>
+      </div>
+      <div class="summary">Steve Rodick and Larry Grove need a link to the Sanford construction plans to prepare the Assessment Budget.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879250366089805239" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Steve,
+Here is a link to the current Sanford construction plan set: [LINK]. Let me know if you need any specific sheets or a different format.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-16" data-labels="">
+      <div class="card-top">
+        <span class="subject">La Costa (516) Project</span>
+        <span class="meta">Oct 16, 2026 · rodick@subdivision.net</span>
+      </div>
+      <div class="summary">Rodick says two separate condo units/modules can be recorded on the La Costa lot in roughly two weeks (Condominium Plan from the surveyor/engineer plus minimal legal documents), enabling separate loans; he wants a meeting with the surveyor/engineer and a decision on one or two sets of CC&amp;Rs. DRE not involved at the two-unit stage.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879245444157434860" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+This structure looks workable for the lender. I can loop in our civil engineer/surveyor to confirm the module boundaries and schedule a meeting with Steve. Please confirm the lender is comfortable with a two-module split and whether you prefer one or two sets of CC&amp;Rs.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-19" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have an overdue RFI</span>
+        <span class="meta">Oct 19, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore reports 1 overdue RFI assigned to Ivan (Hallmark Communities project); repeats daily.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879475749268602331" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Notification address is unmonitored; suggested action: open Procore and respond to or close the overdue RFI today.</div>
+    </div>
+    <div class="card action" data-date="2026-10-18" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have an overdue RFI</span>
+        <span class="meta">Oct 18, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore reports 1 overdue RFI assigned to Ivan (Hallmark Communities project); repeats daily.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879385029602212606" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Notification address is unmonitored; suggested action: open Procore and respond to or close the overdue RFI today.</div>
+    </div>
+    <div class="card action" data-date="2026-10-17" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have an overdue RFI</span>
+        <span class="meta">Oct 17, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore reports 1 overdue RFI assigned to Ivan (Hallmark Communities project); repeats daily.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879294442846175551" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Notification address is unmonitored; suggested action: open Procore and respond to or close the overdue RFI today.</div>
+    </div>
+    <div class="card action" data-date="2026-10-19" data-labels="">
+      <div class="card-top">
+        <span class="subject">This week’s Client Updates are ready to publish</span>
+        <span class="meta">Oct 19, 2026 · notifications@buildertrend.net</span>
+      </div>
+      <div class="summary">Buildertrend weekly client updates (Oct 11-19) are ready to review and send.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879486973275451572" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed: review and publish the Buildertrend client updates.</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">3</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-16" data-labels="PROJECTS/SANFORD 145/CA|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Sanford Follow Up</span>
+        <span class="meta">Oct 16, 2026 · cody@brownbagbuilders.com</span>
+      </div>
+      <div class="summary">Cody acknowledges the internal agenda doc for RFI follow-up and reports more RFIs completed than open on Sanford.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145/CA</span><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879130395038732769" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-19" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Oct 19, 2026 · no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Monograph shows 1 new notification and 16 overdue tasks.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879479368463420088" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-16" data-labels="permits@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">Moderator&#x27;s spam report for permits@thebrownstudio.com</span>
+        <span class="meta">Oct 16, 2026 · permits@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Google Group moderation queue holds suspicious messages sent to the permits group; review and approve or reject.</div>
+      <div class="labels-row"><span class="label-tag">permits@thebrownstudio.com</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879246682718670612" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">3</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-19" data-labels="EMAILS/tyler@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">Fall Sale Starts November 25. Start Your Wishlist Now</span>
+        <span class="meta">Oct 19, 2026 · noreply@porcelanosa.com</span>
+      </div>
+      <div class="summary">Porcelanosa promotion for its Fall Sale starting Nov 25.</div>
+      <div class="labels-row"><span class="label-tag">EMAILS/tyler@thebrownstudio.com</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879489222833866611" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-19" data-labels="">
+      <div class="card-top">
+        <span class="subject">TBS TEST - Oct 19, 2026</span>
+        <span class="meta">Oct 19, 2026 · data-studio-noreply@google.com</span>
+      </div>
+      <div class="summary">Scheduled Google Data Studio report email.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879462482935845468" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-18" data-labels="">
+      <div class="card-top">
+        <span class="subject">Templates for your next photobook</span>
+        <span class="meta">Oct 18, 2026 · product@engage.canva.com</span>
+      </div>
+      <div class="summary">Canva promotional template recommendations.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879408068714987975" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
