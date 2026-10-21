@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 21, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">1</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="card urgent" data-date="2026-10-21" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: Stakeholders Report Review (Hilltop)</span>
+        <span class="meta">Oct 21, 2026 · lindsay@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Lindsay asked for half of Draw 2 to be moved into Draw 1 in the Hilltop stakeholder report (plus a clearer cap table and portal upload, originally due 6:00 pm Oct 20) and is now asking whether that adjustment was made.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879604389982336673" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Lindsay,
+
+Not yet - the PDF I sent last night did not include the Draw 2 / Draw 1 adjustment. I&#x27;ll move half of Draw 2 into Draw 1, add a note in the report explaining the change, clean up the cap table, and upload the revised report with the plans, renderings and positioning documents to the Deal Flow portal. I&#x27;ll send you the updated PDF shortly and will confirm once the portal is live so we can email the stakeholders.
+
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">3</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-21" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: [External]</span>
+        <span class="meta">Oct 21, 2026 · cody@brownbagbuilders.com</span>
+      </div>
+      <div class="summary">Cody looped Ivan in with Dixieline&#x27;s lumber rep and asks for a diagram of the radius glulam roof beams (like the hand-drawn sketch attached) so suppliers can quote the rounded Bungalow buildings.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879616258785076117" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Cody,
+
+Happy to help. I&#x27;ll pull the radius, span and bearing information from sheets S315 and A2.20 and put together a beam diagram for Pat and Ruben. I&#x27;ll send it over by end of day tomorrow; let me know if the lumber suppliers need anything else on it.
+
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-21" data-labels="IMPORTANT|PROJECTS/LA COSTA/PROPOSALS|VK/LOW">
+      <div class="card-top">
+        <span class="subject">Re: FW: La Costa Hotel - Combined Domestic &amp; Fire Water Lines</span>
+        <span class="meta">Oct 21, 2026 · sean@omega-consultants.com</span>
+      </div>
+      <div class="summary">Sean (Omega) quoted $7,400 (40 hours) for the underground fire scope, from the proposed fire service backflow to each building&#x27;s sprinkler supply, assuming a single onsite system and sprinkler plans by others; Michael is awaiting a decision.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span><span class="label-tag">PROJECTS/LA COSTA/PROPOSALS</span><span class="label-tag">VK/LOW</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1878526196544928097" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Michael,
+
+Sean&#x27;s $7,400 proposal for the underground fire scope looks consistent with what we discussed. The assumption of a single onsite system with sprinkler plans by others still needs to be confirmed with Lindsay and Patrick. Once they approve, I&#x27;ll let Sean know to proceed.
+
+Thank you,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-21" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have an overdue RFI</span>
+        <span class="meta">Oct 21, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore: RFI 19 (Fence Exhibit - West Side PL) on Project 110 - Sanford 145 was due Sep 30 and is still overdue.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879656899428465976" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed (Procore is unmonitored): open RFI 19 in Procore and respond, or reassign it, today.</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">4</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-21" data-labels="">
+      <div class="card-top">
+        <span class="subject">La Costa Hotel - Retaining Wall (Caisson/Grad Beam or Permanent Shoring)</span>
+        <span class="meta">Oct 21, 2026 · michael@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Michael asked the civil and structural team for a meeting this week on replacing the proposed CIP retaining wall with permanent shoring or caisson/grade beam, contingent on Omega&#x27;s SWMM moving stormwater retention underground; Ivan is cc&#x27;d.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879616644209794151" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-20" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Recap of your meeting with hallmarkcommunities.com</span>
+        <span class="meta">Oct 20, 2026 · no-reply@fathom.video</span>
+      </div>
+      <div class="summary">Fathom recap: structural and design issues were resolved to avoid construction delays, including the garage wall conflict that threatened to halt work.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879611998753217471" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-20" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Sanford Weekly on October 20, 2026 @ 2:30 PM | Read Meeting Report</span>
+        <span class="meta">Oct 20, 2026 · executiveassistant@e.read.ai</span>
+      </div>
+      <div class="summary">Read.ai report: a foundation and framing conflict affecting field work, plus exterior door, stucco, stain and cladding decisions; several structural and finish specifications remain open.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879609790747669578" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-20" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Notes: Meeting Oct 20, 2026 at 1:28 PM PDT</span>
+        <span class="meta">Oct 20, 2026 · meetings-noreply@google.com</span>
+      </div>
+      <div class="summary">Gemini meeting notes for the Oct 20 1:28 PM meeting are available in Google Docs, with summary and detailed recap.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879605201368386362" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">4</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-21" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Oct 21, 2026 · no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Monograph notification: 16 tasks are overdue.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879660563620524204" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-21" data-labels="">
+      <div class="card-top">
+        <span class="subject">[brownstudio.us5.quickconnect.to] Packages on Studio-Server are out-of-date</span>
+        <span class="meta">Oct 21, 2026 · ivan@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Synology alert: one package on Studio-Server is out of date; update it in DSM Package Center when convenient.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879662928674724341" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-21" data-labels="STUDIO@THEBROWNSTUDIO.COM">
+      <div class="card-top">
+        <span class="subject">174 NEW Assets You Don&#x27;t Want to Miss!</span>
+        <span class="meta">Oct 21, 2026 · info@twinmotionmasterclass.com</span>
+      </div>
+      <div class="summary">Twinmotion Masterclass promo for a 174-asset library update.</div>
+      <div class="labels-row"><span class="label-tag">STUDIO@THEBROWNSTUDIO.COM</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879667881061018354" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-21" data-labels="">
+      <div class="card-top">
+        <span class="subject">Top schedule management tools you should know</span>
+        <span class="meta">Oct 21, 2026 · comms@acs.autodesk.com</span>
+      </div>
+      <div class="summary">Autodesk promotional email on Forma schedule management tools.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879670166649338206" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
