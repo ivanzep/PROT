@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 22, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">1</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="card urgent" data-date="2026-10-21" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Sanford 145 - PV Design</span>
+        <span class="meta">Oct 21, 2026 · lbuckley@hallmarkcommunities.com</span>
+      </div>
+      <div class="summary">Hallmark forwarded the PV designer's (MARS Energy) questions on Lot 2 (panels 70° out of tolerance on limited roof space, T-24 margin only .04, option to bump inverter efficiency to 97%) and needs a response this week so he can submit to the City.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879689204314028896" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Laurel,
+
+Thanks for sending this over. We'll review the Lot 2 roof plan and the T-24 numbers with Andy's questions and get you a response before the end of the week so he can proceed with the City submittal. Please let him know we're looking at the module type, the additional panel count on the same roof plane, and the inverter efficiency option, and that he should hold the submittal until he hears back.
+
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">3</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-22" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">La Costa</span>
+        <span class="meta">Oct 22, 2026 · rodick@subdivision.net</span>
+      </div>
+      <div class="summary">Steve Rodick confirmed the early condominium configuration the lender wants can proceed with only standard Condominium Final Map processing (per the City of Encinitas), title companies will insure, and he asks whether to prepare a proposed agreement and have a meeting set with the engineer/surveyor; Lindsay already said yes to the proposal and wants entitlement impacts on the building permit understood.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879709411963386412" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Steve,
+
+Thank you for the update, and for checking with the City and title. Following Lindsay's note, please send your proposed agreement. I'll coordinate a meeting with our civil engineer and land surveyor early next week; please send a few times that work for you. It would help if the proposal also outlines the schedule for the Final Map so we can confirm it won't affect the current building permit review.
+
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-19" data-labels="PROJECTS/SANFORD 145|IMPORTANT|- REPLY">
+      <div class="card-top">
+        <span class="subject">RE: Job# 300000786380 - NB AD 145 SANFORD HOMES OD (Costing)</span>
+        <span class="meta">Oct 19, 2026 · lbuckley@hallmarkcommunities.com</span>
+      </div>
+      <div class="summary">Laurel asks Cody and Ivan to confirm whether Cox/Spectrum redlines were ever received (and forward them), and to add a response on the MPOE RFI confirming no dog house or closets, with everything wall-mounted cabinets/meter stacks; this is still unanswered.</div>
+      <div class="labels-row"><span class="label-tag">PROJECTS/SANFORD 145</span><span class="label-tag">IMPORTANT</span><span class="label-tag">- REPLY</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1858843756435715233" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Laurel,
+
+I'm checking our records for the Cox/Spectrum redlines and will forward them if we have them, or let you know if we still need to request them. I'll also add the response to the MPOE RFI confirming no dog house or closets, with all equipment as wall-mounted cabinets/meter stacks, before the meeting.
+
+Thank you,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-10-22" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have an overdue RFI</span>
+        <span class="meta">Oct 22, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore: RFI 19 (Fence Exhibit - West Side PL) on Project 110 - Sanford 145 was due Sep 30 and is still overdue.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879747464344191550" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Internal task, no reply needed (Procore is unmonitored): open RFI 19 in Procore and respond, or reassign it, today.</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">1</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-21" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Recap of your meeting with brownbagbuilders.com</span>
+        <span class="meta">Oct 21, 2026 · no-reply@fathom.video</span>
+      </div>
+      <div class="summary">Fathom recap of the La Costa meeting: unit designs are being finalized for a Friday deadline, the site will use a raised rolled curb, and next steps include confirming the civil engineer's fire line qualifications, evaluating deep wells to shrink stormwater, and scheduling a fire marshal meeting.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879684179344462109" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">1</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-22" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Oct 22, 2026 · no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Monograph notification reporting 16 overdue tasks.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879751159404786091" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
