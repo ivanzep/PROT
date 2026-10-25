@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guarda la Fecha — XV Años</title>
+<style>
+  /* Self-hosted fonts, same files as index.html/print.html (SIL Open Font
+     License) — no CDN. */
+  @font-face {
+    font-family: 'Great Vibes';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('fonts/great-vibes-regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('fonts/playfair-display-regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Playfair Display';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('fonts/playfair-display-italic.woff2') format('woff2');
+  }
+
+  :root {
+    --ink: #3a332c;
+    --ink-soft: #746a5b;
+    --gold: #b8935a;
+    --gold-light: #d9bb85;
+    --cream-bg: #f5f1e8;
+    --cream-line: #e3dac4;
+    --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --font-script: 'Great Vibes', 'Segoe Script', 'Brush Script MT', cursive;
+    /* winter line-art decorations, hand-drawn as SVG (no raster assets) */
+    --decor-corner-img: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 340 340%22><defs><g id=%22np%22><path d=%22M0 0 L-13 -7 M0 0 L13 -7%22 stroke=%22%238a9478%22 stroke-width=%221%22 fill=%22none%22 stroke-linecap=%22round%22/></g><g id=%22bl%22><g fill=%22%23faf6ee%22 stroke=%22%23b8935a%22 stroke-width=%220.9%22><ellipse cx=%220%22 cy=%22-25%22 rx=%2210.5%22 ry=%2223%22 transform=%22rotate%280%29%22/><ellipse cx=%220%22 cy=%22-25%22 rx=%2210.5%22 ry=%2223%22 transform=%22rotate%2851%29%22/><ellipse cx=%220%22 cy=%22-25%22 rx=%2210.5%22 ry=%2223%22 transform=%22rotate%28102%29%22/><ellipse cx=%220%22 cy=%22-25%22 rx=%2210.5%22 ry=%2223%22 transform=%22rotate%28153%29%22/><ellipse cx=%220%22 cy=%22-25%22 rx=%2210.5%22 ry=%2223%22 transform=%22rotate%28204%29%22/><ellipse cx=%220%22 cy=%22-25%22 rx=%2210.5%22 ry=%2223%22 transform=%22rotate%28255%29%22/><ellipse cx=%220%22 cy=%22-25%22 rx=%2210.5%22 ry=%2223%22 transform=%22rotate%28306%29%22/></g><circle cx=%220%22 cy=%220%22 r=%226.5%22 fill=%22%23e9d9b5%22 stroke=%22%23b8935a%22 stroke-width=%220.7%22/><circle cx=%22-3%22 cy=%22-2.5%22 r=%221.3%22 fill=%22%23c9a35e%22/><circle cx=%223.2%22 cy=%22-1.5%22 r=%221.3%22 fill=%22%23c9a35e%22/><circle cx=%220%22 cy=%223.2%22 r=%221.3%22 fill=%22%23c9a35e%22/><circle cx=%22-1.5%22 cy=%222%22 r=%221.1%22 fill=%22%23c9a35e%22/></g><g id=%22s4%22><path d=%22M0 -8 L2 -2 L8 0 L2 2 L0 8 L-2 2 L-8 0 L-2 -2 Z%22 fill=%22%23b8935a%22/></g></defs><path d=%22M10 5 C 50 70, 85 130, 125 195%22 stroke=%22%238a9478%22 stroke-width=%221.3%22 fill=%22none%22 stroke-linecap=%22round%22/><path d=%22M-5 45 C 25 95, 55 140, 80 200%22 stroke=%22%238a9478%22 stroke-width=%221.1%22 fill=%22none%22 stroke-linecap=%22round%22/><path d=%22M35 -5 C 60 40, 90 80, 115 125%22 stroke=%22%238a9478%22 stroke-width=%221%22 fill=%22none%22 stroke-linecap=%22round%22/><use href=%22%23np%22 x=%2230%22 y=%2248%22 transform=%22rotate%2855 30 48%29%22/><use href=%22%23np%22 x=%2242%22 y=%2265%22 transform=%22rotate%2855 42 65%29%22/><use href=%22%23np%22 x=%2255%22 y=%2285%22 transform=%22rotate%2855 55 85%29%22/><use href=%22%23np%22 x=%2267%22 y=%22103%22 transform=%22rotate%2855 67 103%29%22/><use href=%22%23np%22 x=%2280%22 y=%22122%22 transform=%22rotate%2855 80 122%29%22/><use href=%22%23np%22 x=%2293%22 y=%22140%22 transform=%22rotate%2855 93 140%29%22/><use href=%22%23np%22 x=%22105%22 y=%22158%22 transform=%22rotate%2855 105 158%29%22/><use href=%22%23np%22 x=%22116%22 y=%22178%22 transform=%22rotate%2855 116 178%29%22/><use href=%22%23np%22 x=%2210%22 y=%2278%22 transform=%22rotate%2855 10 78%29 scale%280.85%29%22/><use href=%22%23np%22 x=%2222%22 y=%2297%22 transform=%22rotate%2855 22 97%29 scale%280.85%29%22/><use href=%22%23np%22 x=%2234%22 y=%22116%22 transform=%22rotate%2855 34 116%29 scale%280.85%29%22/><use href=%22%23np%22 x=%2246%22 y=%22135%22 transform=%22rotate%2855 46 135%29 scale%280.85%29%22/><use href=%22%23np%22 x=%2258%22 y=%22154%22 transform=%22rotate%2855 58 154%29 scale%280.85%29%22/><use href=%22%23np%22 x=%2270%22 y=%22173%22 transform=%22rotate%2855 70 173%29 scale%280.85%29%22/><use href=%22%23np%22 x=%2250%22 y=%2220%22 transform=%22rotate%2850 50 20%29 scale%280.7%29%22/><use href=%22%23np%22 x=%2262%22 y=%2240%22 transform=%22rotate%2850 62 40%29 scale%280.7%29%22/><use href=%22%23np%22 x=%2274%22 y=%2260%22 transform=%22rotate%2850 74 60%29 scale%280.7%29%22/><use href=%22%23np%22 x=%2286%22 y=%2280%22 transform=%22rotate%2850 86 80%29 scale%280.7%29%22/><use href=%22%23np%22 x=%2298%22 y=%22100%22 transform=%22rotate%2850 98 100%29 scale%280.7%29%22/><circle cx=%2295%22 cy=%22155%22 r=%223%22 fill=%22%23efe6d2%22 stroke=%22%23b8935a%22 stroke-width=%220.6%22/><circle cx=%22108%22 cy=%22168%22 r=%222.5%22 fill=%22%23efe6d2%22 stroke=%22%23b8935a%22 stroke-width=%220.6%22/><circle cx=%2260%22 cy=%22130%22 r=%222.8%22 fill=%22%23efe6d2%22 stroke=%22%23b8935a%22 stroke-width=%220.6%22/><circle cx=%2245%22 cy=%22110%22 r=%222.2%22 fill=%22%23efe6d2%22 stroke=%22%23b8935a%22 stroke-width=%220.6%22/><circle cx=%22130%22 cy=%22200%22 r=%222.6%22 fill=%22%23efe6d2%22 stroke=%22%23b8935a%22 stroke-width=%220.6%22/><use href=%22%23bl%22 transform=%22translate%2855,55%29 scale%281.25%29%22/><use href=%22%23bl%22 transform=%22translate%28110,110%29 scale%280.8%29%22/><use href=%22%23bl%22 transform=%22translate%2830,120%29 scale%280.55%29%22/><use href=%22%23s4%22 transform=%22translate%28150,30%29 scale%280.8%29%22/><use href=%22%23s4%22 transform=%22translate%28170,70%29 scale%280.5%29%22/><use href=%22%23s4%22 transform=%22translate%2820,170%29 scale%280.6%29%22/></svg>");
+    --decor-snowflake-img: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22 fill=%22none%22 stroke=%22%23b8935a%22 stroke-width=%221.3%22 stroke-linecap=%22round%22><g><line x1=%2220%22 y1=%224%22 x2=%2220%22 y2=%2236%22/><line x1=%2220%22 y1=%229%22 x2=%2215%22 y2=%2212%22/><line x1=%2220%22 y1=%229%22 x2=%2225%22 y2=%2212%22/><line x1=%2220%22 y1=%2231%22 x2=%2215%22 y2=%2228%22/><line x1=%2220%22 y1=%2231%22 x2=%2225%22 y2=%2228%22/></g><g transform=%22rotate%2860 20 20%29%22><line x1=%2220%22 y1=%224%22 x2=%2220%22 y2=%2236%22/><line x1=%2220%22 y1=%229%22 x2=%2215%22 y2=%2212%22/><line x1=%2220%22 y1=%229%22 x2=%2225%22 y2=%2212%22/><line x1=%2220%22 y1=%2231%22 x2=%2215%22 y2=%2228%22/><line x1=%2220%22 y1=%2231%22 x2=%2225%22 y2=%2228%22/></g><g transform=%22rotate%28120 20 20%29%22><line x1=%2220%22 y1=%224%22 x2=%2220%22 y2=%2236%22/><line x1=%2220%22 y1=%229%22 x2=%2215%22 y2=%2212%22/><line x1=%2220%22 y1=%229%22 x2=%2225%22 y2=%2212%22/><line x1=%2220%22 y1=%2231%22 x2=%2215%22 y2=%2228%22/><line x1=%2220%22 y1=%2231%22 x2=%2225%22 y2=%2228%22/></g><circle cx=%2220%22 cy=%2220%22 r=%221.4%22 fill=%22%23b8935a%22 stroke=%22none%22/></svg>");
+    --decor-star-img: url("data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23b8935a%22><path d=%22M12 2 L13.5 10.5 L22 12 L13.5 13.5 L12 22 L10.5 13.5 L2 12 L10.5 10.5 Z%22/></svg>");
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #e9e2d2;
+    font-family: var(--font-heading);
+    color: var(--ink);
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    padding: 32px 12px;
+    min-height: 100vh;
+  }
+
+  .card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    background: var(--cream-bg);
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(60, 45, 20, 0.3);
+    padding: 54px 36px 50px;
+  }
+  .frame {
+    position: absolute;
+    inset: 16px;
+    border: 1px solid var(--gold-light);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .corner {
+    position: absolute;
+    width: 220px;
+    aspect-ratio: 1;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--decor-corner-img);
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0.95;
+  }
+  .corner-tl { top: 0; left: 0; }
+  .corner-br { bottom: 0; right: 0; transform: rotate(180deg); }
+
+  .snowflake, .star {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+  }
+  .snowflake { width: 22px; aspect-ratio: 1; background-image: var(--decor-snowflake-img); opacity: 0.7; }
+  .star { width: 12px; aspect-ratio: 1; background-image: var(--decor-star-img); opacity: 0.8; }
+
+  .sf1 { top: 12%; right: 14%; }
+  .sf2 { top: 46%; left: 8%; }
+  .sf3 { bottom: 16%; right: 10%; }
+  .st1 { top: 28%; left: 16%; }
+  .st2 { top: 62%; right: 20%; }
+  .st3 { bottom: 30%; left: 22%; }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .label {
+    font-size: 15px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0;
+  }
+  .label.sub {
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 22px 0;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    max-width: 70px;
+    height: 1px;
+    background: var(--cream-line);
+  }
+  .divider .snowflake { position: static; width: 18px; opacity: 0.85; }
+
+  .name {
+    font-family: var(--font-script);
+    font-size: 72px;
+    line-height: 1;
+    color: var(--ink);
+    margin: 4px 0 0;
+  }
+
+  .quote {
+    font-size: 12.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    line-height: 2;
+    color: var(--ink-soft);
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .date-block { margin: 0; }
+  .date-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 6px;
+  }
+  .date-number {
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+  .date-month {
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .venue-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+  }
+  .venue-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin: 0 0 4px;
+  }
+  .venue-sub {
+    font-size: 12px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .footer {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+
+  @media (min-width: 560px) {
+    body { padding: 56px 16px; }
+    .card { max-width: 520px; padding: 70px 56px 64px; }
+    .corner { width: 260px; }
+    .name { font-size: 86px; }
+    .date-number { font-size: 76px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="frame"></div>
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-br"></div>
+
+  <div class="snowflake sf1"></div>
+  <div class="snowflake sf2"></div>
+  <div class="snowflake sf3"></div>
+  <div class="star st1"></div>
+  <div class="star st2"></div>
+  <div class="star st3"></div>
+
+  <div class="content">
+    <p class="label">Guarda la fecha</p>
+    <p class="label sub">Mis XV Años</p>
+
+    <div class="divider"><div class="snowflake"></div></div>
+
+    <div class="name">Kyara</div>
+
+    <div class="divider"><div class="snowflake"></div></div>
+
+    <p class="quote">Hay momentos en la vida que son especiales por sí solos, pero compartirlos con las personas que quieres los convierte en inolvidables.</p>
+
+    <div class="divider"><div class="snowflake"></div></div>
+
+    <div class="date-block">
+      <p class="date-label">Sábado</p>
+      <p class="date-number">19</p>
+      <p class="date-month">Diciembre 2026</p>
+    </div>
+
+    <div class="divider"><div class="snowflake"></div></div>
+
+    <div>
+      <p class="venue-label">Lugar</p>
+      <p class="venue-name">Jardin Blanc</p>
+      <p class="venue-sub">Zona Río, Tijuana</p>
+    </div>
+
+    <div class="star" style="position:static;display:inline-block;margin:22px auto 10px;opacity:1;"></div>
+
+    <p class="footer">Más detalles<br>próximamente</p>
+  </div>
+</div>
+
+</body>
+</html>
