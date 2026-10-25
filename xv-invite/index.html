@@ -296,37 +296,6 @@
 
   .hero { padding-top: 30px; text-align: center; }
 
-  .hero-photo {
-    width: 78%;
-    max-width: 300px;
-    aspect-ratio: 3 / 4;
-    margin: 0 auto;
-    border-radius: 150px 150px 8px 8px;
-    background:
-      radial-gradient(circle at 50% 20%, rgba(255,255,255,0.35), transparent 45%),
-      linear-gradient(160deg, #e7aebd, #b8677e 55%, #7c4053);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 18px 30px -14px rgba(120, 50, 70, 0.5);
-    border: 6px solid #fff;
-  }
-
-  .hero-photo svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-
-  .hero-photo .swap-hint {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    background: rgba(255,255,255,0.85);
-    color: var(--ink-soft);
-    padding: 3px 8px;
-    border-radius: 20px;
-    white-space: nowrap;
-  }
-
   .hero-title {
     margin-top: 22px;
     font-family: var(--font-heading);
@@ -716,14 +685,14 @@
       text-align: left;
       padding: 88px 64px;
     }
-    .hero-photo { margin: 0; flex-shrink: 0; }
     .hero-info { text-align: left; }
     .player-controls { justify-content: flex-start; }
 
     .quote,
     .date-section,
     .countdown-band,
-    .countdown-caption {
+    .countdown-caption,
+    .location {
       max-width: 640px;
       margin-left: auto;
       margin-right: auto;
@@ -738,7 +707,6 @@
       flex: 1;
       min-width: 0;
     }
-    .row-locations { align-items: center; }
 
     footer { padding: 64px 26px 84px; }
   }
@@ -783,13 +751,6 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-photo">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-        <circle cx="50" cy="30" r="16" fill="rgba(255,255,255,0.25)"/>
-        <path d="M20 100 C20 70 35 60 50 60 C65 60 80 70 80 100 Z" fill="rgba(255,255,255,0.2)"/>
-      </svg>
-      <span class="swap-hint">reemplaza con la foto real</span>
-    </div>
     <div class="hero-info">
       <div class="hero-title">XV AÑOS</div>
       <div class="hero-name" id="heroName"></div>
@@ -835,32 +796,22 @@
 
   <div class="divider"></div>
 
-  <div class="row row-locations">
-    <!-- CHURCH -->
-    <section class="location">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v4M9 6h6M6 22V12l6-4 6 4v10M6 22h12M10 22v-6h4v6"/></svg>
-      <div class="place-name" id="churchName"></div>
-      <div class="place-time" id="churchTime"></div>
-      <a class="map-btn" id="churchMap" href="#" target="_blank" rel="noopener">Ver ubicación</a>
-    </section>
+  <!-- VENUE -->
+  <section class="location">
+    <div class="place-name" id="venueName"></div>
+    <div class="place-time" id="venueTime"></div>
+    <a class="map-btn" id="venueMap" href="#" target="_blank" rel="noopener">Ver ubicación</a>
 
-    <!-- VENUE -->
-    <section class="location">
-      <div class="place-name" id="venueName"></div>
-      <div class="place-time" id="venueTime"></div>
-      <a class="map-btn" id="venueMap" href="#" target="_blank" rel="noopener">Ver ubicación</a>
+    <div class="venue-photo">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <circle cx="50" cy="30" r="16" fill="rgba(255,255,255,0.25)"/>
+        <path d="M20 100 C20 70 35 60 50 60 C65 60 80 70 80 100 Z" fill="rgba(255,255,255,0.2)"/>
+      </svg>
+    </div>
 
-      <div class="venue-photo">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-          <circle cx="50" cy="30" r="16" fill="rgba(255,255,255,0.25)"/>
-          <path d="M20 100 C20 70 35 60 50 60 C65 60 80 70 80 100 Z" fill="rgba(255,255,255,0.2)"/>
-        </svg>
-      </div>
-
-      <div class="itinerary-title">Itinerario</div>
-      <div class="timeline" id="timeline"></div>
-    </section>
-  </div>
+    <div class="itinerary-title">Itinerario</div>
+    <div class="timeline" id="timeline"></div>
+  </section>
 
   <div class="divider"></div>
 
@@ -933,20 +884,15 @@
     quote: 'Hay momentos en la vida que son especiales por sí solos, pero compartirlos con las personas que quieres los convierte en inolvidables.',
     song: { title: 'Nombre de la canción', artist: 'Artista' },
 
-    church: {
-      name: 'Nombre de Parroquia',
-      time: '6:00 PM',
-      mapQuery: 'Parroquia, Ciudad'
-    },
     venue: {
-      name: 'Nombre de Salón',
-      time: '7:30 PM',
-      mapQuery: 'Salón de eventos, Ciudad'
+      name: 'Jardin Blanc',
+      time: '7:00 PM',
+      mapQuery: 'Antonio Caso 2060, Zona Urbana Rio Tijuana, 22010 Tijuana, B.C.'
     },
     itinerary: [
-      { label: 'Salón', time: '7:30 PM', icon: 'map' },
-      { label: 'Cena',  time: '9:00 PM', icon: 'fork' },
-      { label: 'Fiesta', time: '10:00 PM', icon: 'music' }
+      { label: 'Inicio', time: '7:00 PM', icon: 'map' },
+      { label: 'Cena',  time: '8:00 PM', icon: 'fork' },
+      { label: 'Termina', time: '1:00 AM', icon: 'music' }
     ],
 
     dressCode: 'Formal',
@@ -960,7 +906,6 @@
   };
 
   const ICONS = {
-    church: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v4M9 6h6M6 22V12l6-4 6 4v10M6 22h12M10 22v-6h4v6"/></svg>`,
     map: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s-7-6.4-7-11a7 7 0 1 1 14 0c0 4.6-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>`,
     fork: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2v9M4 2v5a2 2 0 0 0 4 0V2M6 11v11M18 2c-2 0-3 3-3 6s1 3 3 3v11"/></svg>`,
     music: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>`
@@ -972,10 +917,6 @@
     el('songLabel').textContent = `${CONFIG.song.title} — ${CONFIG.song.artist}`;
     el('quoteText').textContent = `“${CONFIG.quote}”`;
     el('eventDateLabel').innerHTML = CONFIG.eventDateLabel.replace('\n', '<br>');
-
-    el('churchName').textContent = CONFIG.church.name;
-    el('churchTime').textContent = CONFIG.church.time;
-    el('churchMap').href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(CONFIG.church.mapQuery);
 
     el('venueName').textContent = CONFIG.venue.name;
     el('venueTime').textContent = CONFIG.venue.time;
