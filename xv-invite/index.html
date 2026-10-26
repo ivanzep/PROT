@@ -772,6 +772,47 @@ section {padding-left:32px;padding-right:32px;}
  .hero {padding-top:105px;}
 }
 
+
+/* Calm, readable winter layout: ornament clusters only at page edges. */
+.site {
+  background-color:#f4f0eb;
+  background-image:
+    url('floral_top_left.png'),
+    url('floral_bottom_right.png'),
+    url('botanical_bottom_left.png');
+  background-repeat:no-repeat,no-repeat,no-repeat;
+  background-size:clamp(125px,25%,235px) auto,clamp(125px,25%,235px) auto,clamp(100px,19%,170px) auto;
+  background-position:left top,right bottom,left 58%;
+}
+.site::before,.site::after {display:none!important;}
+.hero,.quote,.date-section,.location,.dresscode,.gift,.rsvp,.gallery,footer {
+  position:relative;z-index:2;
+}
+.hero {padding-top:135px;}
+.hero-info,.quote,.date-section,.location,.row>section,footer {
+  isolation:isolate;
+}
+.hero-info::before,.quote::before,.date-section::after,
+.location::after,.row>section::before,footer::before {
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:5px 10px;
+  background:rgba(244,240,235,.91);
+  border-radius:18px;
+}
+.quote {max-width:540px;margin:20px auto;}
+.hero-name {position:relative;z-index:2;}
+.venue-photo {display:none!important;}
+@media(max-width:480px){
+ .site {background-size:150px auto,150px auto,110px auto;}
+ .hero {padding-top:135px;}
+ .hero-info::before,.quote::before,.date-section::after,
+ .location::after,.row>section::before,footer::before {inset:0 5px;}
+}
+@media(min-width:900px){
+ .site {background-size:300px auto,300px auto,220px auto;}
+ .hero {padding-top:130px;}
+}
+
 </style>
 </head>
 <body>
@@ -857,12 +898,7 @@ section {padding-left:32px;padding-right:32px;}
     <div class="place-time" id="venueTime"></div>
     <a class="map-btn" id="venueMap" href="#" target="_blank" rel="noopener">Ver ubicación</a>
 
-    <div class="venue-photo">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-        <circle cx="50" cy="30" r="16" fill="rgba(255,255,255,0.25)"/>
-        <path d="M20 100 C20 70 35 60 50 60 C65 60 80 70 80 100 Z" fill="rgba(255,255,255,0.2)"/>
-      </svg>
-    </div>
+    
 
     <div class="itinerary-title">Itinerario</div>
     <div class="timeline" id="timeline"></div>
