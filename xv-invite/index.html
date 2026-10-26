@@ -620,6 +620,76 @@
 
     footer { padding: 64px 26px 84px; }
   }
+
+/* Kyara — winter ivory & champagne-gold Save the Date theme */
+:root {
+  --gold:#ae8049; --gold-light:#d5b27a; --cream-line:#cdb995;
+  --cream-band:#f2e9dc; --cream-bg:#faf7f2; --ink:#423b36; --ink-soft:#76695e;
+}
+html,body {background:#eae4db;}
+.site {
+  background:radial-gradient(ellipse at 52% 15%,#fffdfa 0%,#faf7f2 48%,#f4eee6 100%);
+  border:1px solid rgba(174,128,73,.42); border-radius:0;
+}
+.site::before {
+  content:""; position:absolute; inset:12px; pointer-events:none; z-index:1;
+  border:1px solid rgba(174,128,73,.32);
+}
+.site::after {
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  width:76%;height:420px;top:36px;left:12%;
+  border-top:1.5px solid rgba(174,128,73,.6);
+  border-right:1.5px solid rgba(174,128,73,.5);
+  border-radius:50% 50% 0 0;transform:rotate(-8deg);
+}
+.corner-decor {width:270px;opacity:.82;filter:sepia(.17) saturate(.8);}
+.corner-decor.top-left {top:0;left:-15px;}
+.corner-decor.bottom-right {bottom:0;right:-15px;}
+.ambient-glow {opacity:.3;}
+.sparkles {opacity:.27;}
+.hero {padding-top:125px;padding-bottom:42px;}
+.hero-title,h2.eyebrow,.dresscode-label,.countdown-caption {
+  font-family:var(--font-heading);letter-spacing:.38em;font-weight:400;
+}
+.hero-title {color:var(--ink);font-size:15px;letter-spacing:.48em;}
+.hero-title::before {
+  content:"✧";display:block;font-size:27px;color:var(--gold);
+  letter-spacing:0;margin-bottom:26px;
+}
+.hero-name {font-size:clamp(82px,18vw,122px);line-height:1.15;margin:12px 0 24px;font-weight:400;}
+.quote {font-style:normal;text-transform:uppercase;font-size:12px;letter-spacing:.22em;line-height:2.15;max-width:390px;margin:auto;}
+.event-date {font-family:var(--font-heading);font-size:38px;letter-spacing:.1em;line-height:1.55;}
+.date-section::before,.location::before {
+  content:"❄";display:block;color:var(--gold);font-size:30px;margin-bottom:18px;
+}
+.divider {background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7;}
+.divider::after {background:var(--gold);}
+.script-heading,.itinerary-title {font-size:40px;}
+.location .place-name {font-family:var(--font-heading);font-size:27px;letter-spacing:.22em;text-transform:uppercase;}
+.location .place-time {letter-spacing:.22em;}
+.countdown-band {background:rgba(231,214,191,.42);border-top:1px solid rgba(174,128,73,.25);border-bottom:1px solid rgba(174,128,73,.25);}
+.map-btn,.rsvp-btn {border:1px solid var(--gold);border-radius:2px;background:rgba(255,253,249,.75);letter-spacing:.12em;text-transform:uppercase;}
+.map-btn:hover,.rsvp-btn:hover {background:var(--cream-band);}
+.gift-band {background:rgba(231,214,191,.55);border-block:1px solid rgba(174,128,73,.3);}
+.snowflake {opacity:.7;}
+.star {opacity:.72;}
+section {padding-block:44px;}
+footer {padding-bottom:90px;}
+@media(min-width:900px) {
+  .hero {justify-content:center;text-align:center;padding:125px 64px 70px;}
+  .hero-info{text-align:center;}
+  .player-controls{justify-content:center;}
+  .hero-name{font-size:130px;}
+  .site::after {width:45%;left:27.5%;height:520px;}
+}
+@media(max-width:480px) {
+  .site::before{inset:8px;}
+  .hero{padding-top:115px;}
+  .hero-name{font-size:clamp(75px,20vw,105px);}
+  .corner-decor{width:205px;}
+  .quote{padding-inline:38px;font-size:11px;}
+}
+
 </style>
 </head>
 <body>
