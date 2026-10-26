@@ -710,6 +710,44 @@ footer {padding-bottom:90px;}
  .hero {padding-top:40%;}
 }
 
+
+/* Readability and full-height repeating invitation artwork */
+.site {
+  background-image:url('INVITE-BG.png');
+  background-repeat:repeat-y;
+  background-position:center top;
+  background-size:100% auto;
+}
+.hero {padding-top:32%;}
+.hero-title {font-size:clamp(18px,2vw,23px);}
+.hero-name {font-size:clamp(92px,20vw,142px);}
+.quote {font-size:clamp(15px,1.5vw,19px);letter-spacing:.09em;line-height:1.85;}
+.event-date {font-size:clamp(42px,5vw,58px);}
+.script-heading,.itinerary-title {font-size:clamp(43px,5vw,57px);}
+.location .place-name {font-size:clamp(29px,3vw,39px);letter-spacing:.1em;}
+.location .place-time {font-size:19px;}
+.countdown-band .num {font-size:clamp(29px,3vw,39px);}
+.countdown-band .label,.countdown-caption {font-size:12px;}
+.timeline .stop .stop-label,.timeline .stop .stop-time {font-size:16px;}
+.dresscode-label {font-size:17px;letter-spacing:.16em;}
+.gift p,.rsvp p,.gallery>div:not(.qr-fake):not(.gallery-thumbs) {font-size:17px;line-height:1.8;}
+.map-btn,.rsvp-btn,.gift-band,.gallery-upload {font-size:15px;padding:12px 20px;}
+.guest-note,.rsvp-confirm-msg,.qr-caption {font-size:14px;}
+.player .song {font-size:14px;}
+section {padding-left:32px;padding-right:32px;}
+@media(max-width:480px) {
+  .hero {padding-top:35%;}
+  .hero-name {font-size:clamp(75px,20vw,105px);}
+  .quote {font-size:15px;padding-inline:22px;}
+  .timeline .stop .stop-label,.timeline .stop .stop-time {font-size:14px;}
+  .countdown-band {gap:15px;}
+  section {padding-left:27px;padding-right:27px;}
+}
+@media(min-width:900px) {
+  .hero {padding-top:22%;}
+  .hero-name {font-size:142px;}
+}
+
 </style>
 </head>
 <body>
