@@ -748,6 +748,30 @@ section {padding-left:32px;padding-right:32px;}
   .hero-name {font-size:142px;}
 }
 
+
+/* Individually isolated winter ornaments; no full-image repetition. */
+.site {
+ background-color:#f1eeea;
+ background-image:
+ url('floral_top_left.png'),
+ url('floral_bottom_right.png'),
+ url('botanical_bottom_left.png'),
+ url('gold_snowflakes_top_right.png'),
+ url('gold_snowflake_center.png'),
+ url('gold_snowflake_left.png');
+ background-repeat:repeat-y,repeat-y,repeat-y,repeat-y,repeat-y,repeat-y;
+ background-size: min(70%,360px) auto,min(58%,300px) auto,min(45%,220px) auto,min(28%,140px) auto,80px auto,70px auto;
+ background-position:left top,right 440px,left 870px,right 150px,center 700px,left 410px;
+}
+.hero {padding-top:110px;}
+@media(min-width:900px){
+ .site {background-size:400px auto,370px auto,280px auto,160px auto,90px auto,80px auto;}
+ .hero {padding-top:125px;}
+}
+@media(max-width:480px){
+ .hero {padding-top:105px;}
+}
+
 </style>
 </head>
 <body>
