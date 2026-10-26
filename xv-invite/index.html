@@ -840,11 +840,39 @@ section {padding-left:32px;padding-right:32px;}
  .hero {padding-top:195px;}
 }
 
+
+/* Full-height bronze frame, rendered as a scalable SVG overlay. */
+.bronze-frame {
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ z-index:1;
+ pointer-events:none;
+ overflow:visible;
+}
+.bronze-frame path {
+ fill:none;
+ stroke:#aa8053;
+ stroke-width:1.5;
+ vector-effect:non-scaling-stroke;
+ opacity:.82;
+}
+@media(max-width:480px){
+ .bronze-frame path {stroke-width:1.15;opacity:.68;}
+}
+
 </style>
 </head>
 <body>
 
 <div class="site">
+  <!-- Scalable bronze double-line frame follows the entire invitation height. -->
+  <svg class="bronze-frame" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M 4 96 L 4 12 Q 4 4 12 4 L 88 4 Q 96 4 96 12 L 96 96 Q 96 98 94 98 L 6 98 Q 4 98 4 96 Z"/>
+    <path d="M 5.4 95.5 L 5.4 12 Q 5.4 5.4 12 5.4 L 88 5.4 Q 94.6 5.4 94.6 12 L 94.6 95.5 Q 94.6 96.6 93.5 96.6 L 6.5 96.6 Q 5.4 96.6 5.4 95.5 Z" opacity=".48"/>
+  </svg>
+
 
   <!-- decorative background: adjust/remove freely, purely visual.
        Hand-drawn winter line art (poinsettia + pine corner spray, gold
