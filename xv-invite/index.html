@@ -862,6 +862,8 @@ section {padding-left:32px;padding-right:32px;}
  .bronze-frame path {stroke-width:1.15;opacity:.68;}
 }
 
+.rsvp-link{display:inline-block;text-decoration:none;font-family:var(--font-heading);font-size:clamp(18px,2.5vw,24px);padding:17px 28px;line-height:1.4;text-align:center;cursor:pointer}
+.rsvp-link:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
 </style>
 </head>
 <body>
@@ -964,14 +966,7 @@ section {padding-left:32px;padding-right:32px;}
   <div class="row row-rsvp">
     <!-- RSVP -->
     <section class="rsvp">
-      <div class="script-heading">Confirma asistencia</div>
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c0-3.3 2.7-6 6-6M17 8l2 2 4-4"/></svg>
-      <p>Por favor confirma tu asistencia</p>
-      <button class="rsvp-btn" id="rsvpBtn" type="button">Sí, asistiré</button>
-      <div class="rsvp-confirm-msg" id="rsvpMsg"></div>
-
-      <div class="guest-circle" id="guestCount"></div>
-      <div class="guest-note" id="guestNote"></div>
+      <a class="rsvp-btn rsvp-link" href="confirmacion.html">Confirma tu Asistencia</a>
     </section>
 
     <!-- GALLERY -->
@@ -983,8 +978,7 @@ section {padding-left:32px;padding-right:32px;}
         <input type="file" id="galleryInput" accept="image/*" multiple hidden>
       </label>
 
-      <div class="qr-fake" id="qrFake"><div class="grid" id="qrGrid"></div></div>
-      <div class="qr-caption">Código de ejemplo — reemplaza con tu QR real</div>
+      
 
       <div class="gallery-thumbs" id="galleryThumbs"></div>
     </section>
@@ -1026,8 +1020,7 @@ section {padding-left:32px;padding-right:32px;}
     giftLabel: 'Mesa de regalos Amazon',
     giftUrl: '#',
 
-    guestCount: 2,
-    guestCountWord: 'dos'
+    
   };
 
   const ICONS = {
@@ -1064,9 +1057,6 @@ section {padding-left:32px;padding-right:32px;}
     const giftLink = el('giftLink');
     giftLink.textContent = CONFIG.giftLabel.toUpperCase();
     giftLink.href = CONFIG.giftUrl;
-
-    el('guestCount').textContent = CONFIG.guestCount;
-    el('guestNote').textContent = `Hemos reservado ${CONFIG.guestCountWord} lugares para tí`;
   }
 
   // ---- live countdown ----
@@ -1090,29 +1080,6 @@ section {padding-left:32px;padding-right:32px;}
     el('cdSeconds').textContent = String(seconds).padStart(2, '0');
   }
 
-  // ---- RSVP ----
-  el('rsvpBtn').addEventListener('click', () => {
-    const btn = el('rsvpBtn');
-    btn.textContent = '¡Asistencia confirmada!';
-    btn.classList.add('confirmed');
-    btn.disabled = true;
-    el('rsvpMsg').textContent = `Gracias por confirmar — ¡${CONFIG.name} te espera!`;
-  });
-
-  // ---- fake QR grid (decorative placeholder, not a real scannable code) ----
-  (function drawFakeQr() {
-    const grid = el('qrGrid');
-    let cells = '';
-    // deterministic pseudo-random pattern, with solid corner "finder" blocks like a real QR
-    const finder = (r, c) => (r < 2 && c < 2) || (r < 2 && c > 4) || (r > 4 && c < 2);
-    for (let r = 0; r < 7; r++) {
-      for (let c = 0; c < 7; c++) {
-        const on = finder(r, c) || ((r * 13 + c * 7) % 5 < 2);
-        cells += `<span class="${on ? '' : 'off'}"></span>`;
-      }
-    }
-    grid.innerHTML = cells;
-  })();
 
   // ---- local-only photo preview (nothing is uploaded anywhere) ----
   el('galleryInput').addEventListener('change', (e) => {
