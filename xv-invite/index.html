@@ -813,6 +813,33 @@ section {padding-left:32px;padding-right:32px;}
  .hero {padding-top:130px;}
 }
 
+
+/* Visible but restrained decorative edges; no panels hiding artwork. */
+.site {
+ background-color:#f4f0eb;
+ background-image:
+  url('floral_top_left.png'),
+  url('floral_bottom_right.png'),
+  url('botanical_bottom_left.png');
+ background-repeat:no-repeat,no-repeat,no-repeat;
+ background-size:210px auto,210px auto,150px auto;
+ background-position:left top,right bottom,left 60%;
+}
+.hero-info::before,.quote::before,.date-section::after,
+.location::after,.row>section::before,footer::before {display:none!important;}
+.hero {padding-top:165px;}
+.quote,.date-section,.location,.row>section,footer {background:transparent;}
+.quote {padding-inline:52px;max-width:570px;}
+@media(max-width:480px){
+ .site {background-size:180px auto,180px auto,125px auto;}
+ .hero {padding-top:165px;}
+ .quote {padding-inline:42px;}
+}
+@media(min-width:900px){
+ .site {background-size:290px auto,290px auto,220px auto;}
+ .hero {padding-top:195px;}
+}
+
 </style>
 </head>
 <body>
