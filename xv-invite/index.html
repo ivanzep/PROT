@@ -905,27 +905,6 @@ section {padding-left:32px;padding-right:32px;}
     <div class="hero-info">
       <div class="hero-title">XV AÑOS</div>
       <div class="hero-name" id="heroName"></div>
-
-      <div class="player">
-        <div class="song" id="songLabel"></div>
-        <div class="player-controls">
-          <button aria-label="Me gusta" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7.5-4.7-10-9.3C.5 8 2.3 4.5 6 4.5c2.1 0 3.6 1.2 4.5 2.8C11.4 5.7 12.9 4.5 15 4.5c3.7 0 5.5 3.5 4 7.2C19.5 16.3 12 21 12 21z"/></svg>
-          </button>
-          <button aria-label="Anterior" type="button">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM20 6L9 12l11 6z"/></svg>
-          </button>
-          <button class="play" id="playBtn" aria-label="Reproducir" type="button">
-            <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button aria-label="Siguiente" type="button">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6h-2v12h2zM4 6l11 6-11 6z"/></svg>
-          </button>
-          <button aria-label="Agregar" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1110,15 +1089,6 @@ section {padding-left:32px;padding-right:32px;}
     el('cdMinutes').textContent = String(minutes).padStart(2, '0');
     el('cdSeconds').textContent = String(seconds).padStart(2, '0');
   }
-
-  // ---- music player (visual only — no audio file wired up) ----
-  let playing = false;
-  el('playBtn').addEventListener('click', () => {
-    playing = !playing;
-    el('playIcon').innerHTML = playing
-      ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>'
-      : '<path d="M8 5v14l11-7z"/>';
-  });
 
   // ---- RSVP ----
   el('rsvpBtn').addEventListener('click', () => {
