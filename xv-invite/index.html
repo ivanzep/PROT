@@ -690,6 +690,26 @@ footer {padding-bottom:90px;}
   .quote{padding-inline:38px;font-size:11px;}
 }
 
+
+/* Reference artwork: INVITE-BG.jpeg. Keep image proportional, without cropping. */
+.site {
+ background-color:#f0ede8;
+ background-image:url('INVITE-BG.jpeg');
+ background-repeat:no-repeat;
+ background-size:100% auto;
+ background-position:center top;
+}
+.site::before,.site::after,.ambient-glow,.sparkles,.corner-decor,.snowflake,.star {display:none!important;}
+.hero {padding-top:37%;min-height:0;}
+.hero-title::before,.date-section::before,.location::before {display:none!important;}
+@media(min-width:900px) {
+ .site {background-size:100% auto;}
+ .hero {padding-top:24%;}
+}
+@media(max-width:480px) {
+ .hero {padding-top:40%;}
+}
+
 </style>
 </head>
 <body>
