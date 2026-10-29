@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — October 29, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">0</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="empty">Nothing urgent in this inbox check.</div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">1</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-10-29" data-labels="">
+      <div class="card-top">
+        <span class="subject">La Costa Horizontal Costs</span>
+        <span class="meta">Oct 29, 2026 · cody@brownbagbuilders.com</span>
+      </div>
+      <div class="summary">Cody built a spreadsheet of La Costa horizontal hard/soft costs (BP Sub 1 budget vs. Investor Portal pro forma) and needs Lindsay to lock down the total construction duration and when hard costs start; he forwarded the thread to Ivan.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880343812800494978" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Cody,
+
+Thanks for pulling the spreadsheet together. I&#x27;ll review it today and send over my comments. For the timeline, I suggest we use the latest construction schedule in our shared Drive rather than the pro forma, and Lindsay can confirm the total duration and hard-cost start date.
+
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">4</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-10-29" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: La Costa Hotel (site plan comments)</span>
+        <span class="meta">Oct 29, 2026 · pcoyle@coyleresidential.com</span>
+      </div>
+      <div class="summary">Michael sent Patrick the revised site plan after the Oct 28 meeting; Patrick returned minor comments (still disputing the ribbon gutter) and noted the mechanical plan shows 3 heat pumps per Type 1 building, which must drop to 2 or the site plan changes.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879775298389546915" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-29" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: La Costa - MEP Coordination</span>
+        <span class="meta">Oct 29, 2026 · avery@fard.com</span>
+      </div>
+      <div class="summary">Fard&#x27;s energy analyst found the Title 24 run needs 25.3 kWDC of PV with water heating excluded, 19 kWDC with the most efficient tankless gas heater, and fails with tankless electric or heat pump heaters; Patrick wants gas heaters (one per hotel building) without storage tanks.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879061355197497534" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-29" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Phase II Testing Update</span>
+        <span class="meta">Oct 29, 2026 · jasonl@sanpasqualtribe.org</span>
+      </div>
+      <div class="summary">Archaeologist reports Test Unit 7 should finish about noon Oct 29 at ~80 cm with little cultural material and only a sub-1 cm animal bone fragment (confirmed non-human); the third unit starts next, and the tribe acknowledged.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880258940297972624" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-10-28" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Recap of your meeting with brownbagbuilders.com (La Costa)</span>
+        <span class="meta">Oct 28, 2026 · no-reply@fathom.video</span>
+      </div>
+      <div class="summary">Fathom recap of the 129-minute La Costa meeting: electrical gear area is undersized (12&#x27; vs 23&#x27;), so the trash enclosure moves north; parking lot becomes asphalt with rolled curb and stall-end inlets; Building 1 FF (68.5) must be coordinated with the restaurant FF (67.7) for the 30&#x27; height limit.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880320142101571137" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">5</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-10-29" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">architecture client question</span>
+        <span class="meta">Oct 29, 2026 · terence.m@zafariincspectrum.com</span>
+      </div>
+      <div class="summary">Cold lead-generation pitch offering to get the firm more architecture projects.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880386933989183469" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-29" data-labels="">
+      <div class="card-top">
+        <span class="subject">[Important Notice] Your Confluence subscription is being deactivated due to inactivity</span>
+        <span class="meta">Oct 29, 2026 · noreply@po.atlassian.net</span>
+      </div>
+      <div class="summary">Atlassian says the Confluence app will be deactivated for inactivity; no action needed unless Confluence is still in use.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880344861497347725" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-29" data-labels="">
+      <div class="card-top">
+        <span class="subject">You are invited to Announcing Snaptrude Agent</span>
+        <span class="meta">Oct 29, 2026 · Luma (Snaptrude)</span>
+      </div>
+      <div class="summary">Webinar invitation for the Snaptrude Agent launch on Oct 29 at 10:00 AM.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880394392310088473" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-29" data-labels="CATEGORY_PROMOTIONS">
+      <div class="card-top">
+        <span class="subject">Launching Snaptrude Agent Today</span>
+        <span class="meta">Oct 29, 2026 · communications@snaptrude.com</span>
+      </div>
+      <div class="summary">Snaptrude product-launch marketing email.</div>
+      <div class="labels-row"><span class="label-tag">CATEGORY_PROMOTIONS</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880395072646409993" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-10-28" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Welcome to Deta Studio</span>
+        <span class="meta">Oct 28, 2026 · hello@deta.studio</span>
+      </div>
+      <div class="summary">Welcome email after signing up for Deta Studio, a drawing-review collaboration tool.</div>
+      <div class="labels-row"><span class="label-tag">IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880328954796915616" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
