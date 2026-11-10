@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — November 10, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">0</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="empty">No urgent emails.</div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">3</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-11-10" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">SANFORD 8 - Proposed Agreement from Independent DRE Processor - CALIFORNIA BUILDERS SERVICES</span>
+        <span class="meta">Nov 10, 2026 · rodick@subdivision.net</span>
+      </div>
+      <div class="summary">Steve Rodick forwarded California Builder Services&#x27; DRE processing proposal for Sanford 8 (same pricing as La Costa); you can strike his name and insert yours as client, or ask them to reissue it, and he asks to be cc&#x27;d on all communication; construction is already underway so the contract should be signed quickly.</div>
+      <div class="labels-row"><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881434685519261078" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Angel,
+Thank you for the Sanford 8 DRE processing proposal. Please reissue it (and the La Costa proposal) naming The Brown Studio as the client. We intend to execute promptly. Steve Rodick and his team are copied and will coordinate with you.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-11-10" data-labels="">
+      <div class="card-top">
+        <span class="subject">Action Required: You have an overdue RFI</span>
+        <span class="meta">Nov 10, 2026 · notifications@us02.procoretech.com</span>
+      </div>
+      <div class="summary">Procore again flags 1 overdue RFI assigned to you (Hallmark Communities); the sender address is unmonitored, so the response goes in Procore.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881468877338125271" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Cody,
+The overdue RFI is still open in Procore. I will post our response today. Please send any markups you want included.
+Thanks,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-11-09" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: Your Autodesk quote Q-2082142 is ready</span>
+        <span class="meta">Nov 9, 2026 · chelsi.lane@arkance.us</span>
+      </div>
+      <div class="summary">Arkance reminds you the Autodesk subscription renews 11/16/2026 and, if the AmerisBank financing documents are signed, the links in the email can be used to request the invoice and process the renewal.</div>
+      <div class="labels-row"><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1879503300113129783" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Chelsi,
+Thank you for the reminder. I will confirm the AmerisBank financing status today and request the invoice through the links provided so the renewal is processed before 11/16.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">6</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-11-10" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Re: [External] Phase II Testing Update</span>
+        <span class="meta">Nov 10, 2026 · destinycolocho.rpa@gmail.com</span>
+      </div>
+      <div class="summary">Destiny Archaeology explained that a partially exposed rock feature at TU-4 (60-70 cm) is not yet characterized, that TU-4a was opened to expose more of it, and that shell and lithic flakes were found in the same intact context; Jason Lavigne (San Pasqual) thanked them for the update.</div>
+      <div class="labels-row"><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1880258940297972624" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-11-09" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">La Costa Boutique Hotel – Phase II Archaeological Testing Summary to Date</span>
+        <span class="meta">Nov 9, 2026 · michael@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Michael forwarded the summary of Destiny Archaeology&#x27;s Phase II testing to date at 516 La Costa Avenue, prepared for Dudek&#x27;s third-party review.</div>
+      <div class="labels-row"><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881426543700964421" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-11-09" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">RE: RE: La Costa Hotel (Underground Fire Service Design) #260268</span>
+        <span class="meta">Nov 9, 2026 · SBaker@symonsfp.com</span>
+      </div>
+      <div class="summary">After Patrick Coyle followed up for feedback, Shane Baker of Symons Fire Protection sent documents from their designer for the underground fire service design.</div>
+      <div class="labels-row"><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1863925516021879222" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-11-09" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">SANFORD 8 - DRE Processing</span>
+        <span class="meta">Nov 9, 2026 · rodick@subdivision.net</span>
+      </div>
+      <div class="summary">Steve Rodick confirmed he sent the request for the independent DRE processor&#x27;s proposal and will forward it when it returns (it has since arrived; see the Action Needed item).</div>
+      <div class="labels-row"><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881402164991421420" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-11-10" data-labels="IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Recap of your meeting with brownbagbuilders.com</span>
+        <span class="meta">Nov 10, 2026 · no-reply@fathom.video</span>
+      </div>
+      <div class="summary">Fathom recap of the La Costa budget meeting: the budget must be rebuilt for the new Submittal #3 plans before next steps.</div>
+      <div class="labels-row"><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881436167980333913" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card fyi" data-date="2026-11-10" data-labels="">
+      <div class="card-top">
+        <span class="subject">Your meeting recap - La Costa Budget</span>
+        <span class="meta">Nov 10, 2026 · fred@fireflies.ai</span>
+      </div>
+      <div class="summary">Fireflies recap of the Nov 9 La Costa Budget meeting hosted by Patrick Coyle; duplicates the Fathom recap.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881431322253806658" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">3</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-11-10" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Nov 10, 2026 · no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Monograph digest: 1 new notification and 16 overdue tasks.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881476276279350532" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-11-10" data-labels="">
+      <div class="card-top">
+        <span class="subject">Moderator&#x27;s spam report for website@thebrownstudio.com</span>
+        <span class="meta">Nov 10, 2026 · website@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Google Groups moderation notice listing suspicious messages held for the website group.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881428368081043195" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-11-09" data-labels="">
+      <div class="card-top">
+        <span class="subject">New on Puter: Parametric</span>
+        <span class="meta">Nov 9, 2026 · no-reply@puter.com</span>
+      </div>
+      <div class="summary">Product announcement for Puter Parametric, a browser 3D CAD app.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881425938943640145" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <footer>Generated from unread inbox threads received since the previous digest (Nov 9). Older unread threads were not re-reported.</footer>
+</div>
+</body>
+</html>
