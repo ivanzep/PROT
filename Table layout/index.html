@@ -92,8 +92,8 @@ main{position:relative;min-height:0;min-width:0}
 .tag.m2{background:#1f1d1a;color:#fff}
 .table-top .tm{font-size:10px;color:var(--muted);margin-top:1px}
 .mchip i{width:14px;height:14px;font-size:9px;font-weight:700;font-style:normal;display:inline-flex;align-items:center;justify-content:center;border-radius:50%}
-.slabel{position:absolute;transform:translate(-50%,-50%);font-size:10px;line-height:1.1;white-space:nowrap;pointer-events:none;color:#3c3832;
-  background:rgba(243,240,234,.85);padding:0 2px;border-radius:3px;max-width:86px;overflow:hidden;text-overflow:ellipsis}
+.slabel{position:absolute;font-size:10.5px;line-height:1.15;width:max-content;max-width:100px;pointer-events:none;color:#2f2b26;
+  background:rgba(243,240,234,.88);padding:0 3px;border-radius:3px;overflow-wrap:break-word}
 .hide-names .slabel{display:none}
 
 .ghost{position:fixed;z-index:1000;pointer-events:none;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid var(--line);border-left:5px solid;
@@ -136,12 +136,53 @@ dialog .actions .left{margin-right:auto}
   header h1{width:100%}
   #inspector{left:8px;right:8px;width:auto;top:8px;max-height:60%}
   .side-sec{padding:8px 10px}
+  .app.side-collapsed{grid-template-columns:1fr;grid-template-rows:auto 1fr 0}
+  #planName{width:140px}
 }
+.app.side-collapsed{grid-template-columns:1fr}
+.app.side-collapsed aside{display:none}
+#sideBtn{font-size:15px;padding:4px 9px}
+#planName{font-weight:600;width:190px;border-color:transparent;background:transparent;font-size:14px}
+#planName:hover,#planName:focus{border-color:var(--line);background:#fff}
+
+/* print preview */
+#printOv{position:fixed;inset:0;z-index:500;background:#d9d5ce;display:none;flex-direction:column}
+#printOv.open{display:flex}
+.pv-bar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:8px 12px;background:#fff;border-bottom:1px solid var(--line)}
+.pv-bar label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.pv-bar .grp{display:flex;align-items:center;gap:3px}
+.pv-bar .pct{min-width:44px;text-align:center;font-size:12px}
+.pv-area{flex:1;overflow:auto;padding:20px;min-height:0}
+#pvPages{margin:0 auto;width:max-content}
+.sheet{background:#fff;box-shadow:0 4px 18px rgba(0,0,0,.18);margin:0 auto 24px;position:relative;overflow:hidden;color:#1f1d1a;display:flex;flex-direction:column}
+.sheet.flow{overflow:visible}
+.sheet-title{height:.55in;display:flex;align-items:baseline;gap:12px;font-size:20px;font-weight:650;flex:none}
+.sheet-title small{font-size:11px;font-weight:400;color:#7a746b}
+.plan-box{position:relative;overflow:hidden;overflow:clip;contain:paint;cursor:grab;touch-action:none;outline:1px dashed transparent;flex:none}
+#printOv:not(.printing) .plan-box{outline-color:#d6d0c6}
+.plan-inner{position:absolute;left:0;top:0}
+.plan-zoom{position:relative;overflow:hidden}
+.plan-box .table-top{cursor:inherit;box-shadow:none}
+.plan-box.hide-names .slabel{display:none}
+.plan-box .slabel{background:rgba(255,255,255,.85)}
+.glist{columns:3 2.3in;column-gap:.3in;font-size:10.5px}
+.glist .gt{break-inside:avoid;margin:0 0 .16in}
+.glist h4{margin:0 0 3px;font-size:12px;border-bottom:1px solid #1f1d1a;padding-bottom:2px;display:flex;justify-content:space-between;gap:6px}
+.glist h4 small{font-weight:400;color:#7a746b}
+.glist ol{margin:0;padding-left:18px}
+.glist li{padding:1px 0}
+.glist .m{font-size:9px;font-weight:700;border:1px solid #1f1d1a;border-radius:3px;padding:0 3px;margin-left:4px}
+.glist .m2{background:#1f1d1a;color:#fff}
 @media print{
-  header .toolbar, aside, #inspector{display:none!important}
-  .app{display:block;height:auto}
-  #canvas{position:static;overflow:visible;background:#fff}
-  .slabel{background:none}
+  body > *:not(#printOv){display:none!important}
+  #printOv{display:block!important;position:static;background:none}
+  #printOv .pv-bar{display:none}
+  .pv-area{overflow:visible;padding:0}
+  #pvPages{zoom:1!important;width:auto}
+  .sheet{box-shadow:none;margin:0;break-after:page}
+  .sheet:last-child{break-after:auto}
+  .sheet.flow{height:auto!important;min-height:0!important}
+  .plan-box{outline:0!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
@@ -149,7 +190,9 @@ dialog .actions .left{margin-right:auto}
 <body>
 <div class="app" id="app">
   <header>
+    <button id="sideBtn" title="Show / hide the guest panel">☰</button>
     <h1>Table Layout</h1>
+    <input id="planName" placeholder="Event name…" title="Event name — used for file names and the print title">
     <div class="stats" id="stats"></div>
     <div class="spacer"></div>
     <div class="toolbar">
@@ -167,11 +210,11 @@ dialog .actions .left{margin-right:auto}
           <button data-act="unseatAll">Unseat everyone</button>
           <hr>
           <button data-act="importCsv">Import guests (CSV / paste)…</button>
-          <button data-act="template">Download guest CSV template</button>
-          <button data-act="exportCsv">Export seating CSV</button>
-          <button data-act="saveJson">Save plan (.json)</button>
+          <button data-act="template">Save guest CSV template…</button>
+          <button data-act="exportCsv">Export seating CSV…</button>
+          <button data-act="saveJson">Save plan as…</button>
           <button data-act="loadJson">Load plan (.json)…</button>
-          <button data-act="print">Print layout</button>
+          <button data-act="print">Print preview…</button>
           <hr>
           <button data-act="sample">Load sample (150 guests)</button>
           <button data-act="clear" class="danger">Clear everything</button>
@@ -281,6 +324,31 @@ dialog .actions .left{margin-right:auto}
 
 <input type="file" id="csvFile" accept=".csv,.txt,.tsv,text/csv" hidden>
 <input type="file" id="jsonFile" accept=".json,application/json" hidden>
+<dialog id="nameDlg">
+  <form method="dialog">
+    <h3>Save as</h3>
+    <label>File name</label><input id="nameInput" required>
+    <p class="hint">Saved to your browser's downloads folder.</p>
+    <div class="actions"><button value="cancel" formnovalidate>Cancel</button><button class="primary" value="ok">Save</button></div>
+  </form>
+</dialog>
+
+<div id="printOv">
+  <div class="pv-bar">
+    <b style="font-size:14px">Print preview</b>
+    <label>Title <input id="pvTitle" placeholder="Event name" style="width:170px"></label>
+    <label>Paper <select id="pvPaper"></select></label>
+    <label>Orientation <select id="pvOrient"><option value="landscape">Landscape</option><option value="portrait">Portrait</option></select></label>
+    <label>Margins <select id="pvMargin"><option value="0.25">0.25 in</option><option value="0.5">0.5 in</option><option value="0.75">0.75 in</option><option value="1">1 in</option></select></label>
+    <span class="grp" title="Plan scale on the page — drag the plan to move it">Plan <button id="pvOut">−</button><span class="pct" id="pvPct">100%</span><button id="pvIn">+</button><button id="pvFit">Fit to page</button></span>
+    <label><input type="checkbox" id="pvNames"> Names</label>
+    <label><input type="checkbox" id="pvList"> Guest list page</label>
+    <span class="spacer"></span>
+    <button id="pvClose">Close</button>
+    <button class="primary" id="pvPrint">Print</button>
+  </div>
+  <div class="pv-area" id="pvArea"><div id="pvPages"></div></div>
+</div>
 <div id="toast"></div>
 
 <script>
@@ -292,7 +360,7 @@ const UNGROUPED_COLOR = '#8a8379';
 let state = blankState();
 const ui = { view:'unseated', search:'', focusGroup:null, focusMenu:null, selectedTable:null, editingGuest:null };
 
-function blankState(){ return { guests:[], tables:[], groupColors:{}, nextId:1, showNames:true, zoom:1 }; }
+function blankState(){ return { guests:[], tables:[], groupColors:{}, nextId:1, showNames:true, zoom:1, layoutV:2 }; }
 const uid = () => (state.nextId++).toString(36);
 const $ = s => document.querySelector(s);
 const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -377,26 +445,32 @@ function nextTableNumber(){
   state.tables.forEach(t => { const m = /^table\s+(\d+)$/i.exec(t.name); if(m) n = Math.max(n, +m[1]); });
   return Math.max(n, state.tables.length) + 1;
 }
-function tableRadius(t){ return Math.max(40, t.seats * 6.2); }
+function tableRadius(t){ return Math.max(46, t.seats * 7.6); }
 function tableGeom(t){
   const seats = [], labels = [];
   if(t.shape === 'rect'){
     const top = Math.ceil(t.seats/2), bottom = t.seats - top;
-    const w = Math.max(96, top*44), h = 66;
-    for(let i=0;i<top;i++){ const x = -w/2 + (i+.5)*w/top; seats.push({x, y:-h/2-21}); labels.push({x, y:-h/2-46}); }
-    for(let i=0;i<bottom;i++){ const x = w/2 - (i+.5)*w/bottom; seats.push({x, y:h/2+21}); labels.push({x, y:h/2+46}); }
-    return { w, h, haloW:w+90, haloH:h+120, seats, labels };
+    const w = Math.max(110, top*96), h = 66;
+    for(let i=0;i<top;i++){ const x = -w/2 + (i+.5)*w/top; seats.push({x, y:-h/2-21}); labels.push({x, y:-h/2-39, c:0, s:-1}); }
+    for(let i=0;i<bottom;i++){ const x = w/2 - (i+.5)*w/bottom; seats.push({x, y:h/2+21}); labels.push({x, y:h/2+39, c:0, s:1}); }
+    return { w, h, haloW:w+90, haloH:h+120, seats, labels, extW:w+110, extH:h+190 };
   }
   const r = tableRadius(t);
   for(let i=0;i<t.seats;i++){
     const a = i/t.seats*Math.PI*2 - Math.PI/2;
     seats.push({ x:Math.cos(a)*(r+22), y:Math.sin(a)*(r+22) });
-    const lr = r + 50;
-    labels.push({ x:Math.cos(a)*(lr+Math.abs(Math.cos(a))*14), y:Math.sin(a)*lr });
+    const c = Math.cos(a), s = Math.sin(a), lr = r + 41;
+    labels.push({ x:c*lr, y:s*lr, c, s });
   }
-  return { w:r*2, h:r*2, haloW:r*2+100, haloH:r*2+100, seats, labels };
+  return { w:r*2, h:r*2, haloW:r*2+100, haloH:r*2+100, seats, labels, extW:(r+41)*2+220, extH:(r+41)*2+90 };
 }
-function tableExtent(t){ const g = tableGeom(t); return { w:g.haloW+90, h:g.haloH+40 }; }
+function tableExtent(t){ const g = tableGeom(t); return { w:g.extW, h:g.extH }; }
+// label sits just outside its seat and grows away from the table (left on the left side, right on the right, etc.)
+function labelStyle(l){
+  const tx = -50 + 50*l.c, ty = -50 + 50*l.s;
+  const align = l.c > .35 ? 'left' : l.c < -.35 ? 'right' : 'center';
+  return `left:${l.x.toFixed(1)}px;top:${l.y.toFixed(1)}px;transform:translate(${tx.toFixed(1)}%,${ty.toFixed(1)}%);text-align:${align}`;
+}
 
 function findSpot(t){
   // scan the same grid auto-arrange uses, so new tables slot in next to the existing ones
@@ -460,6 +534,9 @@ function autoSeat(){
 
 /* ---------- rendering ---------- */
 function render(){
+  $('#app').classList.toggle('side-collapsed', !!state.sideCollapsed);
+  $('#sideBtn').classList.toggle('on', !state.sideCollapsed);
+  if(document.activeElement !== $('#planName')) $('#planName').value = state.planName || '';
   renderStats(); renderLegend(); renderPool(); renderTables(); renderInspector(); save();
 }
 function renderStats(){
@@ -524,17 +601,16 @@ function renderPool(){
   }
   $('#pool').innerHTML = html;
 }
-function renderTables(){
-  const stage = $('#stage');
-  $('#canvas').classList.toggle('hide-names', !state.showNames);
-  let html = '', maxX = 0, maxY = 0;
+function tablesHTML(live){
+  // live = the interactive canvas; otherwise a static copy for print (no drag hooks, no dimming)
+  let html = '';
+  const dim = g => live && dimmed(g) ? ' dim' : '';
   for(const t of state.tables){
-    const geo = tableGeom(t), ext = tableExtent(t);
-    maxX = Math.max(maxX, t.x + ext.w/2); maxY = Math.max(maxY, t.y + ext.h/2);
+    const geo = tableGeom(t);
     const guests = tableGuests(t.id);
-    html += `<div class="table ${t.shape}${ui.selectedTable === t.id ? ' selected' : ''}" data-table="${t.id}" style="left:${t.x}px;top:${t.y}px">
-      <div class="halo" style="width:${geo.haloW}px;height:${geo.haloH}px"></div>
-      <div class="table-top" data-tabletop="${t.id}" style="width:${geo.w}px;height:${geo.h}px">
+    html += `<div class="table ${t.shape}${live && ui.selectedTable === t.id ? ' selected' : ''}" ${live ? `data-table="${t.id}"` : ''} style="left:${t.x}px;top:${t.y}px">
+      ${live ? `<div class="halo" style="width:${geo.haloW}px;height:${geo.haloH}px"></div>` : ''}
+      <div class="table-top" ${live ? `data-tabletop="${t.id}"` : ''} style="width:${geo.w}px;height:${geo.h}px">
         <div class="tn">${escapeHtml(t.name)}</div>
         <div class="tc${guests.length >= t.seats ? ' full' : ''}">${guests.length}/${t.seats}</div>
         ${guests.length ? `<div class="tm">M1 ${menuCount(guests,1)} · M2 ${menuCount(guests,2)}</div>` : ''}
@@ -542,15 +618,22 @@ function renderTables(){
     geo.seats.forEach((p, i) => {
       const g = occupant(t.id, i);
       if(g){
-        html += `<div class="seat taken${dimmed(g)?' dim':''}" data-guest="${g.id}" data-seat="${i}" data-seat-table="${t.id}" title="${escapeHtml(g.name)}${g.group ? ' — ' + escapeHtml(g.group) : ''}${g.menu ? ' — Menu ' + g.menu : ''}" style="left:${p.x}px;top:${p.y}px;background:${colorFor(g.group)}">${escapeHtml(initials(g.name))}${g.menu ? `<span class="mb m${g.menu}">${g.menu}</span>` : ''}</div>`;
+        html += `<div class="seat taken${dim(g)}" ${live ? `data-guest="${g.id}" data-seat="${i}" data-seat-table="${t.id}"` : ''} title="${escapeHtml(g.name)}${g.group ? ' — ' + escapeHtml(g.group) : ''}${g.menu ? ' — Menu ' + g.menu : ''}" style="left:${p.x}px;top:${p.y}px;background:${colorFor(g.group)}">${escapeHtml(initials(g.name))}${g.menu ? `<span class="mb m${g.menu}">${g.menu}</span>` : ''}</div>`;
         const l = geo.labels[i];
-        html += `<div class="slabel${dimmed(g)?' dim':''}" style="left:${l.x}px;top:${l.y}px">${escapeHtml(shortName(g.name))}</div>`;
+        html += `<div class="slabel${dim(g)}" style="${labelStyle(l)}">${escapeHtml(g.name)}</div>`;
       } else {
-        html += `<div class="seat empty" data-seat="${i}" data-seat-table="${t.id}" style="left:${p.x}px;top:${p.y}px">${i+1}</div>`;
+        html += `<div class="seat empty" ${live ? `data-seat="${i}" data-seat-table="${t.id}"` : ''} style="left:${p.x}px;top:${p.y}px">${i+1}</div>`;
       }
     });
     html += `</div>`;
   }
+  return html;
+}
+function renderTables(){
+  const stage = $('#stage');
+  $('#canvas').classList.toggle('hide-names', !state.showNames);
+  let html = tablesHTML(true), maxX = 0, maxY = 0;
+  state.tables.forEach(t => { const e = tableExtent(t); maxX = Math.max(maxX, t.x + e.w/2); maxY = Math.max(maxY, t.y + e.h/2); });
   if(!state.tables.length){
     html = `<div style="position:absolute;left:40px;top:40px;color:var(--muted);font-size:14px;width:320px">No tables yet — tap <b>+ Table</b> to add round or rectangular tables with any number of seats.</div>`;
   }
@@ -841,7 +924,7 @@ function exportCsv(){
     const t = g.table != null ? tableById(g.table) : null;
     return [t ? t.name : 'Unseated', t ? g.seat + 1 : '', g.name, g.group || '', g.menu || ''];
   }));
-  download('seating-plan.csv', out.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
+  saveFile(`${fileBase()}-seating.csv`, '\ufeff' + out.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
 }
 const FRAMED = (() => { try{ return window.self !== window.top; }catch(e){ return true; } })();
 function askConfirm(msg, okLabel='OK'){
@@ -854,7 +937,41 @@ function askConfirm(msg, okLabel='OK'){
 }
 function exportTemplate(){
   const rows = [['Name','Group','Table','Menu'],['Maria Lopez','Bride family','Table 1','1'],['John Smith','Work','','2'],['Ana Torres','','','']];
-  download('guest-list-template.csv', '\ufeff' + rows.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
+  saveFile('guest-list-template.csv', '\ufeff' + rows.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
+}
+function fileBase(){
+  const b = String(state.planName || '').trim().replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, ' ');
+  return b || 'seating-plan';
+}
+function askName(def){
+  return new Promise(res => {
+    const d = $('#nameDlg'), inp = $('#nameInput');
+    inp.value = def;
+    d.addEventListener('close', () => {
+      if(d.returnValue !== 'ok') return res(null);
+      let n = inp.value.trim().replace(/[\\/:*?"<>|]+/g, '-');
+      const ext = def.slice(def.lastIndexOf('.'));
+      if(!n) return res(null);
+      if(!n.toLowerCase().endsWith(ext)) n += ext;
+      res(n);
+    }, { once:true });
+    d.returnValue = ''; d.showModal();
+    const dot = def.lastIndexOf('.'); inp.focus(); inp.setSelectionRange(0, dot > 0 ? dot : def.length);
+  });
+}
+async function saveFile(def, text, type){
+  if(FRAMED) return download(def, text, type);
+  if(window.showSaveFilePicker){
+    // Chromium: native Save dialog — pick the name and folder
+    const ext = def.slice(def.lastIndexOf('.'));
+    try{
+      const h = await window.showSaveFilePicker({ suggestedName:def, types:[{ description:ext.slice(1).toUpperCase() + ' file', accept:{ [type]:[ext] } }] });
+      const w = await h.createWritable(); await w.write(text); await w.close();
+      toast(`Saved ${h.name}`); return;
+    }catch(e){ if(e && e.name === 'AbortError') return; /* otherwise fall through to the name dialog */ }
+  }
+  const name = await askName(def);
+  if(name){ download(name, text, type); toast(`Saved ${name}`); }
 }
 function download(name, text, type){
   if(FRAMED){
@@ -951,9 +1068,9 @@ $('#moreMenu .menu-list').addEventListener('click', async e => {
     case 'importCsv': $('#bulkBtn').click(); break;
     case 'template': exportTemplate(); break;
     case 'exportCsv': exportCsv(); break;
-    case 'saveJson': download(`table-layout-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state, null, 1), 'application/json'); break;
+    case 'saveJson': saveFile(`${fileBase()}.json`, JSON.stringify(state, null, 1), 'application/json'); break;
     case 'loadJson': $('#jsonFile').click(); break;
-    case 'print': if(FRAMED) toast('Open the page in its own tab to print'); else window.print(); break;
+    case 'print': openPrint(); break;
     case 'sample': if(!has || await askConfirm('Replace the current plan with the 150-guest sample?', 'Replace')){ loadSample(); ui.selectedTable = null; ui.focusGroup = null; ui.focusMenu = null; render(); zoomFit(); } break;
     case 'clear': if(await askConfirm('Delete all guests and tables? Save a .json first if you want a copy.', 'Delete everything')){ state = blankState(); ui.selectedTable = null; ui.focusGroup = null; ui.focusMenu = null; render(); } break;
   }
@@ -987,11 +1104,149 @@ $('#inspector').addEventListener('click', async e => {
   render();
 });
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ if(drag){ cleanupDrag(); render(); } else if(ui.selectedTable){ ui.selectedTable = null; render(); } }
+  if(e.key === 'Escape'){ if($('#printOv').classList.contains('open')){ $('#printOv').classList.remove('open'); return; } if(drag){ cleanupDrag(); render(); } else if(ui.selectedTable){ ui.selectedTable = null; render(); } }
 });
+
+/* ---------- print preview ---------- */
+const PAPERS = {
+  letter:['Letter — 8.5 × 11 in',8.5,11], legal:['Legal — 8.5 × 14 in',8.5,14], tabloid:['Tabloid — 11 × 17 in',11,17],
+  archc:['ARCH C — 18 × 24 in',18,24], archd:['ARCH D — 24 × 36 in',24,36], arche:['ARCH E — 36 × 48 in',36,48],
+  a4:['A4 — 210 × 297 mm',8.27,11.69], a3:['A3 — 297 × 420 mm',11.69,16.54], a2:['A2 — 420 × 594 mm',16.54,23.39], a1:['A1 — 594 × 841 mm',23.39,33.11]
+};
+const DPI = 96, TITLE_IN = .55;
+let pvZoom = 1, pvDrag = null;
+function pset(){
+  const def = { paper:'letter', orient:'landscape', margin:.5, names:true, list:true, fit:true, scale:1, ox:0, oy:0, title:null };
+  if(!state.print) state.print = {};
+  for(const k in def) if(!(k in state.print)) state.print[k] = def[k];
+  return state.print;
+}
+const printTitle = () => { const p = pset(); return (p.title ?? state.planName ?? '').trim(); };
+function pageDims(){
+  const p = pset(), [, a, b] = PAPERS[p.paper] || PAPERS.letter;
+  const lo = Math.min(a,b), hi = Math.max(a,b);
+  return p.orient === 'landscape' ? { w:hi, h:lo } : { w:lo, h:hi };
+}
+function boxDims(){
+  const d = pageDims(), m = pset().margin;
+  return { w:(d.w - 2*m)*DPI, h:(d.h - 2*m - (printTitle() ? TITLE_IN : 0))*DPI };
+}
+function planBounds(){
+  if(!state.tables.length) return { x0:0, y0:0, w:100, h:100 };
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  state.tables.forEach(t => { const e = tableExtent(t); x0=Math.min(x0,t.x-e.w/2); y0=Math.min(y0,t.y-e.h/2); x1=Math.max(x1,t.x+e.w/2); y1=Math.max(y1,t.y+e.h/2); });
+  return { x0, y0, w:x1-x0, h:y1-y0 };
+}
+function fitPrint(){
+  const p = pset(), b = planBounds(), box = boxDims();
+  p.scale = Math.min(box.w/b.w, box.h/b.h);
+  p.ox = (box.w - b.w*p.scale)/2; p.oy = (box.h - b.h*p.scale)/2; p.fit = true;
+}
+function zoomPrint(f){
+  const p = pset(), box = boxDims();
+  const cx = box.w/2, cy = box.h/2, ns = Math.max(.05, Math.min(4, p.scale*f));
+  p.ox = cx - (cx - p.ox)*ns/p.scale; p.oy = cy - (cy - p.oy)*ns/p.scale; p.scale = ns; p.fit = false;
+  buildPrint();
+}
+function guestListHTML(){
+  let html = state.tables.map(t => {
+    const gs = tableGuests(t.id);
+    return `<div class="gt"><h4>${escapeHtml(t.name)} <small>${gs.length}/${t.seats} · M1 ${menuCount(gs,1)} · M2 ${menuCount(gs,2)}</small></h4>
+      ${gs.length ? `<ol>${gs.map(g => `<li value="${g.seat+1}">${escapeHtml(g.name)}${g.menu ? `<span class="m m${g.menu}">M${g.menu}</span>` : ''}</li>`).join('')}</ol>` : '<div style="color:#7a746b">—</div>'}</div>`;
+  }).join('');
+  const un = state.guests.filter(g => g.table == null);
+  if(un.length) html += `<div class="gt"><h4>Unseated <small>${un.length}</small></h4><ol>${un.map(g => `<li>${escapeHtml(g.name)}${g.menu ? `<span class="m m${g.menu}">M${g.menu}</span>` : ''}</li>`).join('')}</ol></div>`;
+  return html;
+}
+function buildPrint(){
+  const p = pset(), d = pageDims(), b = planBounds(), box = boxDims(), title = printTitle();
+  if(p.fit) fitPrint();
+  let st = $('#pageStyle');
+  if(!st){ st = document.createElement('style'); st.id = 'pageStyle'; document.head.appendChild(st); }
+  st.textContent = `@page{size:${d.w}in ${d.h}in;margin:0}`;
+  const seated = state.guests.filter(g => g.table != null).length;
+  const head = sub => title ? `<div class="sheet-title">${escapeHtml(title)}<small>${sub}</small></div>` : '';
+  const sheet = `width:${d.w}in;padding:${p.margin}in`;
+  let html = `<div class="sheet" style="${sheet};height:${d.h}in">
+    ${head(`${state.tables.length} tables · ${seated}/${state.guests.length} seated · Menu 1: ${menuCount(state.guests,1)} · Menu 2: ${menuCount(state.guests,2)}`)}
+    <div class="plan-box${p.names ? '' : ' hide-names'}" style="width:${box.w}px;height:${box.h}px">
+      <div class="plan-inner" style="left:${p.ox}px;top:${p.oy}px">
+        <div class="plan-zoom" style="width:${b.w}px;height:${b.h}px;zoom:${p.scale}">
+          <div style="position:absolute;left:${-b.x0}px;top:${-b.y0}px">${tablesHTML(false)}</div>
+        </div>
+      </div>
+    </div></div>`;
+  if(p.list) html += `<div class="sheet flow" style="${sheet};min-height:${d.h}in">${head('Guest list by table')}<div class="glist">${guestListHTML()}</div></div>`;
+  $('#pvPages').innerHTML = html;
+  $('#pvPct').textContent = Math.round(p.scale*100) + '%';
+  $('#pvFit').classList.toggle('on', p.fit);
+  const area = $('#pvArea');
+  pvZoom = Math.min(1.5, (area.clientWidth - 40)/(d.w*DPI), (area.clientHeight - 40)/(d.h*DPI));
+  $('#pvPages').style.zoom = Math.max(.05, pvZoom);
+  save();
+}
+function openPrint(){
+  const p = pset();
+  $('#pvPaper').innerHTML = Object.entries(PAPERS).map(([k,v]) => `<option value="${k}">${v[0]}</option>`).join('');
+  $('#pvPaper').value = p.paper; $('#pvOrient').value = p.orient; $('#pvMargin').value = String(p.margin);
+  $('#pvNames').checked = p.names; $('#pvList').checked = p.list;
+  $('#pvTitle').value = printTitle();
+  $('#printOv').classList.add('open');
+  buildPrint();
+}
+const pvChange = (fn, refit = true) => e => { const p = pset(); fn(p, e.target); if(refit) p.fit = true; buildPrint(); };
+$('#pvPaper').onchange  = pvChange((p, el) => p.paper = el.value);
+$('#pvOrient').onchange = pvChange((p, el) => p.orient = el.value);
+$('#pvMargin').onchange = pvChange((p, el) => p.margin = +el.value);
+$('#pvNames').onchange  = pvChange((p, el) => p.names = el.checked, false);
+$('#pvList').onchange   = pvChange((p, el) => p.list = el.checked, false);
+$('#pvTitle').oninput   = pvChange((p, el) => p.title = el.value, false);
+$('#pvIn').onclick  = () => zoomPrint(1.15);
+$('#pvOut').onclick = () => zoomPrint(1/1.15);
+$('#pvFit').onclick = () => { fitPrint(); buildPrint(); };
+$('#pvClose').onclick = () => $('#printOv').classList.remove('open');
+$('#pvPrint').onclick = () => {
+  if(FRAMED){ toast('Printing is blocked here — open the page from the repo in its own browser tab'); return; }
+  window.print();
+};
+window.addEventListener('beforeprint', () => { if(!$('#printOv').classList.contains('open')) buildPrint(); });
+window.addEventListener('resize', () => { if($('#printOv').classList.contains('open')) buildPrint(); });
+$('#pvPages').addEventListener('pointerdown', e => {
+  const box = e.target.closest('.plan-box'); if(!box || e.button !== 0) return;
+  const p = pset();
+  pvDrag = { sx:e.clientX, sy:e.clientY, ox:p.ox, oy:p.oy, inner:box.querySelector('.plan-inner') };
+  box.setPointerCapture(e.pointerId); e.preventDefault();
+});
+$('#pvPages').addEventListener('pointermove', e => {
+  if(!pvDrag) return;
+  const p = pset();
+  p.ox = pvDrag.ox + (e.clientX - pvDrag.sx)/pvZoom; p.oy = pvDrag.oy + (e.clientY - pvDrag.sy)/pvZoom; p.fit = false;
+  pvDrag.inner.style.left = p.ox + 'px'; pvDrag.inner.style.top = p.oy + 'px';
+  $('#pvFit').classList.remove('on');
+});
+const endPv = () => { if(pvDrag){ pvDrag = null; save(); } };
+$('#pvPages').addEventListener('pointerup', endPv);
+$('#pvPages').addEventListener('pointercancel', endPv);
+$('#pvArea').addEventListener('wheel', e => {
+  if(!e.ctrlKey && !e.metaKey) return;
+  e.preventDefault(); zoomPrint(e.deltaY < 0 ? 1.1 : 1/1.1);
+}, { passive:false });
+
+/* ---------- side panel + event name ---------- */
+$('#sideBtn').onclick = () => { state.sideCollapsed = !state.sideCollapsed; render(); };
+$('#planName').addEventListener('input', e => { state.planName = e.target.value; save(); });
 
 /* ---------- boot ---------- */
 load();
+// v2 tables are larger (room for full names): re-space older plans once if tables would now overlap
+if(state.layoutV !== 2){
+  const ov = state.tables.some((a,i) => state.tables.slice(i+1).some(b => {
+    const ea = tableExtent(a), eb = tableExtent(b);
+    return Math.abs(a.x-b.x) < (ea.w+eb.w)/2 - 40 && Math.abs(a.y-b.y) < (ea.h+eb.h)/2 - 40;
+  }));
+  if(ov){ arrangeTables(); setTimeout(() => toast('Tables re-spaced to fit full names'), 300); }
+  state.layoutV = 2;
+}
 render();
 if(state.tables.length) requestAnimationFrame(() => { if(state.zoom === 1) zoomFit(); });
 </script>

@@ -12,6 +12,16 @@ Single-file, no-dependency web app for planning seat assignments for an event (b
 - **More menu**: auto-arrange tables in a grid, auto-seat remaining guests (keeps groups together where they fit), export seating CSV (`Table, Seat, Name, Group, Menu`), save/load the whole plan as `.json`, print the layout, load a 150-guest sample.
 - Tap a guest card or seat (without dragging) to edit name/group/table or delete.
 
+## Layout & printing
+
+- **☰** (top left) collapses the guest panel to give the floor plan the whole screen.
+- Seats show each guest's **full name**, written outward from the table; **Names** toggles them off.
+- **More → Print preview…** shows real pages: Letter, Legal, Tabloid, ARCH C/D/E, A4–A1, landscape or portrait, margins, and a title (defaults to the event name). **Fit to page** scales the plan to the printable area; **− / +** (or Ctrl/⌘-scroll) zooms it and you can drag the plan to reposition it on the sheet. An optional **Guest list page** prints every table's seats and Menu 1/2 counts. Print → choose "Save as PDF" for a file.
+
+## Saving files
+
+Type an **event name** next to the title — it's the default file name for everything you save. **Save plan as…**, **Export seating CSV…** and **Save guest CSV template…** let you name the file: Chrome/Edge open the native Save dialog (pick name and folder); other browsers ask for a name, then save to Downloads.
+
 ## Storage
 
 The plan autosaves to the browser's `localStorage` (`table-layout-plan-v1`) — it lives in that one browser only. Use **Save plan (.json)** to back it up or move it to another device, **Load plan** to restore.
