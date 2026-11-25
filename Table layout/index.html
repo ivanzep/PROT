@@ -640,13 +640,16 @@ function renderTables(){
   stage.innerHTML = html;
   applyZoom(maxX, maxY);
 }
-let canvasW = 1600, canvasH = 1100;
+let canvasW = 1600, canvasH = 1100, padX = 0, padY = 0;
 function applyZoom(maxX, maxY){
   if(maxX != null){ canvasW = Math.max(1400, maxX + 300); canvasH = Math.max(1000, maxY + 300); }
-  const z = state.zoom;
+  const z = state.zoom, c = $('#canvas');
+  // half a viewport of breathing room on every side, so any point of the plan can be scrolled to the centre
+  padX = Math.round(c.clientWidth/2); padY = Math.round(c.clientHeight/2);
   $('#stage').style.width = canvasW + 'px'; $('#stage').style.height = canvasH + 'px';
+  $('#stage').style.left = padX + 'px'; $('#stage').style.top = padY + 'px';
   $('#stage').style.transform = `scale(${z})`;
-  $('#sizer').style.width = canvasW*z + 'px'; $('#sizer').style.height = canvasH*z + 'px';
+  $('#sizer').style.width = canvasW*z + 2*padX + 'px'; $('#sizer').style.height = canvasH*z + 2*padY + 'px';
   $('#zoomLbl').textContent = Math.round(z*100) + '%';
   $('#namesBtn').classList.toggle('on', state.showNames);
 }
@@ -655,9 +658,9 @@ function setZoom(z, anchor){
   const old = state.zoom;
   z = Math.max(.25, Math.min(2.5, z));
   const ax = anchor ? anchor.x : c.clientWidth/2, ay = anchor ? anchor.y : c.clientHeight/2;
-  const wx = (c.scrollLeft + ax)/old, wy = (c.scrollTop + ay)/old;
+  const wx = (c.scrollLeft + ax - padX)/old, wy = (c.scrollTop + ay - padY)/old;
   state.zoom = z; applyZoom();
-  c.scrollLeft = wx*z - ax; c.scrollTop = wy*z - ay;
+  c.scrollLeft = padX + wx*z - ax; c.scrollTop = padY + wy*z - ay;
   save();
 }
 function zoomFit(){
@@ -667,7 +670,7 @@ function zoomFit(){
   state.tables.forEach(t => { const e = tableExtent(t); x0=Math.min(x0,t.x-e.w/2); y0=Math.min(y0,t.y-e.h/2); x1=Math.max(x1,t.x+e.w/2); y1=Math.max(y1,t.y+e.h/2); });
   const z = Math.max(.25, Math.min(1.5, Math.min(c.clientWidth/(x1-x0+40), c.clientHeight/(y1-y0+40))));
   state.zoom = z; applyZoom();
-  c.scrollLeft = (x0-20)*z; c.scrollTop = (y0-20)*z;
+  centerOn((x0+x1)/2, (y0+y1)/2);
   save();
 }
 
@@ -863,11 +866,17 @@ $('#tableDlg').addEventListener('close', () => {
   render();
   scrollToTable(last);
 });
-function scrollToTable(t){
-  if(!t) return;
+function centerOn(wx, wy, smooth){
   const c = $('#canvas'), z = state.zoom;
-  c.scrollTo({ left: t.x*z - c.clientWidth/2, top: t.y*z - c.clientHeight/2, behavior:'smooth' });
+  c.scrollTo({ left: padX + wx*z - c.clientWidth/2, top: padY + wy*z - c.clientHeight/2, behavior: smooth ? 'smooth' : 'auto' });
 }
+function scrollToTable(t){ if(t) centerOn(t.x, t.y, true); }
+// keep the same spot centred when the window / panel size changes
+new ResizeObserver(() => {
+  const c = $('#canvas'), z = state.zoom;
+  const cx = (c.scrollLeft + c.clientWidth/2 - padX)/z, cy = (c.scrollTop + c.clientHeight/2 - padY)/z;
+  applyZoom(); centerOn(cx, cy);
+}).observe($('#canvas'));
 
 $('#bulkBtn').onclick = () => { $('#bulkText').value = ''; $('#bulkFileName').textContent = ''; $('#bulkReplace').checked = false; $('#bulkDlg').showModal(); };
 $('#bulkFileBtn').onclick = () => { $('#csvFile').dataset.target = 'bulk'; $('#csvFile').click(); };
@@ -1248,7 +1257,7 @@ if(state.layoutV !== 2){
   state.layoutV = 2;
 }
 render();
-if(state.tables.length) requestAnimationFrame(() => { if(state.zoom === 1) zoomFit(); });
+requestAnimationFrame(() => { if(state.tables.length) zoomFit(); else centerOn($('#canvas').clientWidth/2 - 40, $('#canvas').clientHeight/2 - 40); });
 </script>
 </body>
 </html>
