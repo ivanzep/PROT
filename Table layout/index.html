@@ -229,7 +229,7 @@ dialog .actions .left{margin-right:auto}
       <form class="row" id="addGuestForm" autocomplete="off">
         <input id="gName" placeholder="Name" required>
         <input id="gGroup" placeholder="Group" list="groupList" style="max-width:86px">
-        <select id="gMenu" title="Menu" style="flex:none"><option value="">Menu</option><option value="1">1</option><option value="2">2</option></select>
+        <select id="gMenu" title="Menu" style="flex:none;max-width:92px"><option value="">Menu</option><option value="1">1</option><option value="2">2</option></select>
         <button class="primary" type="submit">Add</button>
       </form>
       <div class="row" style="margin-top:6px">
@@ -238,7 +238,8 @@ dialog .actions .left{margin-right:auto}
       <datalist id="groupList"></datalist>
     </div>
     <div class="side-sec">
-      <h2>Menu <small style="text-transform:none;letter-spacing:0;font-weight:400">— tap to highlight</small></h2>
+      <h2 style="display:flex;align-items:center">Menu <small style="text-transform:none;letter-spacing:0;font-weight:400;margin-left:4px">— tap to highlight</small>
+        <button id="menuRenameBtn" style="margin-left:auto;padding:2px 8px;font-size:12px;text-transform:none;letter-spacing:0">Rename</button></h2>
       <div class="legend" id="menuLegend"></div>
     </div>
     <div class="side-sec">
@@ -282,7 +283,7 @@ dialog .actions .left{margin-right:auto}
     <label>Name</label><input id="eName" required>
     <label>Group</label><input id="eGroup" list="groupList">
     <label>Menu</label>
-    <select id="eMenu"><option value="">Not chosen</option><option value="1">Menu 1</option><option value="2">Menu 2</option></select>
+    <select id="eMenu"></select>
     <label>Table</label><select id="eTable"></select>
     <div class="actions">
       <button value="delete" class="danger left" formnovalidate>Delete</button>
@@ -294,7 +295,7 @@ dialog .actions .left{margin-right:auto}
 <dialog id="bulkDlg">
   <form method="dialog" id="bulkForm">
     <h3>Add guests</h3>
-    <p class="hint" style="margin-top:0">One guest per line. Optional columns, comma or tab separated: <b>Name, Group, Table, Menu</b> (Menu = 1 or 2). Use <b>More → Download guest CSV template</b> to start from a blank sheet. Paste straight from Excel / Google Sheets. A header row is detected automatically. A Table name that doesn't exist yet is created.</p>
+    <p class="hint" style="margin-top:0">One guest per line. Optional columns, comma or tab separated: <b>Name, Group, Table, Menu</b> (Menu = 1, 2 or the menu's name). Use <b>More → Download guest CSV template</b> to start from a blank sheet. Paste straight from Excel / Google Sheets. A header row is detected automatically. A Table name that doesn't exist yet is created.</p>
     <textarea id="bulkText" placeholder="Maria Lopez, Bride family, Table 1, 2&#10;John Smith, Work, , 1&#10;Ana Torres"></textarea>
     <div class="row" style="margin-top:8px;align-items:center">
       <button type="button" id="bulkFileBtn">Choose CSV file…</button>
@@ -324,6 +325,16 @@ dialog .actions .left{margin-right:auto}
 
 <input type="file" id="csvFile" accept=".csv,.txt,.tsv,text/csv" hidden>
 <input type="file" id="jsonFile" accept=".json,application/json" hidden>
+<dialog id="menuDlg">
+  <form method="dialog">
+    <h3>Menu names</h3>
+    <p class="hint" style="margin-top:0">Shown on cards, tables, the print-out and the CSV export. Keep them short (e.g. Beef / Fish) — long names are shortened on the floor plan.</p>
+    <label>Menu 1 (white badge)</label><input id="menu1Name" maxlength="40">
+    <label>Menu 2 (black badge)</label><input id="menu2Name" maxlength="40">
+    <div class="actions"><button type="button" class="left" id="menuReset">Reset</button><button value="cancel" formnovalidate>Cancel</button><button class="primary" value="ok">Save</button></div>
+  </form>
+</dialog>
+
 <dialog id="nameDlg">
   <form method="dialog">
     <h3>Save as</h3>
@@ -418,14 +429,23 @@ function seatGuest(gid, tid, seat){
 }
 function unseat(gid){ const g = guestById(gid); if(g){ g.table = null; g.seat = null; } }
 
+const DEFAULT_MENUS = ['Menu 1','Menu 2'];
+function menuNames(){
+  if(!Array.isArray(state.menuNames) || state.menuNames.length !== 2) state.menuNames = DEFAULT_MENUS.slice();
+  return state.menuNames;
+}
+const mname = m => (menuNames()[m-1] || '').trim() || DEFAULT_MENUS[m-1];
+const mshort = m => { const n = mname(m); return n.length > 12 ? n.slice(0, 11) + '…' : n; };
+const mcounts = list => `${escapeHtml(mshort(1))} ${menuCount(list,1)} · ${escapeHtml(mshort(2))} ${menuCount(list,2)}`;
 function parseMenu(v){
   v = String(v ?? '').trim().toLowerCase();
   if(!v) return null;
+  for(const m of [1,2]) if(v === mname(m).toLowerCase()) return m;
   if(/(^|\D)1(\D|$)|^one$|^uno$/.test(v)) return 1;
   if(/(^|\D)2(\D|$)|^two$|^dos$/.test(v)) return 2;
   return null;
 }
-const menuLabel = m => m ? `Menu ${m}` : 'No menu';
+const menuLabel = m => m ? mname(m) : 'No menu';
 function addGuest(name, group, tableName, menu){
   name = String(name||'').trim(); if(!name) return null;
   group = String(group||'').trim();
@@ -537,6 +557,7 @@ function render(){
   $('#app').classList.toggle('side-collapsed', !!state.sideCollapsed);
   $('#sideBtn').classList.toggle('on', !state.sideCollapsed);
   if(document.activeElement !== $('#planName')) $('#planName').value = state.planName || '';
+  const gm = $('#gMenu'), gv = gm.value; gm.innerHTML = menuOptions('Menu'); gm.value = gv;
   renderStats(); renderLegend(); renderPool(); renderTables(); renderInspector(); save();
 }
 function renderStats(){
@@ -549,7 +570,7 @@ function renderStats(){
     `<span class="stat${total-seated ? ' warn' : ''}"><b>${total-seated}</b> unseated</span>` +
     `<span class="stat"><b>${state.tables.length}</b> tables · <b>${cap}</b> seats</span>` +
     (short > 0 ? `<span class="stat warn">need <b>${short}</b> more seats</span>` : '') +
-    (total ? `<span class="stat">Menu 1 <b>${menuCount(state.guests,1)}</b> · Menu 2 <b>${menuCount(state.guests,2)}</b>${menuCount(state.guests,0) ? ` · not chosen <b>${menuCount(state.guests,0)}</b>` : ''}</span>` : '');
+    (total ? `<span class="stat">${escapeHtml(mshort(1))} <b>${menuCount(state.guests,1)}</b> · ${escapeHtml(mshort(2))} <b>${menuCount(state.guests,2)}</b>${menuCount(state.guests,0) ? ` · not chosen <b>${menuCount(state.guests,0)}</b>` : ''}</span>` : '');
 }
 const menuCount = (list, m) => list.filter(g => (g.menu||0) === m).length;
 function groupList(){
@@ -570,7 +591,7 @@ function renderLegend(){
   const ml = [1,2,0].map(m => {
     const n = menuCount(state.guests, m);
     if(!m && !n) return '';
-    return `<span class="chip mchip${ui.focusMenu === m ? ' active' : ''}" data-menu="${m}"><i class="mb m${m}" style="position:static;${m ? '' : 'background:#ddd;color:#555;border-color:#bbb'}">${m || '–'}</i>${menuLabel(m)} <small>${n}</small></span>`;
+    return `<span class="chip mchip${ui.focusMenu === m ? ' active' : ''}" data-menu="${m}"><i class="mb m${m}" style="position:static;${m ? '' : 'background:#ddd;color:#555;border-color:#bbb'}">${m || '–'}</i>${escapeHtml(menuLabel(m))} <small>${n}</small></span>`;
   }).join('');
   $('#menuLegend').innerHTML = ml;
   $('#legend').innerHTML = html || '<span class="hint" style="margin:0">Give guests a group (family, friends, work…) to color-code them.</span>';
@@ -597,7 +618,7 @@ function renderPool(){
     }
     const t = g.table != null ? tableById(g.table) : null;
     html += `<div class="card${dimmed(g)?' dim':''}" data-guest="${g.id}" style="border-left-color:${colorFor(g.group)}">
-      <span class="nm">${escapeHtml(g.name)}</span>${g.menu ? `<span class="tag m${g.menu}">M${g.menu}</span>` : ''}${t ? `<span class="tag">${escapeHtml(t.name)}</span>` : ''}</div>`;
+      <span class="nm">${escapeHtml(g.name)}</span>${g.menu ? `<span class="tag m${g.menu}">${escapeHtml(mshort(g.menu))}</span>` : ''}${t ? `<span class="tag">${escapeHtml(t.name)}</span>` : ''}</div>`;
   }
   $('#pool').innerHTML = html;
 }
@@ -613,12 +634,12 @@ function tablesHTML(live){
       <div class="table-top" ${live ? `data-tabletop="${t.id}"` : ''} style="width:${geo.w}px;height:${geo.h}px">
         <div class="tn">${escapeHtml(t.name)}</div>
         <div class="tc${guests.length >= t.seats ? ' full' : ''}">${guests.length}/${t.seats}</div>
-        ${guests.length ? `<div class="tm">M1 ${menuCount(guests,1)} · M2 ${menuCount(guests,2)}</div>` : ''}
+        ${guests.length ? `<div class="tm">${mcounts(guests)}</div>` : ''}
       </div>`;
     geo.seats.forEach((p, i) => {
       const g = occupant(t.id, i);
       if(g){
-        html += `<div class="seat taken${dim(g)}" ${live ? `data-guest="${g.id}" data-seat="${i}" data-seat-table="${t.id}"` : ''} title="${escapeHtml(g.name)}${g.group ? ' — ' + escapeHtml(g.group) : ''}${g.menu ? ' — Menu ' + g.menu : ''}" style="left:${p.x}px;top:${p.y}px;background:${colorFor(g.group)}">${escapeHtml(initials(g.name))}${g.menu ? `<span class="mb m${g.menu}">${g.menu}</span>` : ''}</div>`;
+        html += `<div class="seat taken${dim(g)}" ${live ? `data-guest="${g.id}" data-seat="${i}" data-seat-table="${t.id}"` : ''} title="${escapeHtml(g.name)}${g.group ? ' — ' + escapeHtml(g.group) : ''}${g.menu ? ' — ' + escapeHtml(mname(g.menu)) : ''}" style="left:${p.x}px;top:${p.y}px;background:${colorFor(g.group)}">${escapeHtml(initials(g.name))}${g.menu ? `<span class="mb m${g.menu}">${g.menu}</span>` : ''}</div>`;
         const l = geo.labels[i];
         html += `<div class="slabel${dim(g)}" style="${labelStyle(l)}">${escapeHtml(g.name)}</div>`;
       } else {
@@ -702,8 +723,8 @@ function renderInspector(){
 }
 function inspectorList(t){
   const gs = tableGuests(t.id);
-  return `<label>Guests · ${gs.length}/${t.seats} · M1 ${menuCount(gs,1)} · M2 ${menuCount(gs,2)}</label>` + (gs.length
-    ? `<ul class="ilist">${gs.map(g => `<li><em>${g.seat+1}</em><i style="background:${colorFor(g.group)}"></i><span>${escapeHtml(g.name)}</span><button data-ins="menu" data-gid="${g.id}" title="Tap to switch menu" class="${g.menu ? 'on' : ''}">${g.menu ? 'M' + g.menu : 'M?'}</button><button data-ins="unseat" data-gid="${g.id}" title="Back to list">↩</button></li>`).join('')}</ul>`
+  return `<label>Guests · ${gs.length}/${t.seats} · ${mcounts(gs)}</label>` + (gs.length
+    ? `<ul class="ilist">${gs.map(g => `<li><em>${g.seat+1}</em><i style="background:${colorFor(g.group)}"></i><span>${escapeHtml(g.name)}</span><button data-ins="menu" data-gid="${g.id}" title="Tap to switch menu" class="${g.menu ? 'on' : ''}">${g.menu ? escapeHtml(mshort(g.menu)) : 'Menu?'}</button><button data-ins="unseat" data-gid="${g.id}" title="Back to list">↩</button></li>`).join('')}</ul>`
     : `<p class="hint">Drag guest cards onto this table or a specific seat.</p>`);
 }
 
@@ -828,7 +849,7 @@ document.addEventListener('contextmenu', e => { if(e.target.closest('.card,.seat
 function openGuestEditor(id){
   const g = guestById(id); if(!g) return;
   ui.editingGuest = id;
-  $('#eName').value = g.name; $('#eGroup').value = g.group || ''; $('#eMenu').value = g.menu || '';
+  $('#eName').value = g.name; $('#eGroup').value = g.group || ''; $('#eMenu').innerHTML = menuOptions('Not chosen'); $('#eMenu').value = g.menu || '';
   $('#eTable').innerHTML = `<option value="">— Not seated —</option>` + state.tables.map(t => {
     const n = tableGuests(t.id).length, full = n >= t.seats && g.table !== t.id;
     return `<option value="${t.id}"${g.table === t.id ? ' selected' : ''}${full ? ' disabled' : ''}>${escapeHtml(t.name)} (${n}/${t.seats})</option>`;
@@ -931,7 +952,7 @@ function exportCsv(){
     (a.table == null) - (b.table == null) || (order.get(a.table) ?? 0) - (order.get(b.table) ?? 0) || (a.seat ?? 0) - (b.seat ?? 0) || a.name.localeCompare(b.name));
   const out = [['Table','Seat','Name','Group','Menu']].concat(rows.map(g => {
     const t = g.table != null ? tableById(g.table) : null;
-    return [t ? t.name : 'Unseated', t ? g.seat + 1 : '', g.name, g.group || '', g.menu || ''];
+    return [t ? t.name : 'Unseated', t ? g.seat + 1 : '', g.name, g.group || '', g.menu ? mname(g.menu) : ''];
   }));
   saveFile(`${fileBase()}-seating.csv`, '\ufeff' + out.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
 }
@@ -1160,11 +1181,11 @@ function zoomPrint(f){
 function guestListHTML(){
   let html = state.tables.map(t => {
     const gs = tableGuests(t.id);
-    return `<div class="gt"><h4>${escapeHtml(t.name)} <small>${gs.length}/${t.seats} · M1 ${menuCount(gs,1)} · M2 ${menuCount(gs,2)}</small></h4>
-      ${gs.length ? `<ol>${gs.map(g => `<li value="${g.seat+1}">${escapeHtml(g.name)}${g.menu ? `<span class="m m${g.menu}">M${g.menu}</span>` : ''}</li>`).join('')}</ol>` : '<div style="color:#7a746b">—</div>'}</div>`;
+    return `<div class="gt"><h4>${escapeHtml(t.name)} <small>${gs.length}/${t.seats} · ${mcounts(gs)}</small></h4>
+      ${gs.length ? `<ol>${gs.map(g => `<li value="${g.seat+1}">${escapeHtml(g.name)}${g.menu ? `<span class="m m${g.menu}">${escapeHtml(mshort(g.menu))}</span>` : ''}</li>`).join('')}</ol>` : '<div style="color:#7a746b">—</div>'}</div>`;
   }).join('');
   const un = state.guests.filter(g => g.table == null);
-  if(un.length) html += `<div class="gt"><h4>Unseated <small>${un.length}</small></h4><ol>${un.map(g => `<li>${escapeHtml(g.name)}${g.menu ? `<span class="m m${g.menu}">M${g.menu}</span>` : ''}</li>`).join('')}</ol></div>`;
+  if(un.length) html += `<div class="gt"><h4>Unseated <small>${un.length}</small></h4><ol>${un.map(g => `<li>${escapeHtml(g.name)}${g.menu ? `<span class="m m${g.menu}">${escapeHtml(mshort(g.menu))}</span>` : ''}</li>`).join('')}</ol></div>`;
   return html;
 }
 function buildPrint(){
@@ -1177,7 +1198,7 @@ function buildPrint(){
   const head = sub => title ? `<div class="sheet-title">${escapeHtml(title)}<small>${sub}</small></div>` : '';
   const sheet = `width:${d.w}in;padding:${p.margin}in`;
   let html = `<div class="sheet" style="${sheet};height:${d.h}in">
-    ${head(`${state.tables.length} tables · ${seated}/${state.guests.length} seated · Menu 1: ${menuCount(state.guests,1)} · Menu 2: ${menuCount(state.guests,2)}`)}
+    ${head(`${state.tables.length} tables · ${seated}/${state.guests.length} seated · ${escapeHtml(mname(1))}: ${menuCount(state.guests,1)} · ${escapeHtml(mname(2))}: ${menuCount(state.guests,2)}`)}
     <div class="plan-box${p.names ? '' : ' hide-names'}" style="width:${box.w}px;height:${box.h}px">
       <div class="plan-inner" style="left:${p.ox}px;top:${p.oy}px">
         <div class="plan-zoom" style="width:${b.w}px;height:${b.h}px;zoom:${p.scale}">
@@ -1240,6 +1261,21 @@ $('#pvArea').addEventListener('wheel', e => {
   if(!e.ctrlKey && !e.metaKey) return;
   e.preventDefault(); zoomPrint(e.deltaY < 0 ? 1.1 : 1/1.1);
 }, { passive:false });
+
+/* ---------- menu names ---------- */
+function menuOptions(none){
+  return `<option value="">${escapeHtml(none)}</option>` + [1,2].map(m => `<option value="${m}">${escapeHtml(mname(m))}</option>`).join('');
+}
+$('#menuRenameBtn').onclick = () => {
+  $('#menu1Name').value = mname(1); $('#menu2Name').value = mname(2);
+  $('#menuDlg').returnValue = ''; $('#menuDlg').showModal();
+};
+$('#menuReset').onclick = () => { $('#menu1Name').value = DEFAULT_MENUS[0]; $('#menu2Name').value = DEFAULT_MENUS[1]; };
+$('#menuDlg').addEventListener('close', () => {
+  if($('#menuDlg').returnValue !== 'ok') return;
+  state.menuNames = [$('#menu1Name').value.trim() || DEFAULT_MENUS[0], $('#menu2Name').value.trim() || DEFAULT_MENUS[1]];
+  render();
+});
 
 /* ---------- side panel + event name ---------- */
 $('#sideBtn').onclick = () => { state.sideCollapsed = !state.sideCollapsed; render(); };
