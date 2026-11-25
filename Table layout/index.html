@@ -247,6 +247,22 @@ dialog .actions .left{margin-right:auto}
   </form>
 </dialog>
 
+<dialog id="confirmDlg">
+  <form method="dialog">
+    <h3 id="confirmMsg"></h3>
+    <div class="actions"><button value="cancel">Cancel</button><button class="primary" value="ok" id="confirmOk">OK</button></div>
+  </form>
+</dialog>
+
+<dialog id="outDlg">
+  <form method="dialog">
+    <h3 id="outTitle">Export</h3>
+    <p class="hint" style="margin-top:0">Downloads are blocked here — copy the text below and save it as <b id="outName"></b>.</p>
+    <textarea id="outText" readonly></textarea>
+    <div class="actions"><button type="button" id="outCopy">Copy</button><button class="primary" value="ok">Done</button></div>
+  </form>
+</dialog>
+
 <input type="file" id="csvFile" accept=".csv,.txt,.tsv,text/csv" hidden>
 <input type="file" id="jsonFile" accept=".json,application/json" hidden>
 <div id="toast"></div>
@@ -793,7 +809,20 @@ function exportCsv(){
   }));
   download('seating-plan.csv', out.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
 }
+const FRAMED = (() => { try{ return window.self !== window.top; }catch(e){ return true; } })();
+function askConfirm(msg, okLabel='OK'){
+  return new Promise(res => {
+    const d = $('#confirmDlg');
+    $('#confirmMsg').textContent = msg; $('#confirmOk').textContent = okLabel;
+    d.addEventListener('close', () => res(d.returnValue === 'ok'), { once:true });
+    d.returnValue = ''; d.showModal();
+  });
+}
 function download(name, text, type){
+  if(FRAMED){
+    $('#outName').textContent = name; $('#outTitle').textContent = 'Export ' + name;
+    $('#outText').value = text; $('#outDlg').showModal(); return;
+  }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([text], { type }));
   a.download = name; document.body.appendChild(a); a.click();
@@ -867,24 +896,28 @@ $('#canvas').addEventListener('click', e => {
   if(!e.target.closest('.table') && ui.selectedTable){ ui.selectedTable = null; render(); }
 });
 $('#moreBtn').onclick = () => $('#moreMenu').classList.toggle('open');
-$('#moreMenu .menu-list').addEventListener('click', e => {
+$('#moreMenu .menu-list').addEventListener('click', async e => {
   const act = e.target.closest('button')?.dataset.act; if(!act) return;
   $('#moreMenu').classList.remove('open');
   const has = state.guests.length || state.tables.length;
   switch(act){
     case 'arrange': arrangeTables(); render(); zoomFit(); break;
     case 'autofill': autoSeat(); render(); break;
-    case 'unseatAll': if(confirm('Move every guest back to the unseated list?')){ state.guests.forEach(g => unseat(g.id)); render(); } break;
+    case 'unseatAll': if(await askConfirm('Move every guest back to the unseated list?', 'Unseat all')){ state.guests.forEach(g => unseat(g.id)); render(); } break;
     case 'importCsv': $('#bulkBtn').click(); break;
     case 'exportCsv': exportCsv(); break;
     case 'saveJson': download(`table-layout-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state, null, 1), 'application/json'); break;
     case 'loadJson': $('#jsonFile').click(); break;
-    case 'print': window.print(); break;
-    case 'sample': if(!has || confirm('Replace the current plan with the 150-guest sample?')){ loadSample(); ui.selectedTable = null; ui.focusGroup = null; render(); zoomFit(); } break;
-    case 'clear': if(confirm('Delete all guests and tables? (Save a .json first if you want a copy.)')){ state = blankState(); ui.selectedTable = null; ui.focusGroup = null; render(); } break;
+    case 'print': if(FRAMED) toast('Open the page in its own tab to print'); else window.print(); break;
+    case 'sample': if(!has || await askConfirm('Replace the current plan with the 150-guest sample?', 'Replace')){ loadSample(); ui.selectedTable = null; ui.focusGroup = null; render(); zoomFit(); } break;
+    case 'clear': if(await askConfirm('Delete all guests and tables? Save a .json first if you want a copy.', 'Delete everything')){ state = blankState(); ui.selectedTable = null; ui.focusGroup = null; render(); } break;
   }
 });
 
+$('#outCopy').onclick = async () => {
+  try{ await navigator.clipboard.writeText($('#outText').value); toast('Copied'); }
+  catch(e){ $('#outText').select(); toast('Select all and copy'); }
+};
 /* inspector events */
 $('#inspector').addEventListener('input', e => {
   const t = tableById(ui.selectedTable); if(!t) return;
@@ -893,7 +926,7 @@ $('#inspector').addEventListener('input', e => {
   if(k === 'seats' && e.target.value !== ''){ setSeats(t, e.target.value); render(); }
   if(k === 'shape'){ t.shape = e.target.value; render(); }
 });
-$('#inspector').addEventListener('click', e => {
+$('#inspector').addEventListener('click', async e => {
   const b = e.target.closest('button'); if(!b) return;
   const t = tableById(ui.selectedTable); if(!t) return;
   switch(b.dataset.ins){
@@ -902,7 +935,7 @@ $('#inspector').addEventListener('click', e => {
     case 'clearT': tableGuests(t.id).forEach(g => unseat(g.id)); break;
     case 'dup': { const n = addTable({ seats:t.seats, shape:t.shape }); ui.selectedTable = n.id; render(); scrollToTable(n); return; }
     case 'del':
-      if(tableGuests(t.id).length && !confirm(`Delete ${t.name}? Its guests go back to the list.`)) return;
+      if(tableGuests(t.id).length && !(await askConfirm(`Delete ${t.name}? Its guests go back to the list.`, 'Delete'))) return;
       deleteTable(t.id); break;
   }
   render();
