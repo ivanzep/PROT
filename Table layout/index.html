@@ -53,7 +53,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-soft);bor
 .pool-head select{flex:none}
 .grp-title{font-size:11px;color:var(--muted);margin:10px 4px 3px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.05em}
 .grp-title i{width:8px;height:8px;border-radius:50%}
-.empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 8px}
+.pool-empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 8px}
 .card{display:flex;align-items:center;gap:8px;padding:6px 8px;margin:3px 0;border:1px solid var(--line);border-left-width:4px;border-radius:6px;background:#fff;cursor:grab;
   user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
 .card:hover{border-color:#c9c1b4}
@@ -79,11 +79,19 @@ main{position:relative;min-height:0;min-width:0}
 .table-top .tn{font-weight:650;font-size:13px;max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .table-top .tc{font-size:11px;color:var(--muted)}
 .table-top .tc.full{color:var(--accent);font-weight:600}
-.seat{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+.seat{position:absolute;width:30px;height:30px;padding:0;line-height:1;margin:-15px 0 0 -15px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:11px;font-weight:650;color:#fff;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
 .seat.empty{border:1.5px dashed #b9b0a1;color:#a39a8b;background:rgba(255,255,255,.7);font-weight:500;font-size:10px}
 .seat.taken{cursor:grab;box-shadow:0 1px 3px rgba(0,0,0,.25);text-shadow:0 1px 1px rgba(0,0,0,.25)}
 .seat.drop-hover{outline:3px solid var(--ink);outline-offset:2px}
+.mb{position:absolute;right:-5px;bottom:-5px;width:15px;height:15px;border-radius:50%;font-size:9px;font-weight:700;line-height:13px;text-align:center;
+  border:1px solid #fff;text-shadow:none;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.mb.m1{background:#fff;color:#1f1d1a;border-color:#1f1d1a}
+.mb.m2{background:#1f1d1a;color:#fff}
+.tag.m1{background:#fff;border:1px solid #1f1d1a;color:#1f1d1a}
+.tag.m2{background:#1f1d1a;color:#fff}
+.table-top .tm{font-size:10px;color:var(--muted);margin-top:1px}
+.mchip i{width:14px;height:14px;font-size:9px;font-weight:700;font-style:normal;display:inline-flex;align-items:center;justify-content:center;border-radius:50%}
 .slabel{position:absolute;transform:translate(-50%,-50%);font-size:10px;line-height:1.1;white-space:nowrap;pointer-events:none;color:#3c3832;
   background:rgba(243,240,234,.85);padding:0 2px;border-radius:3px;max-width:86px;overflow:hidden;text-overflow:ellipsis}
 .hide-names .slabel{display:none}
@@ -159,6 +167,7 @@ dialog .actions .left{margin-right:auto}
           <button data-act="unseatAll">Unseat everyone</button>
           <hr>
           <button data-act="importCsv">Import guests (CSV / paste)…</button>
+          <button data-act="template">Download guest CSV template</button>
           <button data-act="exportCsv">Export seating CSV</button>
           <button data-act="saveJson">Save plan (.json)</button>
           <button data-act="loadJson">Load plan (.json)…</button>
@@ -176,13 +185,18 @@ dialog .actions .left{margin-right:auto}
       <h2>Add guest</h2>
       <form class="row" id="addGuestForm" autocomplete="off">
         <input id="gName" placeholder="Name" required>
-        <input id="gGroup" placeholder="Group" list="groupList" style="max-width:96px">
+        <input id="gGroup" placeholder="Group" list="groupList" style="max-width:86px">
+        <select id="gMenu" title="Menu" style="flex:none"><option value="">Menu</option><option value="1">1</option><option value="2">2</option></select>
         <button class="primary" type="submit">Add</button>
       </form>
       <div class="row" style="margin-top:6px">
         <button id="bulkBtn" style="flex:1">Bulk add / paste list…</button>
       </div>
       <datalist id="groupList"></datalist>
+    </div>
+    <div class="side-sec">
+      <h2>Menu <small style="text-transform:none;letter-spacing:0;font-weight:400">— tap to highlight</small></h2>
+      <div class="legend" id="menuLegend"></div>
     </div>
     <div class="side-sec">
       <h2>Groups <small style="text-transform:none;letter-spacing:0;font-weight:400">— tap to highlight</small></h2>
@@ -224,6 +238,8 @@ dialog .actions .left{margin-right:auto}
     <h3>Edit guest</h3>
     <label>Name</label><input id="eName" required>
     <label>Group</label><input id="eGroup" list="groupList">
+    <label>Menu</label>
+    <select id="eMenu"><option value="">Not chosen</option><option value="1">Menu 1</option><option value="2">Menu 2</option></select>
     <label>Table</label><select id="eTable"></select>
     <div class="actions">
       <button value="delete" class="danger left" formnovalidate>Delete</button>
@@ -235,8 +251,8 @@ dialog .actions .left{margin-right:auto}
 <dialog id="bulkDlg">
   <form method="dialog" id="bulkForm">
     <h3>Add guests</h3>
-    <p class="hint" style="margin-top:0">One guest per line. Optional columns, comma or tab separated: <b>Name, Group, Table</b>. Paste straight from Excel / Google Sheets. A header row is detected automatically. A Table name that doesn't exist yet is created.</p>
-    <textarea id="bulkText" placeholder="Maria Lopez, Bride family, Table 1&#10;John Smith, Work&#10;Ana Torres"></textarea>
+    <p class="hint" style="margin-top:0">One guest per line. Optional columns, comma or tab separated: <b>Name, Group, Table, Menu</b> (Menu = 1 or 2). Use <b>More → Download guest CSV template</b> to start from a blank sheet. Paste straight from Excel / Google Sheets. A header row is detected automatically. A Table name that doesn't exist yet is created.</p>
+    <textarea id="bulkText" placeholder="Maria Lopez, Bride family, Table 1, 2&#10;John Smith, Work, , 1&#10;Ana Torres"></textarea>
     <div class="row" style="margin-top:8px;align-items:center">
       <button type="button" id="bulkFileBtn">Choose CSV file…</button>
       <span class="hint" style="margin:0" id="bulkFileName"></span>
@@ -274,7 +290,7 @@ const PALETTE = ['#2f6f9f','#c8553d','#3f8f5a','#8e5cae','#d39a1f','#2a9d8f','#c
 const UNGROUPED_COLOR = '#8a8379';
 
 let state = blankState();
-const ui = { view:'unseated', search:'', focusGroup:null, selectedTable:null, editingGuest:null };
+const ui = { view:'unseated', search:'', focusGroup:null, focusMenu:null, selectedTable:null, editingGuest:null };
 
 function blankState(){ return { guests:[], tables:[], groupColors:{}, nextId:1, showNames:true, zoom:1 }; }
 const uid = () => (state.nextId++).toString(36);
@@ -334,10 +350,18 @@ function seatGuest(gid, tid, seat){
 }
 function unseat(gid){ const g = guestById(gid); if(g){ g.table = null; g.seat = null; } }
 
-function addGuest(name, group, tableName){
+function parseMenu(v){
+  v = String(v ?? '').trim().toLowerCase();
+  if(!v) return null;
+  if(/(^|\D)1(\D|$)|^one$|^uno$/.test(v)) return 1;
+  if(/(^|\D)2(\D|$)|^two$|^dos$/.test(v)) return 2;
+  return null;
+}
+const menuLabel = m => m ? `Menu ${m}` : 'No menu';
+function addGuest(name, group, tableName, menu){
   name = String(name||'').trim(); if(!name) return null;
   group = String(group||'').trim();
-  const g = { id:uid(), name, group, table:null, seat:null };
+  const g = { id:uid(), name, group, menu:parseMenu(menu), table:null, seat:null };
   state.guests.push(g);
   if(group) colorFor(group);
   if(tableName){
@@ -447,8 +471,10 @@ function renderStats(){
     `<span class="stat"><b>${seated}</b> seated</span>` +
     `<span class="stat${total-seated ? ' warn' : ''}"><b>${total-seated}</b> unseated</span>` +
     `<span class="stat"><b>${state.tables.length}</b> tables · <b>${cap}</b> seats</span>` +
-    (short > 0 ? `<span class="stat warn">need <b>${short}</b> more seats</span>` : '');
+    (short > 0 ? `<span class="stat warn">need <b>${short}</b> more seats</span>` : '') +
+    (total ? `<span class="stat">Menu 1 <b>${menuCount(state.guests,1)}</b> · Menu 2 <b>${menuCount(state.guests,2)}</b>${menuCount(state.guests,0) ? ` · not chosen <b>${menuCount(state.guests,0)}</b>` : ''}</span>` : '');
 }
+const menuCount = (list, m) => list.filter(g => (g.menu||0) === m).length;
 function groupList(){
   const s = new Set(state.guests.map(g => g.group).filter(Boolean));
   return [...s].sort((a,b) => a.localeCompare(b));
@@ -464,16 +490,22 @@ function renderLegend(){
   };
   let html = groups.map(g => chip(g, g, colorFor(g))).join('');
   if(hasUngrouped) html += chip('', 'No group', UNGROUPED_COLOR);
+  const ml = [1,2,0].map(m => {
+    const n = menuCount(state.guests, m);
+    if(!m && !n) return '';
+    return `<span class="chip mchip${ui.focusMenu === m ? ' active' : ''}" data-menu="${m}"><i class="mb m${m}" style="position:static;${m ? '' : 'background:#ddd;color:#555;border-color:#bbb'}">${m || '–'}</i>${menuLabel(m)} <small>${n}</small></span>`;
+  }).join('');
+  $('#menuLegend').innerHTML = ml;
   $('#legend').innerHTML = html || '<span class="hint" style="margin:0">Give guests a group (family, friends, work…) to color-code them.</span>';
 }
-const dimmed = g => ui.focusGroup != null && (g.group||'') !== ui.focusGroup;
+const dimmed = g => (ui.focusGroup != null && (g.group||'') !== ui.focusGroup) || (ui.focusMenu != null && (g.menu||0) !== ui.focusMenu);
 function renderPool(){
   const q = ui.search.trim().toLowerCase();
   let list = state.guests.filter(g => ui.view === 'all' || g.table == null);
   if(q) list = list.filter(g => g.name.toLowerCase().includes(q) || (g.group||'').toLowerCase().includes(q));
   list.sort((a,b) => (a.group||'￿').localeCompare(b.group||'￿') || a.name.localeCompare(b.name));
   if(!list.length){
-    $('#pool').innerHTML = `<div class="empty">${state.guests.length
+    $('#pool').innerHTML = `<div class="pool-empty">${state.guests.length
       ? (ui.view === 'unseated' && !q ? 'Everyone has a seat 🎉' : 'No matches')
       : 'No guests yet.<br>Add names above, paste a list, or load the sample from <b>More</b>.'}</div>`;
     return;
@@ -488,7 +520,7 @@ function renderPool(){
     }
     const t = g.table != null ? tableById(g.table) : null;
     html += `<div class="card${dimmed(g)?' dim':''}" data-guest="${g.id}" style="border-left-color:${colorFor(g.group)}">
-      <span class="nm">${escapeHtml(g.name)}</span>${t ? `<span class="tag">${escapeHtml(t.name)}</span>` : ''}</div>`;
+      <span class="nm">${escapeHtml(g.name)}</span>${g.menu ? `<span class="tag m${g.menu}">M${g.menu}</span>` : ''}${t ? `<span class="tag">${escapeHtml(t.name)}</span>` : ''}</div>`;
   }
   $('#pool').innerHTML = html;
 }
@@ -505,11 +537,12 @@ function renderTables(){
       <div class="table-top" data-tabletop="${t.id}" style="width:${geo.w}px;height:${geo.h}px">
         <div class="tn">${escapeHtml(t.name)}</div>
         <div class="tc${guests.length >= t.seats ? ' full' : ''}">${guests.length}/${t.seats}</div>
+        ${guests.length ? `<div class="tm">M1 ${menuCount(guests,1)} · M2 ${menuCount(guests,2)}</div>` : ''}
       </div>`;
     geo.seats.forEach((p, i) => {
       const g = occupant(t.id, i);
       if(g){
-        html += `<div class="seat taken${dimmed(g)?' dim':''}" data-guest="${g.id}" data-seat="${i}" data-seat-table="${t.id}" title="${escapeHtml(g.name)}${g.group ? ' — ' + escapeHtml(g.group) : ''}" style="left:${p.x}px;top:${p.y}px;background:${colorFor(g.group)}">${escapeHtml(initials(g.name))}</div>`;
+        html += `<div class="seat taken${dimmed(g)?' dim':''}" data-guest="${g.id}" data-seat="${i}" data-seat-table="${t.id}" title="${escapeHtml(g.name)}${g.group ? ' — ' + escapeHtml(g.group) : ''}${g.menu ? ' — Menu ' + g.menu : ''}" style="left:${p.x}px;top:${p.y}px;background:${colorFor(g.group)}">${escapeHtml(initials(g.name))}${g.menu ? `<span class="mb m${g.menu}">${g.menu}</span>` : ''}</div>`;
         const l = geo.labels[i];
         html += `<div class="slabel${dimmed(g)?' dim':''}" style="left:${l.x}px;top:${l.y}px">${escapeHtml(shortName(g.name))}</div>`;
       } else {
@@ -583,8 +616,8 @@ function renderInspector(){
 }
 function inspectorList(t){
   const gs = tableGuests(t.id);
-  return `<label>Guests · ${gs.length}/${t.seats}</label>` + (gs.length
-    ? `<ul class="ilist">${gs.map(g => `<li><em>${g.seat+1}</em><i style="background:${colorFor(g.group)}"></i><span>${escapeHtml(g.name)}</span><button data-ins="unseat" data-gid="${g.id}" title="Back to list">↩</button></li>`).join('')}</ul>`
+  return `<label>Guests · ${gs.length}/${t.seats} · M1 ${menuCount(gs,1)} · M2 ${menuCount(gs,2)}</label>` + (gs.length
+    ? `<ul class="ilist">${gs.map(g => `<li><em>${g.seat+1}</em><i style="background:${colorFor(g.group)}"></i><span>${escapeHtml(g.name)}</span><button data-ins="menu" data-gid="${g.id}" title="Tap to switch menu" class="${g.menu ? 'on' : ''}">${g.menu ? 'M' + g.menu : 'M?'}</button><button data-ins="unseat" data-gid="${g.id}" title="Back to list">↩</button></li>`).join('')}</ul>`
     : `<p class="hint">Drag guest cards onto this table or a specific seat.</p>`);
 }
 
@@ -709,7 +742,7 @@ document.addEventListener('contextmenu', e => { if(e.target.closest('.card,.seat
 function openGuestEditor(id){
   const g = guestById(id); if(!g) return;
   ui.editingGuest = id;
-  $('#eName').value = g.name; $('#eGroup').value = g.group || '';
+  $('#eName').value = g.name; $('#eGroup').value = g.group || ''; $('#eMenu').value = g.menu || '';
   $('#eTable').innerHTML = `<option value="">— Not seated —</option>` + state.tables.map(t => {
     const n = tableGuests(t.id).length, full = n >= t.seats && g.table !== t.id;
     return `<option value="${t.id}"${g.table === t.id ? ' selected' : ''}${full ? ' disabled' : ''}>${escapeHtml(t.name)} (${n}/${t.seats})</option>`;
@@ -723,6 +756,7 @@ $('#guestDlg').addEventListener('close', () => {
   else if(v === 'ok'){
     g.name = $('#eName').value.trim() || g.name;
     g.group = $('#eGroup').value.trim();
+    g.menu = parseMenu($('#eMenu').value);
     const tid = $('#eTable').value;
     if(!tid) unseat(g.id); else if(tid !== g.table) seatGuest(g.id, tid, null);
   }
@@ -783,18 +817,18 @@ function parseDelimited(text){
 }
 function importRows(rows){
   if(!rows.length) return 0;
-  let ci = { name:0, group:1, table:2 };
+  let ci = { name:0, group:1, table:2, menu:3 };
   const h = rows[0].map(s => s.toLowerCase());
   const find = keys => h.findIndex(x => keys.some(k => x === k || x.startsWith(k)));
   if(find(['name','nombre','guest','invitado']) >= 0){
-    ci = { name: find(['name','nombre','guest','invitado']), group: find(['group','grupo','party','familia','family','category']), table: find(['table','mesa']) };
+    ci = { name: find(['name','nombre','guest','invitado']), group: find(['group','grupo','party','familia','family','category']), table: find(['table','mesa']), menu: find(['menu','menú','meal','entree','entrée','plato','comida']) };
     rows = rows.slice(1);
   }
   let n = 0;
   for(const r of rows){
     const tableVal = ci.table >= 0 ? r[ci.table] : '';
     const tableName = tableVal && /^\d+$/.test(tableVal) ? `Table ${tableVal}` : tableVal;
-    if(addGuest(r[ci.name], ci.group >= 0 ? r[ci.group] : '', tableName)) n++;
+    if(addGuest(r[ci.name], ci.group >= 0 ? r[ci.group] : '', tableName, ci.menu >= 0 ? r[ci.menu] : '')) n++;
   }
   return n;
 }
@@ -803,9 +837,9 @@ function exportCsv(){
   const order = new Map(state.tables.map((t,i) => [t.id, i]));
   const rows = state.guests.slice().sort((a,b) =>
     (a.table == null) - (b.table == null) || (order.get(a.table) ?? 0) - (order.get(b.table) ?? 0) || (a.seat ?? 0) - (b.seat ?? 0) || a.name.localeCompare(b.name));
-  const out = [['Table','Seat','Name','Group']].concat(rows.map(g => {
+  const out = [['Table','Seat','Name','Group','Menu']].concat(rows.map(g => {
     const t = g.table != null ? tableById(g.table) : null;
-    return [t ? t.name : 'Unseated', t ? g.seat + 1 : '', g.name, g.group || ''];
+    return [t ? t.name : 'Unseated', t ? g.seat + 1 : '', g.name, g.group || '', g.menu || ''];
   }));
   download('seating-plan.csv', out.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
 }
@@ -817,6 +851,10 @@ function askConfirm(msg, okLabel='OK'){
     d.addEventListener('close', () => res(d.returnValue === 'ok'), { once:true });
     d.returnValue = ''; d.showModal();
   });
+}
+function exportTemplate(){
+  const rows = [['Name','Group','Table','Menu'],['Maria Lopez','Bride family','Table 1','1'],['John Smith','Work','','2'],['Ana Torres','','','']];
+  download('guest-list-template.csv', '\ufeff' + rows.map(r => r.map(csvCell).join(',')).join('\r\n'), 'text/csv');
 }
 function download(name, text, type){
   if(FRAMED){
@@ -841,7 +879,7 @@ $('#jsonFile').addEventListener('change', async e => {
   try{
     const data = JSON.parse(await f.text());
     if(!Array.isArray(data.guests) || !Array.isArray(data.tables)) throw new Error('bad');
-    state = Object.assign(blankState(), data); ui.selectedTable = null; ui.focusGroup = null;
+    state = Object.assign(blankState(), data); ui.selectedTable = null; ui.focusGroup = null; ui.focusMenu = null;
     render(); zoomFit(); toast('Plan loaded');
   }catch(err){ toast('That file is not a Table Layout plan'); }
 });
@@ -853,7 +891,7 @@ function loadSample(){
   const last = ['Garcia','Lopez','Martinez','Hernandez','Torres','Ramirez','Flores','Rivera','Morales','Castillo','Ortiz','Reyes','Smith','Johnson','Brown','Taylor','Anderson','Clark','Lewis','Walker','Young','Hall','Allen','King','Wright'];
   const groups = [['Bride family',28],['Groom family',26],['College friends',22],['Work — Brown Studio',18],['Neighbors',12],['Family friends',16],['Cousins',14],['Kids',8],['Plus ones',6]];
   let k = 0;
-  groups.forEach(([gname, n]) => { for(let i=0;i<n;i++){ addGuest(`${first[(k*7+i) % first.length]} ${last[(k*3+i*5) % last.length]}`, gname); k++; } });
+  groups.forEach(([gname, n]) => { for(let i=0;i<n;i++){ addGuest(`${first[(k*7+i) % first.length]} ${last[(k*3+i*5) % last.length]}`, gname, '', (k*7) % 11 === 0 ? '' : ((k*5) % 3 ? 1 : 2)); k++; } });
   addTable({ name:'Head table', seats:12, shape:'rect' });
   for(let i=1;i<=14;i++) addTable({ name:`Table ${i}`, seats:10, shape:'round' });
   arrangeTables();
@@ -871,7 +909,7 @@ function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add
 
 $('#addGuestForm').addEventListener('submit', e => {
   e.preventDefault();
-  const g = addGuest($('#gName').value, $('#gGroup').value);
+  const g = addGuest($('#gName').value, $('#gGroup').value, '', $('#gMenu').value);
   if(g){ $('#gName').value = ''; $('#gName').focus(); render(); }
 });
 $('#search').addEventListener('input', e => { ui.search = e.target.value; renderPool(); });
@@ -880,6 +918,12 @@ $('#legend').addEventListener('click', e => {
   const c = e.target.closest('.chip'); if(!c) return;
   const key = c.dataset.group;
   ui.focusGroup = ui.focusGroup === key ? null : key;
+  render();
+});
+$('#menuLegend').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if(!c) return;
+  const m = +c.dataset.menu;
+  ui.focusMenu = ui.focusMenu === m ? null : m;
   render();
 });
 $('#zoomIn').onclick = () => setZoom(state.zoom * 1.2);
@@ -905,12 +949,13 @@ $('#moreMenu .menu-list').addEventListener('click', async e => {
     case 'autofill': autoSeat(); render(); break;
     case 'unseatAll': if(await askConfirm('Move every guest back to the unseated list?', 'Unseat all')){ state.guests.forEach(g => unseat(g.id)); render(); } break;
     case 'importCsv': $('#bulkBtn').click(); break;
+    case 'template': exportTemplate(); break;
     case 'exportCsv': exportCsv(); break;
     case 'saveJson': download(`table-layout-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(state, null, 1), 'application/json'); break;
     case 'loadJson': $('#jsonFile').click(); break;
     case 'print': if(FRAMED) toast('Open the page in its own tab to print'); else window.print(); break;
-    case 'sample': if(!has || await askConfirm('Replace the current plan with the 150-guest sample?', 'Replace')){ loadSample(); ui.selectedTable = null; ui.focusGroup = null; render(); zoomFit(); } break;
-    case 'clear': if(await askConfirm('Delete all guests and tables? Save a .json first if you want a copy.', 'Delete everything')){ state = blankState(); ui.selectedTable = null; ui.focusGroup = null; render(); } break;
+    case 'sample': if(!has || await askConfirm('Replace the current plan with the 150-guest sample?', 'Replace')){ loadSample(); ui.selectedTable = null; ui.focusGroup = null; ui.focusMenu = null; render(); zoomFit(); } break;
+    case 'clear': if(await askConfirm('Delete all guests and tables? Save a .json first if you want a copy.', 'Delete everything')){ state = blankState(); ui.selectedTable = null; ui.focusGroup = null; ui.focusMenu = null; render(); } break;
   }
 });
 
@@ -932,6 +977,7 @@ $('#inspector').addEventListener('click', async e => {
   switch(b.dataset.ins){
     case 'close': ui.selectedTable = null; break;
     case 'unseat': unseat(b.dataset.gid); break;
+    case 'menu': { const g = guestById(b.dataset.gid); if(g) g.menu = g.menu === 1 ? 2 : g.menu === 2 ? null : 1; break; }
     case 'clearT': tableGuests(t.id).forEach(g => unseat(g.id)); break;
     case 'dup': { const n = addTable({ seats:t.seats, shape:t.shape }); ui.selectedTable = n.id; render(); scrollToTable(n); return; }
     case 'del':
