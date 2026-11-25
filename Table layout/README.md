@@ -18,7 +18,7 @@ Single-file, no-dependency web app for planning seat assignments for an event (b
 
 - **☰** (top left) collapses the guest panel to give the floor plan the whole screen.
 - Seats show each guest's **full name**, written outward from the table; **Names** toggles them off.
-- **More → Print preview…** shows real pages: Letter, Legal, Tabloid, ARCH C/D/E, A4–A1, landscape or portrait, margins, and a title (defaults to the event name). **Fit to page** scales the plan to the printable area; **− / +** (or Ctrl/⌘-scroll) zooms it and you can drag the plan to reposition it on the sheet. An optional **Guest list page** prints every table's seats and Menu 1/2 counts. Print → choose "Save as PDF" for a file.
+- **More → Print preview…** shows real pages: Letter, Legal, Tabloid, ARCH C/D/E, A4–A1, landscape or portrait, margins, and a title (defaults to the event name). **Fit to page** scales the plan to the printable area; **− / +** (or Ctrl/⌘-scroll) zooms it and you can drag the plan to reposition it on the sheet. An optional **Guest list page** prints every table's seats and Menu 1/2 counts. **Export PDF** (in the preview, or **More → Export PDF…**) writes exactly what the preview shows as a vector PDF — sharp at any zoom, real text, same on every computer — and is the reliable way to get a print-ready file; the browser's own Print dialog can still rescale or add margins/headers depending on its settings.
 
 ## Saving files
 

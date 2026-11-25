@@ -228,6 +228,7 @@ dialog .actions .left{margin-right:auto}
           <button data-act="saveJson">Save plan as…</button>
           <button data-act="loadJson">Load plan (.json)…</button>
           <button data-act="print">Print preview…</button>
+          <button data-act="pdf">Export PDF…</button>
           <hr>
           <button data-act="sample">Load sample (150 guests)</button>
           <button data-act="clear" class="danger">Clear everything</button>
@@ -386,7 +387,8 @@ dialog .actions .left{margin-right:auto}
     <label><input type="checkbox" id="pvList"> Guest list page</label>
     <span class="spacer"></span>
     <button id="pvClose">Close</button>
-    <button class="primary" id="pvPrint">Print</button>
+    <button id="pvPrint">Print</button>
+    <button class="primary" id="pvPdf">Export PDF</button>
   </div>
   <div class="pv-area" id="pvArea"><div id="pvPages"></div></div>
 </div>
@@ -1248,6 +1250,7 @@ $('#moreMenu .menu-list').addEventListener('click', async e => {
     case 'saveJson': saveFile(`${fileBase()}.json`, JSON.stringify(state, null, 1), 'application/json'); break;
     case 'loadJson': $('#jsonFile').click(); break;
     case 'print': openPrint(); break;
+    case 'pdf': exportPdf(); break;
     case 'sample': if(!has || await askConfirm('Replace the current plan with the 150-guest sample?', 'Replace')){ loadSample(); ui.selectedTable = null; ui.focusGroup = null; ui.focusMenu = null; render(); zoomFit(); } break;
     case 'clear': if(await askConfirm('Delete all guests and tables? Save a .json first if you want a copy.', 'Delete everything')){ state = blankState(); ui.selectedTable = null; ui.focusGroup = null; ui.focusMenu = null; render(); } break;
   }
@@ -1392,6 +1395,204 @@ function buildPrint(){
   $('#pvPages').style.zoom = Math.max(.05, pvZoom);
   save();
 }
+/* ---------- PDF export (vector, no libraries) ----------
+   Draws the same pages the print preview shows, straight from the plan's geometry, into a hand-written
+   PDF (Helvetica / WinAnsi). Independent of the browser's print dialog, so scaling, margins and
+   headers/footers can't change it. Coordinates are CSS px (1/96 in); the page is flipped so y grows down. */
+const WINANSI = {'€':128,'‚':130,'ƒ':131,'„':132,'…':133,'†':134,'‡':135,'ˆ':136,'‰':137,'Š':138,'‹':139,'Œ':140,'Ž':142,
+  '‘':145,'’':146,'“':147,'”':148,'•':149,'–':150,'—':151,'˜':152,'™':153,'š':154,'›':155,'œ':156,'ž':158,'Ÿ':159};
+function pdfStr(s){
+  let out = '(';
+  for(const ch of String(s).normalize('NFC')){
+    let c = ch.codePointAt(0);
+    if(WINANSI[ch]) c = WINANSI[ch];
+    else if(c > 255 || (c > 126 && c < 160)) c = 63; // '?'
+    if(c < 32) continue;
+    if(c === 40 || c === 41 || c === 92) out += '\\' + ch;
+    else if(c > 126) out += '\\' + c.toString(8).padStart(3, '0');
+    else out += ch;
+  }
+  return out + ')';
+}
+const mctx = document.createElement('canvas').getContext('2d');
+function textW(s, size, bold){ mctx.font = `${bold ? 'bold ' : ''}${size}px Arial, Helvetica, sans-serif`; return mctx.measureText(s).width; }
+function wrapText(s, size, bold, maxW){
+  const lines = []; let cur = '';
+  for(const word of String(s).split(/\s+/).filter(Boolean)){
+    const tryLine = cur ? cur + ' ' + word : word;
+    if(textW(tryLine, size, bold) <= maxW){ cur = tryLine; continue; }
+    if(cur) lines.push(cur);
+    cur = word;
+    while(textW(cur, size, bold) > maxW && cur.length > 1){ // break a single over-long word
+      let k = cur.length - 1; while(k > 1 && textW(cur.slice(0, k), size, bold) > maxW) k--;
+      lines.push(cur.slice(0, k)); cur = cur.slice(k);
+    }
+  }
+  if(cur) lines.push(cur);
+  return lines.length ? lines : [''];
+}
+function fitText(s, size, bold, maxW){
+  if(textW(s, size, bold) <= maxW) return s;
+  while(s.length > 1 && textW(s + '…', size, bold) > maxW) s = s.slice(0, -1);
+  return s + '…';
+}
+function rgbOf(hex, alpha = 1){
+  const n = parseInt(String(hex).replace('#','').padEnd(6,'0').slice(0,6), 16);
+  return [n>>16 & 255, n>>8 & 255, n & 255].map(v => ((v/255)*alpha + (1-alpha)).toFixed(3)).join(' '); // blended onto white
+}
+class PdfPage {
+  constructor(wIn, hIn){ this.w = wIn*72; this.h = hIn*72; this.ops = [`0.75 0 0 -0.75 0 ${this.h.toFixed(2)} cm`]; }
+  op(s){ this.ops.push(s); return this; }
+  fill(hex, a){ return this.op(`${rgbOf(hex, a)} rg`); }
+  stroke(hex, lw = 1, dash){ return this.op(`${rgbOf(hex)} RG ${lw} w ${dash ? `[${dash}] 0 d` : '[] 0 d'}`); }
+  ellipsePath(cx, cy, rx, ry){
+    const k = .5523, ox = rx*k, oy = ry*k, f = v => v.toFixed(2);
+    return this.op(`${f(cx+rx)} ${f(cy)} m ${f(cx+rx)} ${f(cy+oy)} ${f(cx+ox)} ${f(cy+ry)} ${f(cx)} ${f(cy+ry)} c `+
+      `${f(cx-ox)} ${f(cy+ry)} ${f(cx-rx)} ${f(cy+oy)} ${f(cx-rx)} ${f(cy)} c `+
+      `${f(cx-rx)} ${f(cy-oy)} ${f(cx-ox)} ${f(cy-ry)} ${f(cx)} ${f(cy-ry)} c `+
+      `${f(cx+ox)} ${f(cy-ry)} ${f(cx+rx)} ${f(cy-oy)} ${f(cx+rx)} ${f(cy)} c h`);
+  }
+  rrectPath(x, y, w, h, r){
+    r = Math.max(0, Math.min(r, w/2, h/2));
+    if(!r) return this.op(`${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re`);
+    const k = r*(1-.5523), f = v => v.toFixed(2);
+    return this.op(`${f(x+r)} ${f(y)} m ${f(x+w-r)} ${f(y)} l ${f(x+w-k)} ${f(y)} ${f(x+w)} ${f(y+k)} ${f(x+w)} ${f(y+r)} c `+
+      `${f(x+w)} ${f(y+h-r)} l ${f(x+w)} ${f(y+h-k)} ${f(x+w-k)} ${f(y+h)} ${f(x+w-r)} ${f(y+h)} c `+
+      `${f(x+r)} ${f(y+h)} l ${f(x+k)} ${f(y+h)} ${f(x)} ${f(y+h-k)} ${f(x)} ${f(y+h-r)} c `+
+      `${f(x)} ${f(y+r)} l ${f(x)} ${f(y+k)} ${f(x+k)} ${f(y)} ${f(x+r)} ${f(y)} c h`);
+  }
+  // text with its top-left (align left), top-centre or top-right at (x, top); returns nothing
+  text(s, x, top, size, { bold = false, color = '#1f1d1a', align = 'left', lineH } = {}){
+    if(!s) return;
+    const w = textW(s, size, bold), L = lineH || size*1.2;
+    const base = top + (L - size*1.117)/2 + size*.905;
+    const tx = align === 'center' ? x - w/2 : align === 'right' ? x - w : x;
+    this.op(`BT /${bold ? 'F2' : 'F1'} ${size} Tf ${rgbOf(color)} rg 1 0 0 -1 ${tx.toFixed(2)} ${base.toFixed(2)} Tm ${pdfStr(s)} Tj ET`);
+  }
+}
+function pdfTitle(pg, title, sub, m){
+  if(!title) return 0;
+  pg.text(title, m, m, 20, { bold:true, lineH:30 });
+  pg.text(sub, m + textW(title, 20, true) + 12, m + 6, 11, { color:'#7a746b', lineH:24 });
+  return TITLE_IN*DPI;
+}
+function drawPlanPdf(pg, names){
+  for(const sh of shapes()){
+    const x = sh.x - sh.w/2, y = sh.y - sh.h/2;
+    pg.fill(sh.color, .18).stroke(sh.color, 2);
+    if(sh.kind === 'ellipse') pg.ellipsePath(sh.x, sh.y, sh.w/2, sh.h/2); else pg.rrectPath(x, y, sh.w, sh.h, 8);
+    pg.op('B');
+    const lines = wrapText(sh.label.toUpperCase(), 14, true, sh.w - 12), L = 17;
+    lines.forEach((ln, i) => pg.text(ln, sh.x, sh.y - lines.length*L/2 + i*L, 14, { bold:true, color:sh.color, align:'center', lineH:L }));
+  }
+  for(const t of state.tables){
+    const geo = tableGeom(t), gs = tableGuests(t.id);
+    pg.fill('#fdfbf7').stroke('#cfc7b9', 2);
+    if(t.shape === 'rect') pg.rrectPath(t.x - geo.w/2, t.y - geo.h/2, geo.w, geo.h, 10); else pg.ellipsePath(t.x, t.y, geo.w/2, geo.h/2);
+    pg.op('B');
+    const rows = [[fitText(t.name, 13, true, geo.w*.85), 13, true, '#1f1d1a', 17.5], [`${gs.length}/${t.seats}`, 11, gs.length >= t.seats, gs.length >= t.seats ? '#2f5d50' : '#7a746b', 15]];
+    if(gs.length) rows.push([fitText(`${mshort(1)} ${menuCount(gs,1)} · ${mshort(2)} ${menuCount(gs,2)}`, 10, false, geo.w*.9), 10, false, '#7a746b', 14.5]);
+    let y = t.y - rows.reduce((a, r) => a + r[4], 0)/2;
+    rows.forEach(([s, size, bold, color, L]) => { pg.text(s, t.x, y, size, { bold, color, align:'center', lineH:L }); y += L; });
+    geo.seats.forEach((p, i) => {
+      const g = occupant(t.id, i), sx = t.x + p.x, sy = t.y + p.y;
+      if(!g){
+        pg.fill('#ffffff').stroke('#b9b0a1', 1.5, '3 2'); pg.ellipsePath(sx, sy, 14.25, 14.25); pg.op('B');
+        pg.text(String(i+1), sx, sy - 6, 10, { color:'#a39a8b', align:'center', lineH:12 });
+        return;
+      }
+      pg.fill(colorFor(g.group)); pg.ellipsePath(sx, sy, 15, 15); pg.op('f');
+      pg.text(initials(g.name), sx, sy - 6.5, 11, { bold:true, color:'#ffffff', align:'center', lineH:13 });
+      if(g.menu){
+        const c = mcolor(g.menu), light = isLight(c);
+        pg.fill(c).stroke(light ? '#1f1d1a' : '#ffffff', 1); pg.ellipsePath(sx + 12.5, sy + 12.5, 7, 7); pg.op('B');
+        pg.text(String(g.menu), sx + 12.5, sy + 12.5 - 5.5, 9, { bold:true, color: light ? '#1f1d1a' : '#ffffff', align:'center', lineH:11 });
+      }
+      if(names){
+        const l = geo.labels[i], L = 10.5*1.15;
+        const lines = wrapText(g.name, 10.5, false, 94);
+        const bw = Math.max(...lines.map(s => textW(s, 10.5))) + 6, bh = lines.length*L;
+        const bx = t.x + l.x + (-50 + 50*l.c)/100*bw, by = t.y + l.y + (-50 + 50*l.s)/100*bh;
+        const align = l.c > .35 ? 'left' : l.c < -.35 ? 'right' : 'center';
+        pg.fill('#ffffff', .85); pg.rrectPath(bx, by, bw, bh, 3); pg.op('f');
+        const ax = align === 'left' ? bx + 3 : align === 'right' ? bx + bw - 3 : bx + bw/2;
+        lines.forEach((s, k) => pg.text(s, ax, by + k*L, 10.5, { color:'#2f2b26', align, lineH:L }));
+      }
+    });
+  }
+}
+function guestListPdf(pages, d, p, title){
+  const m = p.margin*DPI, W = d.w*DPI, H = d.h*DPI, gap = .3*DPI, cols = Math.max(1, Math.min(3, Math.floor((W - 2*m + gap)/(2.3*DPI + gap))));
+  const colW = (W - 2*m - gap*(cols-1))/cols, LH = 14, HEAD = 20, AFTER = .16*DPI;
+  const blocks = state.tables.map(t => ({ title:t.name, sub:`${tableGuests(t.id).length}/${t.seats} · ${mshort(1)} ${menuCount(tableGuests(t.id),1)} · ${mshort(2)} ${menuCount(tableGuests(t.id),2)}`,
+    rows: tableGuests(t.id).map(g => ({ n:g.seat+1, g })) }));
+  const un = state.guests.filter(g => g.table == null);
+  if(un.length) blocks.push({ title:'Unseated', sub:String(un.length), rows:un.map((g, i) => ({ n:i+1, g })) });
+  let pg, col, y, top;
+  const newPage = () => { pg = new PdfPage(d.w, d.h); pages.push(pg); top = m + pdfTitle(pg, title, 'Guest list by table', m); col = 0; y = top; };
+  newPage();
+  for(const b of blocks){
+    const h = HEAD + Math.max(1, b.rows.length)*LH;
+    if(y + h > H - m && y > top){ col++; y = top; if(col >= cols) newPage(); }
+    const x = m + col*(colW + gap);
+    pg.text(fitText(b.title, 12, true, colW*.55), x, y, 12, { bold:true, lineH:16 });
+    pg.text(fitText(b.sub, 10, false, colW*.45), x + colW, y + 2, 10, { color:'#7a746b', align:'right', lineH:14 });
+    pg.stroke('#1f1d1a', 1).op(`${x.toFixed(2)} ${(y+17).toFixed(2)} m ${(x+colW).toFixed(2)} ${(y+17).toFixed(2)} l S`);
+    let ry = y + HEAD;
+    if(!b.rows.length){ pg.text('—', x + 18, ry, 10.5, { color:'#7a746b', lineH:LH }); ry += LH; }
+    for(const { n, g } of b.rows){
+      pg.text(`${n}.`, x + 15, ry, 10.5, { align:'right', lineH:LH });
+      let nm = g.name, tag = g.menu ? mshort(g.menu) : '';
+      const tagW = tag ? textW(tag, 9, true) + 8 : 0;
+      nm = fitText(nm, 10.5, false, colW - 18 - (tag ? tagW + 6 : 0));
+      pg.text(nm, x + 18, ry, 10.5, { lineH:LH });
+      if(tag){
+        const c = mcolor(g.menu), light = isLight(c), tx = x + 18 + textW(nm, 10.5) + 4;
+        pg.fill(c).stroke(light ? '#1f1d1a' : c, .75); pg.rrectPath(tx, ry + 2, tagW, LH - 4, 2); pg.op('B');
+        pg.text(tag, tx + 4, ry + 2, 9, { bold:true, color: light ? '#1f1d1a' : '#ffffff', lineH:LH - 4 });
+      }
+      ry += LH;
+    }
+    y = ry + AFTER;
+  }
+}
+function buildPdf(){
+  const p = pset(), d = pageDims(), b = planBounds(), box = boxDims(), title = printTitle();
+  if(p.fit) fitPrint();
+  const seated = state.guests.filter(g => g.table != null).length, m = p.margin*DPI;
+  const pages = [], pg = new PdfPage(d.w, d.h); pages.push(pg);
+  const th = pdfTitle(pg, title, `${state.tables.length} tables · ${seated}/${state.guests.length} seated · ${mname(1)}: ${menuCount(state.guests,1)} · ${mname(2)}: ${menuCount(state.guests,2)}`, m);
+  pg.op(`q ${m.toFixed(2)} ${(m+th).toFixed(2)} ${box.w.toFixed(2)} ${box.h.toFixed(2)} re W n`);
+  pg.op(`1 0 0 1 ${(m + p.ox).toFixed(2)} ${(m + th + p.oy).toFixed(2)} cm ${p.scale.toFixed(5)} 0 0 ${p.scale.toFixed(5)} 0 0 cm 1 0 0 1 ${(-b.x0).toFixed(2)} ${(-b.y0).toFixed(2)} cm`);
+  drawPlanPdf(pg, p.names);
+  pg.op('Q');
+  if(p.list) guestListPdf(pages, d, p, title);
+  // assemble: 1 catalog, 2 pages, 3-4 fonts, then page + content pairs
+  const objs = [];
+  const kids = pages.map((_, i) => `${5 + i*2} 0 R`).join(' ');
+  objs.push('<< /Type /Catalog /Pages 2 0 R >>');
+  objs.push(`<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`);
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  pages.forEach((pp, i) => {
+    const content = pp.ops.join('\n');
+    objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pp.w.toFixed(2)} ${pp.h.toFixed(2)}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6 + i*2} 0 R >>`);
+    objs.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  });
+  let out = '%PDF-1.4\n';
+  const offs = [];
+  objs.forEach((o, i) => { offs.push(out.length); out += `${i+1} 0 obj\n${o}\nendobj\n`; });
+  const xref = out.length;
+  out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + offs.map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+  out += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R /Info << /Title ${pdfStr(title || 'Seating plan')} /Producer (Table Layout) >> >>\nstartxref\n${xref}\n%%EOF\n`;
+  return out;
+}
+async function exportPdf(){
+  if(FRAMED){ toast('PDF export needs the page open in its own browser tab'); return; }
+  const pdf = buildPdf();
+  await saveFile(`${fileBase()}.pdf`, pdf, 'application/pdf');
+}
+
 function openPrint(){
   const p = pset();
   $('#pvPaper').innerHTML = Object.entries(PAPERS).map(([k,v]) => `<option value="${k}">${v[0]}</option>`).join('');
@@ -1411,6 +1612,7 @@ $('#pvTitle').oninput   = pvChange((p, el) => p.title = el.value, false);
 $('#pvIn').onclick  = () => zoomPrint(1.15);
 $('#pvOut').onclick = () => zoomPrint(1/1.15);
 $('#pvFit').onclick = () => { fitPrint(); buildPrint(); };
+$('#pvPdf').onclick = exportPdf;
 $('#pvClose').onclick = () => $('#printOv').classList.remove('open');
 $('#pvPrint').onclick = () => {
   if(FRAMED){ toast('Printing is blocked here — open the page from the repo in its own browser tab'); return; }
