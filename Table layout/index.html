@@ -110,6 +110,23 @@ main{position:relative;min-height:0;min-width:0}
 .ghost{position:fixed;z-index:1000;pointer-events:none;padding:6px 10px;border-radius:6px;background:#fff;border:1px solid var(--line);border-left:5px solid;
   box-shadow:0 10px 24px rgba(0,0,0,.2);font-size:13px;transform:translate(-50%,-130%);white-space:nowrap}
 
+#elements{position:absolute;left:12px;top:12px;width:250px;max-height:calc(100% - 24px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12);padding:10px 12px;display:none;z-index:21}
+#elements.open{display:block}
+#elements h3{margin:0 0 6px;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+#elements h4{margin:10px 0 2px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+#elements .ebar{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 2px}
+#elements .ebar button{padding:4px 8px;font-size:12px}
+.erow{display:flex;align-items:center;gap:6px;padding:3px 2px;border-radius:5px;font-size:13px}
+.erow:hover{background:var(--bg)}
+.erow input{width:auto;margin:0}
+.erow .en{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.erow.off .en{color:#aaa49a;text-decoration:line-through}
+.erow small{color:var(--muted);font-size:11px}
+.eye{border:0;background:none;padding:2px;line-height:0;color:var(--ink);cursor:pointer}
+.erow.off .eye{color:#b4ada2}
+.table.multi .table-top,.shape.multi{outline:3px dashed var(--accent);outline-offset:4px}
+#elementsBtn.has-hidden{border-color:var(--warn);color:var(--warn)}
 #inspector{position:absolute;right:12px;top:12px;width:260px;max-height:calc(100% - 24px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:10px;
   box-shadow:0 10px 30px rgba(0,0,0,.12);padding:12px;display:none;z-index:20}
 #inspector.open{display:block}
@@ -215,6 +232,7 @@ dialog .actions .left{margin-right:auto}
         <button id="zoomFit" title="Fit all tables">Fit</button>
       </div>
       <button id="namesBtn" class="on" title="Show names next to seats">Names</button>
+      <button id="elementsBtn" title="Show / hide tables and shapes (shift-click items to multi-select)">Elements</button>
       <div class="menu" id="moreMenu">
         <button id="moreBtn">More ▾</button>
         <div class="menu-list">
@@ -273,6 +291,7 @@ dialog .actions .left{margin-right:auto}
   <main>
     <div id="canvas"><div id="sizer"><div id="stage"></div></div></div>
     <div id="inspector"></div>
+    <div id="elements"></div>
   </main>
 </div>
 
@@ -401,7 +420,7 @@ const PALETTE = ['#2f6f9f','#c8553d','#3f8f5a','#8e5cae','#d39a1f','#2a9d8f','#c
 const UNGROUPED_COLOR = '#8a8379';
 
 let state = blankState();
-const ui = { view:'unseated', search:'', focusGroup:null, focusMenu:null, selectedShape:null, selectedTable:null, editingGuest:null };
+const ui = { view:'unseated', search:'', focusGroup:null, focusMenu:null, selectedShape:null, multi:new Set(), elementsOpen:false, selectedTable:null, editingGuest:null };
 
 function blankState(){ return { guests:[], tables:[], groupColors:{}, nextId:1, showNames:true, zoom:1, layoutV:2 }; }
 const uid = () => (state.nextId++).toString(36);
@@ -594,23 +613,28 @@ function addShape(o){
   return sh;
 }
 function shapesHTML(live){
-  return shapes().map(sh => `<div class="shape ${sh.kind}${live && ui.selectedShape === sh.id ? ' selected' : ''}" ${live ? `data-shape="${sh.id}"` : ''}
+  return visShapes().map(sh => `<div class="shape ${sh.kind}${live && ui.selectedShape === sh.id ? ' selected' : ''}${live && ui.multi.has(sh.id) ? ' multi' : ''}" ${live ? `data-shape="${sh.id}"` : ''}
     style="left:${sh.x - sh.w/2}px;top:${sh.y - sh.h/2}px;width:${sh.w}px;height:${sh.h}px;background:${hexA(sh.color,.18)};border-color:${sh.color};color:${sh.color}">
     <span>${escapeHtml(sh.label)}</span>${live && ui.selectedShape === sh.id ? `<i class="rz" data-rz="${sh.id}" title="Drag to resize"></i>` : ''}</div>`).join('');
 }
 // bounding box of everything on the floor plan (tables with their name labels + shapes)
 function floorBounds(){
   let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
-  state.tables.forEach(t => { const e = tableExtent(t); x0=Math.min(x0,t.x-e.w/2); y0=Math.min(y0,t.y-e.h/2); x1=Math.max(x1,t.x+e.w/2); y1=Math.max(y1,t.y+e.h/2); });
-  shapes().forEach(s => { x0=Math.min(x0,s.x-s.w/2-20); y0=Math.min(y0,s.y-s.h/2-20); x1=Math.max(x1,s.x+s.w/2+20); y1=Math.max(y1,s.y+s.h/2+20); });
+  visTables().forEach(t => { const e = tableExtent(t); x0=Math.min(x0,t.x-e.w/2); y0=Math.min(y0,t.y-e.h/2); x1=Math.max(x1,t.x+e.w/2); y1=Math.max(y1,t.y+e.h/2); });
+  visShapes().forEach(s => { x0=Math.min(x0,s.x-s.w/2-20); y0=Math.min(y0,s.y-s.h/2-20); x1=Math.max(x1,s.x+s.w/2+20); y1=Math.max(y1,s.y+s.h/2+20); });
   return x0 === Infinity ? null : { x0, y0, x1, y1 };
 }
+// hidden tables/shapes are kept (and their guests stay seated) but are left off the canvas, Fit, print and PDF
+const vis = o => !o.hidden;
+const visTables = () => state.tables.filter(vis);
+const visShapes = () => shapes().filter(vis);
+const elById = id => { const t = tableById(id); if(t) return { kind:'table', o:t }; const sh = shapeById(id); return sh ? { kind:'shape', o:sh } : null; };
 function arrangeTables(){
-  const n = state.tables.length; if(!n) return;
+  const list = visTables(), n = list.length; if(!n) return;
   const cols = Math.ceil(Math.sqrt(n * 1.5));
-  const cw = Math.max(...state.tables.map(t => tableExtent(t).w));
-  const ch = Math.max(...state.tables.map(t => tableExtent(t).h));
-  state.tables.forEach((t,i) => { t.x = 40 + cw/2 + (i % cols)*cw; t.y = 40 + ch/2 + Math.floor(i/cols)*ch; });
+  const cw = Math.max(...list.map(t => tableExtent(t).w));
+  const ch = Math.max(...list.map(t => tableExtent(t).h));
+  list.forEach((t,i) => { t.x = 40 + cw/2 + (i % cols)*cw; t.y = 40 + ch/2 + Math.floor(i/cols)*ch; });
 }
 function autoSeat(){
   // keep groups together: biggest groups first, fill the table with the most free seats that fits them, else split
@@ -622,7 +646,7 @@ function autoSeat(){
   for(const [, list] of order){
     let rest = list.slice();
     while(rest.length){
-      const free = state.tables.map(t => ({ t, free: t.seats - tableGuests(t.id).length })).filter(o => o.free > 0);
+      const free = visTables().map(t => ({ t, free: t.seats - tableGuests(t.id).length })).filter(o => o.free > 0);
       if(!free.length) break;
       const fit = free.filter(o => o.free >= rest.length).sort((a,b) => a.free - b.free)[0] || free.sort((a,b)=>b.free-a.free)[0];
       const take = rest.splice(0, fit.free);
@@ -639,7 +663,7 @@ function render(){
   $('#sideBtn').classList.toggle('on', !state.sideCollapsed);
   if(document.activeElement !== $('#planName')) $('#planName').value = state.planName || '';
   const gm = $('#gMenu'), gv = gm.value; gm.innerHTML = menuOptions('Menu'); gm.value = gv;
-  applyMenuStyle(); renderStats(); renderLegend(); renderPool(); renderTables(); renderInspector(); save();
+  applyMenuStyle(); renderStats(); renderLegend(); renderPool(); renderTables(); renderInspector(); renderElements(); save();
 }
 function renderStats(){
   const total = state.guests.length, seated = state.guests.filter(g => g.table != null).length;
@@ -707,10 +731,10 @@ function tablesHTML(live){
   // live = the interactive canvas; otherwise a static copy for print (no drag hooks, no dimming)
   let html = '';
   const dim = g => live && dimmed(g) ? ' dim' : '';
-  for(const t of state.tables){
+  for(const t of visTables()){
     const geo = tableGeom(t);
     const guests = tableGuests(t.id);
-    html += `<div class="table ${t.shape}${live && ui.selectedTable === t.id ? ' selected' : ''}" ${live ? `data-table="${t.id}"` : ''} style="left:${t.x}px;top:${t.y}px">
+    html += `<div class="table ${t.shape}${live && ui.selectedTable === t.id ? ' selected' : ''}${live && ui.multi.has(t.id) ? ' multi' : ''}" ${live ? `data-table="${t.id}"` : ''} style="left:${t.x}px;top:${t.y}px">
       ${live ? `<div class="halo" style="width:${geo.haloW}px;height:${geo.haloH}px"></div>` : ''}
       <div class="table-top" ${live ? `data-tabletop="${t.id}"` : ''} style="width:${geo.w}px;height:${geo.h}px">
         <div class="tn">${escapeHtml(t.name)}</div>
@@ -736,7 +760,7 @@ function renderTables(){
   $('#canvas').classList.toggle('hide-names', !state.showNames);
   let html = shapesHTML(true) + tablesHTML(true);
   const fb = floorBounds(), maxX = fb ? fb.x1 : 0, maxY = fb ? fb.y1 : 0;
-  if(!state.tables.length && !shapes().length){
+  if(!visTables().length && !visShapes().length){
     html = `<div style="position:absolute;left:40px;top:40px;color:var(--muted);font-size:14px;width:320px">No tables yet — tap <b>+ Table</b> to add round or rectangular tables with any number of seats.</div>`;
   }
   stage.innerHTML = html;
@@ -963,11 +987,15 @@ document.addEventListener('pointerup', e => {
     else { const id = drag.id; cleanupDrag(); openGuestEditor(id); }
   } else if(drag.type === 'table'){
     const id = drag.id, moved = drag.moved; drag = null;
-    if(!moved){ ui.selectedTable = id; ui.selectedShape = null; } ui.dragEnd = Date.now();
+    if(!moved && (e.shiftKey || e.metaKey || e.ctrlKey)) toggleMulti(id);
+    else if(!moved){ ui.selectedTable = id; ui.selectedShape = null; }
+    ui.dragEnd = Date.now();
     render();
   } else if(drag.type === 'shape' || drag.type === 'resize'){
-    const id = drag.id; drag = null;
-    ui.selectedShape = id; ui.selectedTable = null; ui.dragEnd = Date.now();
+    const id = drag.id, moved = drag.moved; drag = null;
+    if(!moved && (e.shiftKey || e.metaKey || e.ctrlKey)) toggleMulti(id);
+    else { ui.selectedShape = id; ui.selectedTable = null; }
+    ui.dragEnd = Date.now();
     render();
   }
 });
@@ -1316,7 +1344,7 @@ $('#inspector').addEventListener('click', async e => {
   render();
 });
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ if($('#printOv').classList.contains('open')){ $('#printOv').classList.remove('open'); return; } if(drag){ cleanupDrag(); render(); } else if(ui.selectedTable || ui.selectedShape){ ui.selectedTable = null; ui.selectedShape = null; render(); } }
+  if(e.key === 'Escape'){ if($('#printOv').classList.contains('open')){ $('#printOv').classList.remove('open'); return; } if(drag){ cleanupDrag(); render(); } else if(ui.selectedTable || ui.selectedShape || ui.multi.size){ ui.selectedTable = null; ui.selectedShape = null; ui.multi.clear(); render(); } }
 });
 
 /* ---------- print preview ---------- */
@@ -1359,7 +1387,7 @@ function zoomPrint(f){
   buildPrint();
 }
 function guestListHTML(){
-  let html = state.tables.map(t => {
+  let html = visTables().map(t => {
     const gs = tableGuests(t.id);
     return `<div class="gt"><h4>${escapeHtml(t.name)} <small>${gs.length}/${t.seats} · ${mcounts(gs)}</small></h4>
       ${gs.length ? `<ol>${gs.map(g => `<li value="${g.seat+1}">${escapeHtml(g.name)}${g.menu ? `<span class="m m${g.menu}">${escapeHtml(mshort(g.menu))}</span>` : ''}</li>`).join('')}</ol>` : '<div style="color:#7a746b">—</div>'}</div>`;
@@ -1477,7 +1505,7 @@ function pdfTitle(pg, title, sub, m){
   return TITLE_IN*DPI;
 }
 function drawPlanPdf(pg, names){
-  for(const sh of shapes()){
+  for(const sh of visShapes()){
     const x = sh.x - sh.w/2, y = sh.y - sh.h/2;
     pg.fill(sh.color, .18).stroke(sh.color, 2);
     if(sh.kind === 'ellipse') pg.ellipsePath(sh.x, sh.y, sh.w/2, sh.h/2); else pg.rrectPath(x, y, sh.w, sh.h, 8);
@@ -1485,7 +1513,7 @@ function drawPlanPdf(pg, names){
     const lines = wrapText(sh.label.toUpperCase(), 14, true, sh.w - 12), L = 17;
     lines.forEach((ln, i) => pg.text(ln, sh.x, sh.y - lines.length*L/2 + i*L, 14, { bold:true, color:sh.color, align:'center', lineH:L }));
   }
-  for(const t of state.tables){
+  for(const t of visTables()){
     const geo = tableGeom(t), gs = tableGuests(t.id);
     pg.fill('#fdfbf7').stroke('#cfc7b9', 2);
     if(t.shape === 'rect') pg.rrectPath(t.x - geo.w/2, t.y - geo.h/2, geo.w, geo.h, 10); else pg.ellipsePath(t.x, t.y, geo.w/2, geo.h/2);
@@ -1524,7 +1552,7 @@ function drawPlanPdf(pg, names){
 function guestListPdf(pages, d, p, title){
   const m = p.margin*DPI, W = d.w*DPI, H = d.h*DPI, gap = .3*DPI, cols = Math.max(1, Math.min(3, Math.floor((W - 2*m + gap)/(2.3*DPI + gap))));
   const colW = (W - 2*m - gap*(cols-1))/cols, LH = 14, HEAD = 20, AFTER = .16*DPI;
-  const blocks = state.tables.map(t => ({ title:t.name, sub:`${tableGuests(t.id).length}/${t.seats} · ${mshort(1)} ${menuCount(tableGuests(t.id),1)} · ${mshort(2)} ${menuCount(tableGuests(t.id),2)}`,
+  const blocks = visTables().map(t => ({ title:t.name, sub:`${tableGuests(t.id).length}/${t.seats} · ${mshort(1)} ${menuCount(tableGuests(t.id),1)} · ${mshort(2)} ${menuCount(tableGuests(t.id),2)}`,
     rows: tableGuests(t.id).map(g => ({ n:g.seat+1, g })) }));
   const un = state.guests.filter(g => g.table == null);
   if(un.length) blocks.push({ title:'Unseated', sub:String(un.length), rows:un.map((g, i) => ({ n:i+1, g })) });
@@ -1640,6 +1668,70 @@ $('#pvArea').addEventListener('wheel', e => {
   if(!e.ctrlKey && !e.metaKey) return;
   e.preventDefault(); zoomPrint(e.deltaY < 0 ? 1.1 : 1/1.1);
 }, { passive:false });
+
+/* ---------- elements panel: show / hide with multi-select ---------- */
+const EYE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_OFF = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19c-7 0-11-7-11-7a19 19 0 0 1 5.1-5.9M9.9 5.2A9.6 9.6 0 0 1 12 5c7 0 11 7 11 7a19 19 0 0 1-2.2 3.2"/><path d="M1 1l22 22"/></svg>';
+function toggleMulti(id){
+  if(ui.multi.has(id)) ui.multi.delete(id); else ui.multi.add(id);
+  ui.selectedTable = null; ui.selectedShape = null;
+  if(ui.multi.size) ui.elementsOpen = true;
+}
+function setHidden(ids, hidden){
+  ids.forEach(id => { const e = elById(id); if(e) e.o.hidden = hidden || undefined; });
+  if(hidden && ids.includes(ui.selectedTable)) ui.selectedTable = null;
+  if(hidden && ids.includes(ui.selectedShape)) ui.selectedShape = null;
+}
+function renderElements(){
+  const all = [...state.tables, ...shapes()];
+  [...ui.multi].forEach(id => { if(!elById(id)) ui.multi.delete(id); });
+  const hiddenN = all.filter(o => o.hidden).length;
+  const btn = $('#elementsBtn');
+  btn.textContent = hiddenN ? `Elements · ${hiddenN} hidden` : 'Elements';
+  btn.classList.toggle('has-hidden', !!hiddenN); btn.classList.toggle('on', ui.elementsOpen);
+  const box = $('#elements');
+  box.classList.toggle('open', ui.elementsOpen);
+  if(!ui.elementsOpen) return;
+  const row = (o, sub) => `<div class="erow${o.hidden ? ' off' : ''}">
+      <input type="checkbox" data-esel="${o.id}"${ui.multi.has(o.id) ? ' checked' : ''} title="Select">
+      <button class="eye" data-eye="${o.id}" title="${o.hidden ? 'Show' : 'Hide'}">${o.hidden ? EYE_OFF : EYE}</button>
+      <span class="en" data-efocus="${o.id}" title="Go to">${escapeHtml(o.name ?? o.label ?? '') || '<i>Unlabeled</i>'}</span><small>${sub}</small></div>`;
+  const n = ui.multi.size;
+  box.innerHTML = `<h3>Elements <button class="x" data-eact="close" title="Close">×</button></h3>
+    <div class="hint" style="margin:0 0 4px">Hidden items stay in the plan (guests stay seated) but don't show on the floor, Fit, print or PDF. Shift-click tables/shapes on the floor to select several.</div>
+    <div class="ebar">
+      <button data-eact="all">Select all</button><button data-eact="none"${n ? '' : ' disabled'}>Clear</button>
+      <button data-eact="hide"${n ? '' : ' disabled'}>Hide${n ? ' ' + n : ''}</button><button data-eact="show"${n ? '' : ' disabled'}>Show${n ? ' ' + n : ''}</button>
+      <button data-eact="showall"${hiddenN ? '' : ' disabled'}>Show all</button>
+    </div>
+    ${state.tables.length ? `<h4>Tables · ${state.tables.length}</h4>` + state.tables.map(t => row(t, `${tableGuests(t.id).length}/${t.seats}`)).join('') : ''}
+    ${shapes().length ? `<h4>Shapes · ${shapes().length}</h4>` + shapes().map(sh => row(sh, sh.kind === 'ellipse' ? 'oval' : 'rect')).join('') : ''}
+    ${all.length ? '' : '<p class="hint">No tables or shapes yet.</p>'}`;
+}
+$('#elementsBtn').onclick = () => { ui.elementsOpen = !ui.elementsOpen; render(); };
+$('#elements').addEventListener('change', e => {
+  const id = e.target.dataset.esel; if(!id) return;
+  if(e.target.checked) ui.multi.add(id); else ui.multi.delete(id);
+  render();
+});
+$('#elements').addEventListener('click', e => {
+  const b = e.target.closest('[data-eye],[data-eact],[data-efocus]'); if(!b) return;
+  if(b.dataset.eye){ const el = elById(b.dataset.eye); if(el) setHidden([el.o.id], !el.o.hidden); }
+  else if(b.dataset.efocus){
+    const el = elById(b.dataset.efocus);
+    if(el){ if(el.o.hidden) setHidden([el.o.id], false);
+      if(el.kind === 'table'){ ui.selectedTable = el.o.id; ui.selectedShape = null; } else { ui.selectedShape = el.o.id; ui.selectedTable = null; }
+      render(); centerOn(el.o.x, el.o.y, true); return; }
+  } else switch(b.dataset.eact){
+    case 'close': ui.elementsOpen = false; break;
+    case 'all': [...state.tables, ...shapes()].forEach(o => ui.multi.add(o.id)); break;
+    case 'none': ui.multi.clear(); break;
+    case 'hide': setHidden([...ui.multi], true); break;
+    case 'show': setHidden([...ui.multi], false); break;
+    case 'showall': setHidden([...state.tables, ...shapes()].map(o => o.id), false); break;
+  }
+  render();
+});
 
 /* ---------- shapes dialog ---------- */
 $('#sPreset').innerHTML = SHAPE_PRESETS.map((p,i) => `<option value="${i}">${p[0]}</option>`).join('');
