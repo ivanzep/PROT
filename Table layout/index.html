@@ -116,6 +116,7 @@ main{position:relative;min-height:0;min-width:0}
 #inspector h3{margin:0 0 8px;font-size:13px;display:flex;justify-content:space-between;align-items:center}
 #inspector label{display:block;font-size:11px;color:var(--muted);margin:8px 0 3px;text-transform:uppercase;letter-spacing:.05em}
 #inspector input,#inspector select{width:100%}
+#inspector input.bad{border-color:var(--danger);outline-color:#f3d6d6}
 .ilist{margin:6px 0 0;padding:0;list-style:none}
 .ilist li{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--bg);font-size:13px}
 .ilist li i{width:9px;height:9px;border-radius:50%;flex:none}
@@ -560,13 +561,13 @@ function addTable({ name, seats=10, shape='round', x, y }){
   return t;
 }
 const clampSeats = n => Math.max(1, Math.min(40, Math.round(+n || 1)));
+// never drops anyone: the count can't go below the guests already seated, and guests sitting in
+// seats that no longer exist move into the table's open seats (everyone else keeps their seat)
 function setSeats(t, n){
-  t.seats = clampSeats(n);
-  const bumped = state.guests.filter(g => g.table === t.id && g.seat >= t.seats);
-  // try to compact bumped guests into free seats at the same table first
-  bumped.forEach(g => { const f = firstFreeSeat(t); if(f >= 0) g.seat = f; else unseat(g.id); });
-  const lost = bumped.filter(g => g.table == null).length;
-  if(lost) toast(`${lost} guest${lost>1?'s':''} moved back to the list`);
+  const seated = tableGuests(t.id).length;
+  t.seats = Math.max(clampSeats(n), seated, 1);
+  state.guests.filter(g => g.table === t.id && g.seat >= t.seats).forEach(g => { g.seat = firstFreeSeat(t); });
+  return t.seats;
 }
 function deleteTable(tid){
   state.guests.forEach(g => { if(g.table === tid) unseat(g.id); });
@@ -813,7 +814,7 @@ function renderInspector(){
     <h3>Table <button class="x" data-ins="close" title="Close">×</button></h3>
     <label>Name</label><input data-ins="name" value="${escapeHtml(t.name)}">
     <div class="grid2">
-      <div><label>Seats</label><input data-ins="seats" type="number" min="1" max="40" value="${t.seats}"></div>
+      <div><label>Seats <small style="text-transform:none;letter-spacing:0">(min ${Math.max(1, tableGuests(t.id).length)})</small></label><input data-ins="seats" type="number" min="${Math.max(1, tableGuests(t.id).length)}" max="40" value="${t.seats}"></div>
       <div><label>Shape</label><select data-ins="shape"><option value="round"${t.shape==='round'?' selected':''}>Round</option><option value="rect"${t.shape==='rect'?' selected':''}>Rectangular</option></select></div>
     </div>
     <div class="ilist-wrap">${inspectorList(t)}</div>
@@ -1269,8 +1270,22 @@ $('#inspector').addEventListener('input', e => {
   const t = tableById(ui.selectedTable); if(!t) return;
   const k = e.target.dataset.ins;
   if(k === 'name'){ t.name = e.target.value; renderTables(); renderPool(); save(); }
-  if(k === 'seats' && e.target.value !== ''){ setSeats(t, e.target.value); render(); }
+  if(k === 'seats'){
+    // apply while typing only when the number is valid, so typing "8" over "10" doesn't pass through "1"
+    const v = +e.target.value, min = Math.max(1, tableGuests(t.id).length);
+    e.target.classList.toggle('bad', e.target.value !== '' && v < min);
+    if(e.target.value !== '' && v >= min && v <= 40){ setSeats(t, v); render(); }
+  }
   if(k === 'shape'){ t.shape = e.target.value; render(); }
+});
+$('#inspector').addEventListener('change', e => {
+  if(e.target.dataset.ins !== 'seats') return;
+  const t = tableById(ui.selectedTable); if(!t) return;
+  const min = Math.max(1, tableGuests(t.id).length), v = +e.target.value;
+  if(e.target.value === '' || v < min) toast(`${t.name} has ${min} guest${min>1?'s':''} seated — unseat someone to go lower`);
+  e.target.value = setSeats(t, e.target.value === '' ? t.seats : v);
+  e.target.classList.remove('bad');
+  render();
 });
 $('#inspector').addEventListener('click', async e => {
   const b = e.target.closest('button'); if(!b) return;
