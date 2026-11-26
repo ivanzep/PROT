@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Digest — November 26, 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --urgent: #dc2626;
+    --action: #d97706;
+    --fyi: #2563eb;
+    --low: #6b7280;
+    --chip-bg: #f3f4f6;
+    --chip-text: #374151;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --card-bg: #1e2128;
+      --text: #e8eaed;
+      --muted: #9aa1ac;
+      --border: #2c3038;
+      --chip-bg: #262a32;
+      --chip-text: #c7cbd1;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --card-bg: #1e2128; --text: #e8eaed; --muted: #9aa1ac; --border: #2c3038;
+    --chip-bg: #262a32; --chip-text: #c7cbd1;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --card-bg: #ffffff; --text: #1a1d23; --muted: #6b7280; --border: #e5e7eb;
+    --chip-bg: #f3f4f6; --chip-text: #374151;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .section { margin-bottom: 36px; }
+  .section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-head h2 { font-size: 1.05rem; margin: 0; }
+  .count-pill {
+    font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px;
+    color: #fff; min-width: 18px; text-align: center; display: inline-block;
+  }
+  .pill-urgent { background: var(--urgent); }
+  .pill-action { background: var(--action); }
+  .pill-fyi { background: var(--fyi); }
+  .pill-low { background: var(--low); }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .card.urgent { border-left: 4px solid var(--urgent); }
+  .card.action { border-left: 4px solid var(--action); }
+  .card.fyi { border-left: 4px solid var(--fyi); }
+  .card.low { border-left: 4px solid var(--low); }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .subject { font-weight: 600; font-size: 1rem; }
+  .meta { font-size: 0.82rem; color: var(--muted); }
+  .summary { margin: 8px 0; }
+  .labels-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .label-tag {
+    font-size: 0.72rem; background: var(--chip-bg); color: var(--chip-text);
+    border-radius: 5px; padding: 2px 8px; border: 1px solid var(--border);
+  }
+  .thread-link { font-size: 0.85rem; }
+  .thread-link a { color: var(--fyi); text-decoration: none; }
+  .thread-link a:hover { text-decoration: underline; }
+  .draft {
+    margin-top: 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+  .draft-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+  footer { color: var(--muted); font-size: 0.8rem; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="section" data-section="urgent">
+    <div class="section-head">
+      <span class="count-pill pill-urgent">0</span>
+      <h2>Urgent</h2>
+    </div>
+    <div class="empty">No urgent emails.</div>
+  </div>
+  <div class="section" data-section="action">
+    <div class="section-head">
+      <span class="count-pill pill-action">3</span>
+      <h2>Action Needed</h2>
+    </div>
+    <div class="card action" data-date="2026-11-25" data-labels="PROJECTS/SANFORD 145|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">145 Sanford Project - "Red Dots"</span>
+        <span class="meta">Nov 25, 2026 · FCarr@encinitasca.gov</span>
+      </div>
+      <div class="summary">Fran Carr (City of Encinitas) still hasn't located the height certification "red dot" points Logan asked about and is asking when the roof framing inspection will be needed so she can plan her time.</div>
+      <div class="labels-row"><span class=label-tag>PROJECTS/SANFORD 145</span><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1882684463780261980" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Fran,
+Thanks for the update. We'll confirm an exact roof framing inspection date with our framer and send it over shortly so you can plan accordingly. In the meantime, we'd appreciate any progress on locating the height certification points when you get a chance, since it's holding up a few downstream items.
+Thanks,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-11-17" data-labels="PROJECTS/LA COSTA/LENDERS &amp; ADMIN|IMPORTANT|- REPLY">
+      <div class="card-top">
+        <span class="subject">Re: Re: LA COSTA - COMPANY EXPERIENCE DECK</span>
+        <span class="meta">Nov 17, 2026 · michael.creloans@gmail.com</span>
+      </div>
+      <div class="summary">Michael Watkins (CRE Loans) is following up on his detailed rework recommendations for the La Costa experience deck and permanent loan sizing, asking whether an updated deck is ready yet.</div>
+      <div class="labels-row"><span class=label-tag>PROJECTS/LA COSTA/LENDERS &amp; ADMIN</span><span class=label-tag>IMPORTANT</span><span class=label-tag>- REPLY</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1881421051566612209" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Michael,
+Thanks for checking in, and sorry for the delay. We're still working through your recommended restructure of the deck, including the condensed hospitality track record section. I'll follow up with Lindsay today and get you an updated draft or status by end of week.
+Best,
+Ivan</div>
+    </div>
+    <div class="card action" data-date="2026-11-17" data-labels="">
+      <div class="card-top">
+        <span class="subject">open enrollment for eye dental and life insurance</span>
+        <span class="meta">Nov 17, 2026 · karen@thebrownstudio.com</span>
+      </div>
+      <div class="summary">Karen Bates (Controller) asked the team to complete Paychex open enrollment for eye, dental, and life insurance ahead of the January health insurance start.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1882120571201467650" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+      <div class="draft">
+        <div class="draft-label">Drafted reply</div>Hi Karen,
+Thanks for the reminder — I'll complete open enrollment for eye, dental, and life insurance in Paychex this week.
+Best,
+Ivan</div>
+    </div>
+  </div>
+  <div class="section" data-section="fyi">
+    <div class="section-head">
+      <span class="count-pill pill-fyi">1</span>
+      <h2>FYI</h2>
+    </div>
+    <div class="card fyi" data-date="2026-11-25" data-labels="PROJECTS/LA COSTA/MEETING NOTES|-DOWNLOAD">
+      <div class="card-top">
+        <span class="subject">Notes: "La Costa - Restaurant Review with Eric Bauer" Nov 25, 2026</span>
+        <span class="meta">Nov 25, 2026 · gemini-notes@google.com</span>
+      </div>
+      <div class="summary">Auto-generated notes from the La Costa restaurant review cover kitchen/bar layout changes, a badly underfunded OS&amp;E budget estimate, and event staffing, with follow-up actions assigned to Eric Bauer and Abigail Seymour rather than Ivan.</div>
+      <div class="labels-row"><span class=label-tag>PROJECTS/LA COSTA/MEETING NOTES</span><span class=label-tag>-DOWNLOAD</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1882863456281040885" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <div class="section" data-section="low">
+    <div class="section-head">
+      <span class="count-pill pill-low">5</span>
+      <h2>Low Priority</h2>
+    </div>
+    <div class="card low" data-date="2026-11-26" data-labels="">
+      <div class="card-top">
+        <span class="subject">You have 1 unread notification on Monograph</span>
+        <span class="meta">Nov 26, 2026 · no-reply@monograph.com</span>
+      </div>
+      <div class="summary">Monograph digest: 1 new notification and 16 overdue tasks.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1882925828075495663" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-11-25" data-labels="projects@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">A Thanksgiving Message from Priority Doors &amp; Windows</span>
+        <span class="meta">Nov 25, 2026 · alex@prioritydw.com</span>
+      </div>
+      <div class="summary">Holiday marketing greeting from Priority Doors &amp; Windows thanking customers and partners.</div>
+      <div class="labels-row"><span class=label-tag>projects@thebrownstudio.com</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1882868256565446856" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-11-26" data-labels="studio@thebrownstudio.com|IMPORTANT">
+      <div class="card-top">
+        <span class="subject">Still Managing Projects with Paper and Spreadsheets?</span>
+        <span class="meta">Nov 26, 2026 · comms@acs.autodesk.com</span>
+      </div>
+      <div class="summary">Autodesk marketing email promoting an on-demand webinar for Forma Build Essentials.</div>
+      <div class="labels-row"><span class=label-tag>studio@thebrownstudio.com</span><span class=label-tag>IMPORTANT</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1882907254229370254" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-11-26" data-labels="">
+      <div class="card-top">
+        <span class="subject">Revit data skips A.I.</span>
+        <span class="meta">Nov 26, 2026 · hello@nonica.io</span>
+      </div>
+      <div class="summary">Nonica.io marketing email pitching a Revit/AI tool-chaining feature, with a Black Week discount coupon.</div>
+      <div class="labels-row"></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1882905115283185574" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+    <div class="card low" data-date="2026-11-25" data-labels="studio@thebrownstudio.com">
+      <div class="card-top">
+        <span class="subject">Master Twinmotion in Just 5 Live Lessons!</span>
+        <span class="meta">Nov 25, 2026 · info@twinmotionmasterclass.com</span>
+      </div>
+      <div class="summary">Marketing email advertising a live 5-lesson Twinmotion training course in December.</div>
+      <div class="labels-row"><span class=label-tag>studio@thebrownstudio.com</span></div>
+      <div class="thread-link"><a href="https://mail.google.com/mail/?authuser=ivan@thebrownstudio.com#all/thread-f:1882839063711666171" target="_blank" rel="noopener">Open thread in Gmail &rarr;</a></div>
+    </div>
+  </div>
+  <footer>Generated from unread inbox threads received since the previous digest (Nov 11). Older unread threads were not re-reported.</footer>
+</div>
+</body>
+</html>
